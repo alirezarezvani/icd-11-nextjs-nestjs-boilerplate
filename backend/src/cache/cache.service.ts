@@ -35,9 +35,10 @@ export class CacheService {
    */
   async set<T>(key: string, value: T, options?: CacheOptions): Promise<void> {
     const prefixedKey = this.generateKey(key);
-    const ttl = options?.ttl || this.configService.get('cache.ttl', 3600) * 1000;
+    const ttl = options?.ttl || this.configService.get('cache.ttl', 3600);
     
-    await this.cacheManager.set(prefixedKey, value, ttl);
+    // Use ttl as number for compatibility
+    await this.cacheManager.set(prefixedKey, value, ttl as number);
   }
 
   /**
@@ -61,11 +62,16 @@ export class CacheService {
    * Get cache stats (if supported by store)
    */
   async getStats(): Promise<CacheStats | null> {
-    // If the cache store has a getStats method, call it
-    if (typeof (this.cacheManager as any).store?.getStats === 'function') {
-      return (this.cacheManager as any).store.getStats();
+    try {
+      // If the cache store has a getStats method, call it
+      if (typeof (this.cacheManager as any).store?.getStats === 'function') {
+        return (this.cacheManager as any).store.getStats();
+      }
+      return null;
+    } catch (error) {
+      console.error('Error getting cache stats:', error);
+      return null;
     }
-    return null;
   }
 
   /**
@@ -91,8 +97,20 @@ export class CacheService {
     }
 
     const prefixedKey = this.generateKey(options?.key || key);
-    const ttl = options?.ttl || this.configService.get('cache.ttl', 3600) * 1000;
+    const ttl = options?.ttl || this.configService.get('cache.ttl', 3600);
     
-    return this.cacheManager.wrap<T>(prefixedKey, fn, ttl);
+    // Try to get from cache first
+    const cachedValue = await this.cacheManager.get<T>(prefixedKey);
+    if (cachedValue !== undefined) {
+      return cachedValue;
+    }
+
+    // Not in cache, execute function
+    const result = await fn();
+    
+    // Cache the result
+    await this.cacheManager.set(prefixedKey, result, ttl as number);
+    
+    return result;
   }
 } 

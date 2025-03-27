@@ -1,49 +1,57 @@
 // ICD-11 specific interfaces
 
-// Search parameters
+/**
+ * ICD-11 search parameters
+ */
 export interface ICD11SearchParams {
   term: string;
   language?: string;
+  page?: number;
+  limit?: number;
   flexisearch?: boolean;
   flatResults?: boolean;
   includeDescendants?: boolean;
 }
 
-// Search result from the WHO API
+/**
+ * ICD-11 search result interface
+ */
 export interface ICD11SearchResult {
-  destinationEntities: ICD11Entity[];
-  error?: string;
-  wordSuggestions?: string[];
+  id: string;
+  title: string;
+  code?: string;
+  isLeaf?: boolean;
+  matchingPhrases?: string[];
 }
 
-// Basic ICD-11 entity
+/**
+ * ICD-11 entity interface (base entity with minimal information)
+ */
 export interface ICD11Entity {
   id: string;
   title: string;
+  code?: string;
   definition?: string;
   longDefinition?: string;
-  fullySpecifiedName?: string;
-  code?: string;
-  codingNote?: string;
-  parent?: string[];
-  children?: string[];
-  inclusion?: string[];
-  exclusion?: string[];
-  isLeaf: boolean;
-}
-
-// ICD-11 entity details
-export interface ICD11EntityDetails extends ICD11Entity {
-  classKind: string;
-  child?: string[];
-  ancestor?: string[];
-  descendant?: string[];
-  foundationReference?: string[];
-  linearizationReference?: string[];
+  isLeaf?: boolean;
+  parent?: Partial<ICD11Entity>;
   browserUrl?: string;
+  includedTerms?: string[];
+  excludedTerms?: string[];
 }
 
-// Authentication response from WHO API
+/**
+ * ICD-11 entity details (extended information)
+ */
+export interface ICD11EntityDetails extends ICD11Entity {
+  classKind?: string;
+  child?: ICD11Entity[];
+  ancestor?: ICD11Entity[];
+}
+
+/**
+ * ICD-11 OAuth2 token response
+ */
 export interface ICD11AuthResponse {
   access_token: string;
   expires_in: number;

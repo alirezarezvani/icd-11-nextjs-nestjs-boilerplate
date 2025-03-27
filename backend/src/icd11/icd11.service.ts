@@ -13,6 +13,40 @@ import {
 import { PaginatedResponse } from '../common/interfaces/common.interface';
 import { ErrorHandlerUtil } from '../common/utils';
 
+// Define the WHO API response types
+interface WHOEntityResponse {
+  id: string;
+  title?: { value: string };
+  definition?: { value: string };
+  longDefinition?: { value: string };
+  code?: string;
+  isLeaf?: boolean;
+  parent?: {
+    id: string;
+    title?: { value: string };
+    code?: string;
+  };
+  browserUrl?: string;
+  includedTerms?: Array<{ value: string }>;
+  excludedTerms?: Array<{ value: string }>;
+  matchingPhrases?: string[];
+  [key: string]: any;
+}
+
+interface WHOSearchResponse {
+  destinationEntities?: Record<string, WHOEntityResponse>;
+  total?: number;
+  wordSuggestions?: string[];
+  error?: string;
+  [key: string]: any;
+}
+
+interface WHOChildrenResponse {
+  children?: WHOEntityResponse[];
+  total?: number;
+  [key: string]: any;
+}
+
 @Injectable()
 export class ICD11Service {
   private readonly logger = new Logger(ICD11Service.name);
@@ -25,7 +59,11 @@ export class ICD11Service {
     private readonly httpService: HttpService,
     private readonly cacheService: CacheService,
   ) {
-    this.config = this.configService.get<ICD11Config>('icd11');
+    const config = this.configService.get<ICD11Config>('icd11');
+    if (!config) {
+      throw new Error('ICD11 configuration is missing');
+    }
+    this.config = config;
   }
 
   /**
@@ -79,7 +117,8 @@ export class ICD11Service {
 
       return this.accessToken;
     } catch (error) {
-      this.logger.error(`Failed to get access token: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to get access token: ${errorMessage}`);
       throw new HttpException(
         'Failed to authenticate with ICD-11 API',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -129,7 +168,7 @@ export class ICD11Service {
           searchUrl.searchParams.append('limit', String(limit));
 
           const response = await firstValueFrom(
-            this.httpService.get<ICD11SearchResult>(searchUrl.toString(), {
+            this.httpService.get<WHOSearchResponse>(searchUrl.toString(), {
               headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: 'application/json',
@@ -138,7 +177,7 @@ export class ICD11Service {
           );
 
           const { data } = response;
-          const destinationEntities = data.destinationEntities || [];
+          const destinationEntities = data.destinationEntities || {};
           
           // Transform response to standardized format
           const results: ICD11SearchResult[] = Object.keys(destinationEntities).map(key => {
@@ -146,9 +185,9 @@ export class ICD11Service {
             return {
               id: entity.id || key,
               title: entity.title?.value || '',
-              code: entity['code'],
-              isLeaf: !!entity['isLeaf'],
-              matchingPhrases: entity['matchingPhrases'] || [],
+              code: entity.code,
+              isLeaf: !!entity.isLeaf,
+              matchingPhrases: entity.matchingPhrases || [],
             };
           });
           
@@ -168,7 +207,8 @@ export class ICD11Service {
         { ttl: 3600 }, // Cache for 1 hour
       );
     } catch (error) {
-      this.logger.error(`Search failed: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Search failed: ${errorMessage}`);
       throw ErrorHandlerUtil.handleUnknownError(error, 'Search failed');
     }
   }
@@ -187,7 +227,7 @@ export class ICD11Service {
           
           const url = `${this.config.apiBaseUrl}/entity/${id}`;
           const response = await firstValueFrom(
-            this.httpService.get(url, {
+            this.httpService.get<WHOEntityResponse>(url, {
               headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: 'application/json',
@@ -202,14 +242,14 @@ export class ICD11Service {
           return {
             id: entity.id || id,
             title: entity.title?.value || '',
-            code: entity['code'],
+            code: entity.code,
             definition: entity.definition?.value,
             longDefinition: entity.longDefinition?.value,
-            isLeaf: !!entity['isLeaf'],
+            isLeaf: !!entity.isLeaf,
             parent: entity.parent ? { 
               id: entity.parent.id, 
               title: entity.parent.title?.value || '',
-              code: entity.parent['code'],
+              code: entity.parent.code,
             } : undefined,
             browserUrl: entity.browserUrl,
             includedTerms: entity.includedTerms?.map(term => term.value) || [],
@@ -219,7 +259,8 @@ export class ICD11Service {
         { ttl: 86400 }, // Cache for 24 hours
       );
     } catch (error) {
-      this.logger.error(`Failed to get entity ${id}: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to get entity ${id}: ${errorMessage}`);
       throw ErrorHandlerUtil.handleUnknownError(error, `Failed to get entity ${id}`);
     }
   }
@@ -238,7 +279,7 @@ export class ICD11Service {
           
           const url = `${this.config.apiBaseUrl}/entity/${id}/children`;
           const response = await firstValueFrom(
-            this.httpService.get(url, {
+            this.httpService.get<WHOChildrenResponse>(url, {
               headers: {
                 Authorization: `Bearer ${token}`,
                 Accept: 'application/json',
@@ -251,49 +292,53 @@ export class ICD11Service {
             }),
           );
 
-          const children = response.data.children || [];
-          const total = response.data.total || children.length;
+          const { data } = response;
+          const children = data.children || [];
           
-          // Transform each child to standardized entity format
-          const entities: ICD11Entity[] = children.map(child => ({
+          // Transform response to standardized format
+          const results: ICD11Entity[] = children.map((child: WHOEntityResponse) => ({
             id: child.id,
             title: child.title?.value || '',
-            code: child['code'],
-            isLeaf: !!child['isLeaf'],
+            code: child.code,
+            isLeaf: !!child.isLeaf,
           }));
 
           return {
-            data: entities,
+            data: results,
             meta: {
               page,
               limit,
-              total,
-              pages: Math.ceil(total / limit),
+              total: data.total || results.length,
+              pages: Math.ceil((data.total || results.length) / limit),
             },
           };
         },
-        { ttl: 86400 }, // Cache for 24 hours
+        { ttl: 3600 }, // Cache for 1 hour
       );
     } catch (error) {
-      this.logger.error(`Failed to get children for entity ${id}: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to get children for entity ${id}: ${errorMessage}`);
       throw ErrorHandlerUtil.handleUnknownError(error, `Failed to get children for entity ${id}`);
     }
   }
 
   /**
-   * Get parent of an entity
+   * Get parent entity
    */
   async getParent(id: string, language?: string): Promise<ICD11Entity> {
     try {
+      // First, get the entity to find its parent reference
       const entity = await this.getEntityById(id, language);
       
-      if (!entity.parent) {
+      if (!entity.parent?.id) {
         throw new HttpException('Entity has no parent', HttpStatus.NOT_FOUND);
       }
       
+      // Then get the parent entity
       return this.getEntityById(entity.parent.id, language);
     } catch (error) {
-      this.logger.error(`Failed to get parent for entity ${id}: ${error.message}`);
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      this.logger.error(`Failed to get parent for entity ${id}: ${errorMessage}`);
       throw ErrorHandlerUtil.handleUnknownError(error, `Failed to get parent for entity ${id}`);
     }
   }

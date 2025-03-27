@@ -20,7 +20,7 @@ export class ICD11Controller {
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
     description: 'Invalid search parameters',
-    type: ApiErrorResponse,
+    type: Object,
   })
   async search(
     @Body() searchDto: ICD11SearchDto,
@@ -52,7 +52,7 @@ export class ICD11Controller {
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Entity not found',
-    type: ApiErrorResponse,
+    type: Object,
   })
   async getEntity(
     @Param('id') id: string,
@@ -123,7 +123,7 @@ export class ICD11Controller {
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
     description: 'Parent not found',
-    type: ApiErrorResponse,
+    type: Object,
   })
   async getParent(
     @Param('id') id: string,

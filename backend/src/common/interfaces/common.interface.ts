@@ -5,28 +5,35 @@ export interface PaginationParams {
   limit: number;
 }
 
+/**
+ * Paginated response interface
+ */
 export interface PaginatedResponse<T> {
   data: T[];
   meta: {
-    total: number;
     page: number;
     limit: number;
-    totalPages: number;
+    total: number;
+    pages: number;
   };
 }
 
-export interface ApiErrorResponse {
-  statusCode: number;
-  message: string;
-  error: string;
-  timestamp: string;
-  path: string;
-}
-
+/**
+ * API success response interface
+ */
 export interface ApiSuccessResponse<T> {
   statusCode: number;
   data: T;
   message?: string;
+}
+
+/**
+ * API error response interface
+ */
+export class ApiErrorResponse {
+  statusCode: number;
+  message: string;
+  error: string;
 }
 
 export type Nullable<T> = T | null;
