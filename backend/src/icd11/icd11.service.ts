@@ -1,132 +1,300 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { HttpService } from '@nestjs/axios';
+import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { HttpService } from '@nestjs/axios';
 import { firstValueFrom } from 'rxjs';
 import { CacheService } from '../cache/cache.service';
+import { ICD11Config } from '../config';
+import { ICD11SearchDto } from '../common/dto/icd11-search.dto';
+import { 
+  ICD11AuthResponse, 
+  ICD11SearchResult, 
+  ICD11Entity 
+} from '../common/interfaces/icd11.interface';
+import { PaginatedResponse } from '../common/interfaces/common.interface';
+import { ErrorHandlerUtil } from '../common/utils';
 
 @Injectable()
 export class ICD11Service {
   private readonly logger = new Logger(ICD11Service.name);
-  private token: string | null = null;
+  private readonly config: ICD11Config;
+  private accessToken: string | null = null;
   private tokenExpiry: Date | null = null;
-  private readonly baseUrl = 'https://id.who.int/icd/release/11';
-  
+
   constructor(
-    private readonly httpService: HttpService,
     private readonly configService: ConfigService,
+    private readonly httpService: HttpService,
     private readonly cacheService: CacheService,
-  ) {}
-  
+  ) {
+    this.config = this.configService.get<ICD11Config>('icd11');
+  }
+
   /**
-   * Authenticate with the WHO API using client credentials
+   * Get an access token for WHO API
    */
-  private async authenticate(): Promise<string> {
+  private async getAccessToken(): Promise<string> {
+    // Check if we already have a valid token
+    if (this.accessToken && this.tokenExpiry && this.tokenExpiry > new Date()) {
+      return this.accessToken;
+    }
+
+    // Try to get token from cache first
+    const cachedToken = await this.cacheService.get<string>('auth:token');
+    if (cachedToken) {
+      this.accessToken = cachedToken;
+      // Set expiry 5 minutes before actual expiry to account for processing time
+      this.tokenExpiry = new Date(Date.now() + 55 * 60 * 1000); // 55 minutes
+      return cachedToken;
+    }
+
+    this.logger.log('Fetching new access token from WHO API');
+
     try {
-      // Check if we have a valid token
-      if (this.token && this.tokenExpiry && this.tokenExpiry > new Date()) {
-        return this.token;
-      }
-      
-      const clientId = this.configService.get<string>('WHO_API_CLIENT_ID');
-      const clientSecret = this.configService.get<string>('WHO_API_CLIENT_SECRET');
-      
-      if (!clientId || !clientSecret) {
-        throw new Error('WHO API credentials not configured');
-      }
-      
-      const tokenUrl = 'https://icdaccessmanagement.who.int/connect/token';
-      const payload = new URLSearchParams({
-        grant_type: 'client_credentials',
-        client_id: clientId,
-        client_secret: clientSecret,
-        scope: 'icdapi_access',
-      });
-      
-      const { data } = await firstValueFrom(
-        this.httpService.post(tokenUrl, payload, {
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
+      const tokenResponse = await firstValueFrom(
+        this.httpService.post<ICD11AuthResponse>(
+          this.config.tokenUrl,
+          new URLSearchParams({
+            grant_type: 'client_credentials',
+            client_id: this.config.clientId,
+            client_secret: this.config.clientSecret,
+            scope: 'icdapi_access',
+          }),
+          {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
           },
-        }),
+        ),
       );
+
+      this.accessToken = tokenResponse.data.access_token;
       
-      this.token = data.access_token;
-      this.tokenExpiry = new Date(Date.now() + data.expires_in * 1000);
+      // Set expiry based on the expires_in value from the response, minus 5 minutes for safety
+      const expiresInMs = (tokenResponse.data.expires_in - 300) * 1000;
+      this.tokenExpiry = new Date(Date.now() + expiresInMs);
       
-      return this.token;
+      // Cache the token for future use
+      await this.cacheService.set('auth:token', this.accessToken, { 
+        ttl: tokenResponse.data.expires_in - 300 // 5 minutes less than the actual expiry
+      });
+
+      return this.accessToken;
     } catch (error) {
-      this.logger.error(`Authentication failed: ${error.message}`);
-      throw new Error('Failed to authenticate with WHO API');
+      this.logger.error(`Failed to get access token: ${error.message}`);
+      throw new HttpException(
+        'Failed to authenticate with ICD-11 API',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
-  
+
   /**
-   * Search ICD-11 by term
+   * Search for ICD-11 entities
    */
-  async search(term: string, language = 'en'): Promise<any> {
-    const cacheKey = `search:${language}:${term}`;
+  async search(searchDto: ICD11SearchDto, page = 1, limit = 20): Promise<PaginatedResponse<ICD11SearchResult>> {
+    const { term, language, flexisearch, flatResults, includeDescendants } = searchDto;
     
-    // Try to get from cache first
-    const cachedResult = await this.cacheService.get(cacheKey);
-    if (cachedResult) {
-      return cachedResult;
+    if (!term || term.trim() === '') {
+      throw new HttpException('Search term is required', HttpStatus.BAD_REQUEST);
     }
+
+    const cacheKey = `search:${term}:${language}:${flexisearch}:${flatResults}:${includeDescendants}:${page}:${limit}`;
     
     try {
-      const token = await this.authenticate();
-      const url = `${this.baseUrl}/search?q=${encodeURIComponent(term)}&useFlexisearch=true&flatResults=true&language=${language}`;
-      
-      const { data } = await firstValueFrom(
-        this.httpService.get(url, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: 'application/json',
-          },
-        }),
+      // Use cache wrapper to get data
+      return await this.cacheService.wrap<PaginatedResponse<ICD11SearchResult>>(
+        cacheKey,
+        async () => {
+          const token = await this.getAccessToken();
+          
+          const searchUrl = new URL(`${this.config.apiBaseUrl}/search`);
+          searchUrl.searchParams.append('q', term);
+          
+          if (language) {
+            searchUrl.searchParams.append('language', language);
+          }
+          
+          if (flexisearch !== undefined) {
+            searchUrl.searchParams.append('flexisearch', String(flexisearch));
+          }
+          
+          if (flatResults !== undefined) {
+            searchUrl.searchParams.append('flatResults', String(flatResults));
+          }
+          
+          if (includeDescendants !== undefined) {
+            searchUrl.searchParams.append('includeDescendants', String(includeDescendants));
+          }
+          
+          searchUrl.searchParams.append('page', String(page));
+          searchUrl.searchParams.append('limit', String(limit));
+
+          const response = await firstValueFrom(
+            this.httpService.get<ICD11SearchResult>(searchUrl.toString(), {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json',
+              },
+            }),
+          );
+
+          const { data } = response;
+          const destinationEntities = data.destinationEntities || [];
+          
+          // Transform response to standardized format
+          const results: ICD11SearchResult[] = Object.keys(destinationEntities).map(key => {
+            const entity = destinationEntities[key];
+            return {
+              id: entity.id || key,
+              title: entity.title?.value || '',
+              code: entity['code'],
+              isLeaf: !!entity['isLeaf'],
+              matchingPhrases: entity['matchingPhrases'] || [],
+            };
+          });
+          
+          // Get total from response or use results length as fallback
+          const total = data.total || results.length;
+
+          return {
+            data: results,
+            meta: {
+              page,
+              limit,
+              total,
+              pages: Math.ceil(total / limit),
+            },
+          };
+        },
+        { ttl: 3600 }, // Cache for 1 hour
       );
-      
-      // Cache the result
-      await this.cacheService.set(cacheKey, data);
-      
-      return data;
     } catch (error) {
       this.logger.error(`Search failed: ${error.message}`);
-      throw new Error('Failed to search ICD-11');
+      throw ErrorHandlerUtil.handleUnknownError(error, 'Search failed');
     }
   }
-  
+
   /**
-   * Get ICD-11 entity by ID
+   * Get entity by ID
    */
-  async getEntity(id: string, language = 'en'): Promise<any> {
-    const cacheKey = `entity:${language}:${id}`;
-    
-    // Try to get from cache first
-    const cachedResult = await this.cacheService.get(cacheKey);
-    if (cachedResult) {
-      return cachedResult;
-    }
-    
+  async getEntityById(id: string, language?: string): Promise<ICD11Entity> {
+    const cacheKey = `entity:${id}:${language || 'en'}`;
+
     try {
-      const token = await this.authenticate();
-      const url = `${this.baseUrl}/${id}?language=${language}`;
-      
-      const { data } = await firstValueFrom(
-        this.httpService.get(url, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            Accept: 'application/json',
-          },
-        }),
+      return await this.cacheService.wrap<ICD11Entity>(
+        cacheKey,
+        async () => {
+          const token = await this.getAccessToken();
+          
+          const url = `${this.config.apiBaseUrl}/entity/${id}`;
+          const response = await firstValueFrom(
+            this.httpService.get(url, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json',
+              },
+              params: language ? { language } : {},
+            }),
+          );
+
+          const entity = response.data;
+          
+          // Transform response to standardized entity format
+          return {
+            id: entity.id || id,
+            title: entity.title?.value || '',
+            code: entity['code'],
+            definition: entity.definition?.value,
+            longDefinition: entity.longDefinition?.value,
+            isLeaf: !!entity['isLeaf'],
+            parent: entity.parent ? { 
+              id: entity.parent.id, 
+              title: entity.parent.title?.value || '',
+              code: entity.parent['code'],
+            } : undefined,
+            browserUrl: entity.browserUrl,
+            includedTerms: entity.includedTerms?.map(term => term.value) || [],
+            excludedTerms: entity.excludedTerms?.map(term => term.value) || [],
+          };
+        },
+        { ttl: 86400 }, // Cache for 24 hours
       );
-      
-      // Cache the result
-      await this.cacheService.set(cacheKey, data);
-      
-      return data;
     } catch (error) {
-      this.logger.error(`Get entity failed: ${error.message}`);
-      throw new Error(`Failed to get ICD-11 entity: ${id}`);
+      this.logger.error(`Failed to get entity ${id}: ${error.message}`);
+      throw ErrorHandlerUtil.handleUnknownError(error, `Failed to get entity ${id}`);
+    }
+  }
+
+  /**
+   * Get children of an entity
+   */
+  async getChildren(id: string, language?: string, page = 1, limit = 20): Promise<PaginatedResponse<ICD11Entity>> {
+    const cacheKey = `children:${id}:${language || 'en'}:${page}:${limit}`;
+
+    try {
+      return await this.cacheService.wrap<PaginatedResponse<ICD11Entity>>(
+        cacheKey,
+        async () => {
+          const token = await this.getAccessToken();
+          
+          const url = `${this.config.apiBaseUrl}/entity/${id}/children`;
+          const response = await firstValueFrom(
+            this.httpService.get(url, {
+              headers: {
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json',
+              },
+              params: {
+                page,
+                limit,
+                ...(language ? { language } : {}),
+              },
+            }),
+          );
+
+          const children = response.data.children || [];
+          const total = response.data.total || children.length;
+          
+          // Transform each child to standardized entity format
+          const entities: ICD11Entity[] = children.map(child => ({
+            id: child.id,
+            title: child.title?.value || '',
+            code: child['code'],
+            isLeaf: !!child['isLeaf'],
+          }));
+
+          return {
+            data: entities,
+            meta: {
+              page,
+              limit,
+              total,
+              pages: Math.ceil(total / limit),
+            },
+          };
+        },
+        { ttl: 86400 }, // Cache for 24 hours
+      );
+    } catch (error) {
+      this.logger.error(`Failed to get children for entity ${id}: ${error.message}`);
+      throw ErrorHandlerUtil.handleUnknownError(error, `Failed to get children for entity ${id}`);
+    }
+  }
+
+  /**
+   * Get parent of an entity
+   */
+  async getParent(id: string, language?: string): Promise<ICD11Entity> {
+    try {
+      const entity = await this.getEntityById(id, language);
+      
+      if (!entity.parent) {
+        throw new HttpException('Entity has no parent', HttpStatus.NOT_FOUND);
+      }
+      
+      return this.getEntityById(entity.parent.id, language);
+    } catch (error) {
+      this.logger.error(`Failed to get parent for entity ${id}: ${error.message}`);
+      throw ErrorHandlerUtil.handleUnknownError(error, `Failed to get parent for entity ${id}`);
     }
   }
 } 

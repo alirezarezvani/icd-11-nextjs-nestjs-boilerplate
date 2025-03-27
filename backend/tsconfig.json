@@ -15,17 +15,17 @@
     "strict": true,
     "strictNullChecks": true,
     "noImplicitAny": true,
-    "strictBindCallApply": true,
-    "forceConsistentCasingInFileNames": true,
-    "noFallthroughCasesInSwitch": true,
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": false,
+    "noFallthroughCasesInSwitch": false,
     "paths": {
       "@app/*": ["src/*"],
       "@common/*": ["src/common/*"],
-      "@config/*": ["src/config/*"],
+      "@cache/*": ["src/cache/*"],
       "@icd11/*": ["src/icd11/*"],
-      "@cache/*": ["src/cache/*"]
+      "@config/*": ["src/config/*"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
-} 
+  "exclude": ["node_modules", "dist", "test"]
+}

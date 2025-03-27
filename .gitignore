@@ -1,21 +1,15 @@
 # Dependencies
-node_modules
-.pnp
+node_modules/
+.pnp/
 .pnp.js
 
-# Testing
-/coverage
-
-# Next.js
-/.next/
-/out/
-
-# NestJS
-/dist
-/build
-
-# Production
-/build
+# Build artifacts
+.next/
+build/
+out/
+dist/
+.cache/
+coverage/
 
 # Environment files
 .env
@@ -30,22 +24,38 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# Vercel
+# IDE related
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Operating System
+.DS_Store
+Thumbs.db
+
+# Testing
+.nyc_output/
+coverage/
+
+# Docker volumes
+redis-data/
+
+# Misc
+.next-cache/
 .vercel
+.turbo
 
 # TypeScript
 *.tsbuildinfo
 next-env.d.ts
 
 # Editor directories and files
-.idea
-.vscode
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
-.DS_Store
 
 # Redis
 redis/data

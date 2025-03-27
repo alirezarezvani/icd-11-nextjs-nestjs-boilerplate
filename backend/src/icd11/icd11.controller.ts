@@ -1,44 +1,139 @@
-import { Controller, Get, Query, Param, UseGuards } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiQuery, ApiParam, ApiResponse } from '@nestjs/swagger';
-import { ThrottlerGuard } from '@nestjs/throttler';
+import { Controller, Get, Post, Body, Param, Query, HttpStatus } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { ICD11Service } from './icd11.service';
+import { ICD11SearchDto, ICD11EntityDto, LanguageCode } from '../common/dto/icd11-search.dto';
+import { ApiSuccessResponse, ApiErrorResponse, PaginatedResponse } from '../common/interfaces/common.interface';
+import { ICD11Entity, ICD11SearchResult } from '../common/interfaces/icd11.interface';
 
 @ApiTags('icd11')
 @Controller('icd11')
-@UseGuards(ThrottlerGuard)
 export class ICD11Controller {
   constructor(private readonly icd11Service: ICD11Service) {}
 
-  @Get('search')
-  @ApiOperation({ summary: 'Search ICD-11 by term' })
-  @ApiQuery({ name: 'term', type: String, description: 'Search term' })
-  @ApiQuery({ name: 'language', type: String, description: 'Language code', required: false, example: 'en' })
-  @ApiResponse({ status: 200, description: 'Search results' })
-  @ApiResponse({ status: 400, description: 'Invalid parameters' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 429, description: 'Too many requests' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @Post('search')
+  @ApiOperation({ summary: 'Search ICD-11 entities' })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Search results',
+    type: Object,
+  })
+  @ApiResponse({
+    status: HttpStatus.BAD_REQUEST,
+    description: 'Invalid search parameters',
+    type: ApiErrorResponse,
+  })
   async search(
-    @Query('term') term: string,
-    @Query('language') language: string = 'en',
-  ) {
-    return this.icd11Service.search(term, language);
+    @Body() searchDto: ICD11SearchDto,
+    @Query('page') page = 1,
+    @Query('limit') limit = 20,
+  ): Promise<ApiSuccessResponse<PaginatedResponse<ICD11SearchResult>>> {
+    const results = await this.icd11Service.search(searchDto, page, limit);
+    
+    return {
+      statusCode: HttpStatus.OK,
+      data: results,
+    };
   }
 
   @Get('entity/:id')
-  @ApiOperation({ summary: 'Get ICD-11 entity details by ID' })
-  @ApiParam({ name: 'id', type: String, description: 'Entity ID' })
-  @ApiQuery({ name: 'language', type: String, description: 'Language code', required: false, example: 'en' })
-  @ApiResponse({ status: 200, description: 'Entity details' })
-  @ApiResponse({ status: 400, description: 'Invalid parameters' })
-  @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @ApiResponse({ status: 404, description: 'Entity not found' })
-  @ApiResponse({ status: 429, description: 'Too many requests' })
-  @ApiResponse({ status: 500, description: 'Internal server error' })
+  @ApiOperation({ summary: 'Get ICD-11 entity by ID' })
+  @ApiParam({ name: 'id', description: 'Entity ID' })
+  @ApiQuery({
+    name: 'language',
+    description: 'Language code',
+    enum: LanguageCode,
+    required: false,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Entity details',
+    type: Object,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Entity not found',
+    type: ApiErrorResponse,
+  })
   async getEntity(
     @Param('id') id: string,
-    @Query('language') language: string = 'en',
-  ) {
-    return this.icd11Service.getEntity(id, language);
+    @Query('language') language?: string,
+  ): Promise<ApiSuccessResponse<ICD11Entity>> {
+    const entity = await this.icd11Service.getEntityById(id, language);
+    
+    return {
+      statusCode: HttpStatus.OK,
+      data: entity,
+    };
+  }
+
+  @Get('entity/:id/children')
+  @ApiOperation({ summary: 'Get children of ICD-11 entity' })
+  @ApiParam({ name: 'id', description: 'Entity ID' })
+  @ApiQuery({
+    name: 'language',
+    description: 'Language code',
+    enum: LanguageCode,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'page',
+    description: 'Page number',
+    required: false,
+    type: Number,
+  })
+  @ApiQuery({
+    name: 'limit',
+    description: 'Results per page',
+    required: false,
+    type: Number,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Child entities',
+    type: Object,
+  })
+  async getChildren(
+    @Param('id') id: string,
+    @Query('language') language?: string,
+    @Query('page') page = 1,
+    @Query('limit') limit = 20,
+  ): Promise<ApiSuccessResponse<PaginatedResponse<ICD11Entity>>> {
+    const children = await this.icd11Service.getChildren(id, language, page, limit);
+    
+    return {
+      statusCode: HttpStatus.OK,
+      data: children,
+    };
+  }
+
+  @Get('entity/:id/parent')
+  @ApiOperation({ summary: 'Get parent of ICD-11 entity' })
+  @ApiParam({ name: 'id', description: 'Entity ID' })
+  @ApiQuery({
+    name: 'language',
+    description: 'Language code',
+    enum: LanguageCode,
+    required: false,
+  })
+  @ApiResponse({
+    status: HttpStatus.OK,
+    description: 'Parent entity',
+    type: Object,
+  })
+  @ApiResponse({
+    status: HttpStatus.NOT_FOUND,
+    description: 'Parent not found',
+    type: ApiErrorResponse,
+  })
+  async getParent(
+    @Param('id') id: string,
+    @Query('language') language?: string,
+  ): Promise<ApiSuccessResponse<ICD11Entity>> {
+    const parent = await this.icd11Service.getParent(id, language);
+    
+    return {
+      statusCode: HttpStatus.OK,
+      data: parent,
+    };
   }
 } 

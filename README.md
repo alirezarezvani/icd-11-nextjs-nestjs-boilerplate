@@ -1,145 +1,125 @@
-# ICD-11 Next.js + NestJS Boilerplate
+# ICD-11 Search Application
 
-A full-stack application boilerplate for building an ICD-11 search interface using Next.js for the frontend and NestJS for the backend.
+A full-stack application for searching the WHO International Classification of Diseases 11th Revision (ICD-11), built with Next.js and NestJS.
 
-## Overview
+## Features
 
-This project provides a foundation for developing applications that interact with the WHO ICD-11 API. It consists of:
+- **Fast ICD-11 Search**: Search the full ICD-11 database efficiently
+- **Flexible Search Options**: Fine-tune your search parameters
+- **Optimized Performance**: Redis caching for improved response times
+- **User-friendly Interface**: Clean, responsive design for all devices
+- **Full-stack TypeScript**: Type safety throughout the application
 
-- **Frontend**: Next.js-based web application for searching and displaying ICD-11 data
-- **Backend**: NestJS API that handles communication with the WHO ICD-11 API and provides caching
+## Tech Stack
 
-## Prerequisites
+### Frontend
+- **Next.js**: React framework with server-side rendering
+- **Material UI**: Component library for consistent UI design
+- **TypeScript**: For type-safe code
+- **React Context**: For state management
 
-- Node.js (v18 or higher)
+### Backend
+- **NestJS**: Progressive Node.js framework
+- **TypeScript**: For type-safe code
+- **Redis**: For caching WHO API responses
+- **Axios**: For HTTP requests
+- **Swagger**: For API documentation
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
 - npm or yarn
-- Redis (for caching)
-- WHO API credentials (client ID and secret)
+- Redis (local or remote instance)
+- WHO ICD-11 API credentials (Client ID and Client Secret)
+
+### Environment Setup
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/icd11-nextjs-nestjs-boilerplate.git
+   cd icd11-nextjs-nestjs-boilerplate
+   ```
+
+2. Set up environment variables:
+   - Copy `backend/.env.example` to `backend/.env` and update with your credentials
+   - Copy `frontend/.env.example` to `frontend/.env` and update as needed
+
+### Running with Docker
+
+The easiest way to run the application is using Docker:
+
+```bash
+docker-compose up -d
+```
+
+This will start the frontend, backend, and Redis services.
+
+### Manual Setup
+
+#### Backend
+
+```bash
+cd backend
+npm install
+npm run start:dev
+```
+
+The backend will be available at http://localhost:3001
+
+#### Frontend
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend will be available at http://localhost:3000
+
+## API Documentation
+
+Once the backend is running, you can access the Swagger documentation at:
+
+```
+http://localhost:3001/api/docs
+```
 
 ## Project Structure
 
 ```
 icd11-nextjs-nestjs-boilerplate/
 ├── frontend/            # Next.js frontend application
-│   ├── pages/           # Next.js pages
-│   └── .env.example     # Environment variables example
+│   ├── pages/           # Routes and page components
+│   ├── components/      # Reusable UI components
+│   ├── hooks/           # Custom React hooks
+│   ├── services/        # API client and services
+│   ├── types/           # TypeScript definitions
+│   └── styles/          # Global styles
 │
 ├── backend/             # NestJS backend API
-│   ├── src/             # Source code
-│   └── .env.example     # Environment variables example
+│   ├── src/
+│   │   ├── main.ts      # Application entry point
+│   │   ├── app.module.ts # Root module
+│   │   ├── icd11/       # ICD11 module for WHO API
+│   │   ├── cache/       # Redis cache module
+│   │   └── common/      # Shared utilities and interfaces
+│   └── test/            # Test files
+│
+├── docs/                # Project documentation
+└── docker/              # Docker configuration
 ```
 
-## Getting Started
+## Data Source
 
-### Environment Setup
-
-1. **Backend Configuration**
-
-   Copy the example environment file and add your WHO API credentials:
-
-   ```bash
-   cd backend
-   cp .env.example .env
-   ```
-
-   Edit the `.env` file to include:
-   - WHO_API_CLIENT_ID - Your WHO API client ID
-   - WHO_API_CLIENT_SECRET - Your WHO API client secret
-   - REDIS_HOST - Redis host (default: redis)
-   - REDIS_PORT - Redis port (default: 6379)
-
-2. **Frontend Configuration**
-
-   Copy the example environment file:
-
-   ```bash
-   cd frontend
-   cp .env.example .env
-   ```
-
-   By default, the frontend is configured to connect to the backend at `http://localhost:3001`.
-
-### Installation
-
-1. **Backend Installation**
-
-   ```bash
-   cd backend
-   npm install
-   ```
-
-2. **Frontend Installation**
-
-   ```bash
-   cd frontend
-   npm install
-   ```
-
-### Running the Application
-
-1. **Start the Backend**
-
-   ```bash
-   cd backend
-   npm run start:dev
-   ```
-
-   The NestJS API will be available at `http://localhost:3001`.
-
-2. **Start the Frontend**
-
-   ```bash
-   cd frontend
-   npm run dev
-   ```
-
-   The Next.js application will be available at `http://localhost:3000`.
-
-## Features
-
-- **ICD-11 Integration**: Connect to the WHO ICD-11 API
-- **Caching**: Redis-based caching of API responses
-- **Type Safety**: TypeScript throughout the entire stack
-
-## Development
-
-### Backend Development
-
-The backend uses NestJS, a progressive Node.js framework for building efficient and scalable server-side applications.
-
-Key files and directories:
-- `src/main.ts` - Application entry point
-
-### Frontend Development
-
-The frontend uses Next.js, a React framework with hybrid static & server rendering, TypeScript support, and route pre-fetching.
-
-Key files and directories:
-- `pages/index.tsx` - Home page component
-
-## Deployment
-
-For production deployment, consider:
-
-1. Setting up a CI/CD pipeline
-2. Using Docker for containerization
-3. Configuring environment-specific settings
-4. Setting up proper logging and monitoring
-
-## Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+All data is sourced from the [World Health Organization's ICD-11 API](https://icd.who.int/en). This application does not store or modify any of the core ICD-11 data.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the [MIT License](LICENSE).
 
-## Acknowledgments
+## Acknowledgements
 
-- [WHO ICD-11 API](https://icd.who.int/icdapi)
-- [Next.js](https://nextjs.org/)
-- [NestJS](https://nestjs.com/) 
+- World Health Organization for providing the ICD-11 API
+- The Next.js and NestJS teams for their excellent frameworks 

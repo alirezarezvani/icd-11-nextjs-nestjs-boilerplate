@@ -1,79 +1,98 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { ConfigService } from '@nestjs/config';
-import Redis from 'ioredis';
+import { CacheOptions, CacheStats } from '../common/interfaces/cache.interface';
 
 @Injectable()
 export class CacheService {
-  private readonly redis: Redis;
-  private readonly logger = new Logger(CacheService.name);
-  private readonly defaultTtl = 3600; // 1 hour in seconds
+  private readonly keyPrefix: string;
 
-  constructor(private readonly configService: ConfigService) {
-    const host = this.configService.get<string>('REDIS_HOST', 'localhost');
-    const port = this.configService.get<number>('REDIS_PORT', 6379);
-    
-    this.redis = new Redis({
-      host,
-      port,
-      retryStrategy: (times) => {
-        if (times > 3) {
-          this.logger.error(`Could not connect to Redis at ${host}:${port} after ${times} attempts`);
-          return null; // stop retrying
-        }
-        return Math.min(times * 100, 3000); // wait between 100ms and 3s
-      },
-    });
-    
-    this.redis.on('connect', () => {
-      this.logger.log(`Connected to Redis at ${host}:${port}`);
-    });
-    
-    this.redis.on('error', (error) => {
-      this.logger.error(`Redis connection error: ${error.message}`);
-    });
+  constructor(
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private configService: ConfigService,
+  ) {
+    this.keyPrefix = this.configService.get('cache.keyPrefix', 'icd11:');
   }
 
-  async get<T>(key: string): Promise<T | null> {
-    try {
-      const value = await this.redis.get(key);
-      if (!value) return null;
-      return JSON.parse(value) as T;
-    } catch (error) {
-      this.logger.error(`Error retrieving key ${key} from cache: ${error.message}`);
-      return null;
-    }
+  /**
+   * Generate a cache key with prefix
+   */
+  generateKey(key: string): string {
+    return `${this.keyPrefix}${key}`;
   }
 
-  async set<T>(key: string, value: T, ttl: number = this.defaultTtl): Promise<void> {
-    try {
-      await this.redis.set(key, JSON.stringify(value), 'EX', ttl);
-    } catch (error) {
-      this.logger.error(`Error setting key ${key} in cache: ${error.message}`);
-    }
+  /**
+   * Get a value from cache
+   */
+  async get<T>(key: string): Promise<T | undefined> {
+    const prefixedKey = this.generateKey(key);
+    return this.cacheManager.get<T>(prefixedKey);
   }
 
+  /**
+   * Set a value in cache
+   */
+  async set<T>(key: string, value: T, options?: CacheOptions): Promise<void> {
+    const prefixedKey = this.generateKey(key);
+    const ttl = options?.ttl || this.configService.get('cache.ttl', 3600) * 1000;
+    
+    await this.cacheManager.set(prefixedKey, value, ttl);
+  }
+
+  /**
+   * Remove a value from cache
+   */
   async del(key: string): Promise<void> {
-    try {
-      await this.redis.del(key);
-    } catch (error) {
-      this.logger.error(`Error deleting key ${key} from cache: ${error.message}`);
-    }
+    const prefixedKey = this.generateKey(key);
+    await this.cacheManager.del(prefixedKey);
   }
 
-  async keys(pattern: string): Promise<string[]> {
-    try {
-      return await this.redis.keys(pattern);
-    } catch (error) {
-      this.logger.error(`Error retrieving keys with pattern ${pattern}: ${error.message}`);
-      return [];
-    }
+  /**
+   * Check if key exists in cache
+   */
+  async has(key: string): Promise<boolean> {
+    const prefixedKey = this.generateKey(key);
+    const value = await this.cacheManager.get(prefixedKey);
+    return value !== undefined;
   }
 
-  async flushAll(): Promise<void> {
-    try {
-      await this.redis.flushall();
-    } catch (error) {
-      this.logger.error(`Error flushing cache: ${error.message}`);
+  /**
+   * Get cache stats (if supported by store)
+   */
+  async getStats(): Promise<CacheStats | null> {
+    // If the cache store has a getStats method, call it
+    if (typeof (this.cacheManager as any).store?.getStats === 'function') {
+      return (this.cacheManager as any).store.getStats();
     }
+    return null;
+  }
+
+  /**
+   * Reset cache
+   */
+  async reset(): Promise<void> {
+    await this.cacheManager.reset();
+  }
+
+  /**
+   * Wrap a function with cache
+   * If the value is in cache, return it
+   * Otherwise, call the function and cache the result
+   */
+  async wrap<T>(
+    key: string,
+    fn: () => Promise<T>,
+    options?: CacheOptions,
+  ): Promise<T> {
+    // If cache is disabled for this operation, just execute the function
+    if (options?.disableCache) {
+      return fn();
+    }
+
+    const prefixedKey = this.generateKey(options?.key || key);
+    const ttl = options?.ttl || this.configService.get('cache.ttl', 3600) * 1000;
+    
+    return this.cacheManager.wrap<T>(prefixedKey, fn, ttl);
   }
 } 
