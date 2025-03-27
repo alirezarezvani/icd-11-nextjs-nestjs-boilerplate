@@ -27,4 +27,25 @@ const config = {
   },
 };
 
-export default config; 
+export const ICD11_CONFIG = {
+  DEFAULT_LANGUAGE: 'en',
+  AVAILABLE_LANGUAGES: ['en', 'es', 'fr', 'ar', 'zh', 'ru'],
+  API_BASE_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003',
+  SEARCH_DEBOUNCE_MS: 300,
+  PAGINATION: {
+    DEFAULT_LIMIT: 20,
+    MAX_LIMIT: 100
+  }
+};
+
+export const ROUTES = {
+  HOME: '/',
+  SEARCH: '/search',
+  ENTITY: '/entity'
+};
+
+export default {
+  ICD11_CONFIG,
+  ROUTES,
+  ...config
+}; 
