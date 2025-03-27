@@ -1,0 +1,50 @@
+{
+  "name": "icd11-nextjs-nestjs-boilerplate",
+  "version": "0.1.0",
+  "description": "Full-stack application for searching WHO ICD-11 medical codes using Next.js and NestJS",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "npm run dev --workspace=frontend",
+    "dev:backend": "npm run start:dev --workspace=backend",
+    "build": "npm run build --workspaces",
+    "build:frontend": "npm run build --workspace=frontend",
+    "build:backend": "npm run build --workspace=backend",
+    "start": "concurrently \"npm run start --workspace=frontend\" \"npm run start --workspace=backend\"",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alirezarezvani/icd-11-nextjs-nestjs-boilerplate.git"
+  },
+  "keywords": [
+    "icd11",
+    "nextjs",
+    "nestjs",
+    "typescript",
+    "redis",
+    "who",
+    "medical",
+    "coding"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alirezarezvani/icd-11-nextjs-nestjs-boilerplate/issues"
+  },
+  "homepage": "https://github.com/alirezarezvani/icd-11-nextjs-nestjs-boilerplate#readme",
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "husky": "^9.0.11",
+    "lint-staged": "^15.2.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "packageManager": "yarn@4.5.0+sha512.837566d24eec14ec0f5f1411adb544e892b3454255e61fdef8fd05f3429480102806bac7446bc9daff3896b01ae4b62d00096c7e989f1596f2af10b927532f39"
+}
