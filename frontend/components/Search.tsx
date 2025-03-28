@@ -1,122 +1,76 @@
 import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
-import { useSearch } from '../hooks/useSearch';
-
-const SearchContainer = styled.div`
-  margin: 2rem 0;
-  width: 100%;
-  max-width: 600px;
-`;
-
-const SearchInput = styled.input`
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  
-  &:focus {
-    outline: none;
-    border-color: #0070f3;
-    box-shadow: 0 0 0 3px rgba(0, 112, 243, 0.2);
-  }
-`;
-
-const SearchResults = styled.div`
-  margin-top: 1rem;
-`;
-
-const ResultItem = styled.div`
-  padding: 1rem;
-  margin-bottom: 0.5rem;
-  background-color: #f9f9f9;
-  border-radius: 4px;
-  border-left: 3px solid #0070f3;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  
-  &:hover {
-    background-color: #f0f0f0;
-    transform: translateX(2px);
-  }
-`;
-
-const ResultTitle = styled.h3`
-  margin: 0;
-  font-size: 1rem;
-  color: #333;
-`;
-
-const ResultCode = styled.span`
-  display: inline-block;
-  font-size: 0.8rem;
-  color: #666;
-  margin-top: 0.5rem;
-  background: #e0e0e0;
-  padding: 0.2rem 0.5rem;
-  border-radius: 2px;
-`;
-
-const StatusMessage = styled.div`
-  padding: 1rem;
-  color: #666;
-  text-align: center;
-`;
+import { useICD11Context } from '@/context';
+import { ICD11SearchResult } from '@/types';
 
 interface SearchProps {
   onSelectEntity: (id: string) => void;
 }
 
 const Search: React.FC<SearchProps> = ({ onSelectEntity }) => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedTerm, setDebouncedTerm] = useState('');
-  const { data, isLoading, isError } = useSearch(debouncedTerm);
+  const { searchParams, results, isLoading, error, setSearchTerm } = useICD11Context();
+  const [inputValue, setInputValue] = useState(searchParams.term);
   
-  // Debounce search term
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedTerm(searchTerm);
+      if (inputValue !== searchParams.term) {
+        setSearchTerm(inputValue);
+      }
     }, 300);
     
     return () => clearTimeout(timer);
-  }, [searchTerm]);
+  }, [inputValue, searchParams.term, setSearchTerm]);
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+    setInputValue(e.target.value);
   };
   
-  const handleSelectEntity = (id: string) => {
-    onSelectEntity(id);
+  const handleSelectEntity = (result: ICD11SearchResult) => {
+    onSelectEntity(result.id);
   };
   
   return (
-    <SearchContainer>
-      <SearchInput
+    <div className="w-full max-w-2xl mx-auto">
+      <input
         type="text"
         placeholder="Search ICD-11 codes and terms..."
-        value={searchTerm}
+        value={inputValue}
         onChange={handleInputChange}
+        className="w-full p-3 text-base border-2 border-gray-200 rounded-md mb-4 focus:outline-none focus:border-blue-500"
       />
       
-      <SearchResults>
-        {isLoading && <StatusMessage>Searching...</StatusMessage>}
-        {isError && <StatusMessage>Error fetching results. Please try again.</StatusMessage>}
-        
-        {!isLoading && !isError && data && data.length === 0 && searchTerm && (
-          <StatusMessage>No results found for "{searchTerm}"</StatusMessage>
+      <div className="bg-white rounded-md shadow-sm max-h-[400px] overflow-y-auto">
+        {isLoading && (
+          <div className="p-3 text-center text-gray-600">Searching...</div>
         )}
         
-        {!isLoading && !isError && data && data.length > 0 && (
-          data.map((result: any) => (
-            <ResultItem key={result.id} onClick={() => handleSelectEntity(result.id)}>
-              <ResultTitle>{result.title}</ResultTitle>
-              {result.code && <ResultCode>{result.code}</ResultCode>}
-            </ResultItem>
-          ))
+        {error && (
+          <div className="p-3 text-center text-red-600">Error: {error}</div>
         )}
-      </SearchResults>
-    </SearchContainer>
+        
+        {!isLoading && !error && results?.data?.length === 0 && inputValue && (
+          <div className="p-3 text-center text-gray-600">
+            No results found for "{inputValue}"
+          </div>
+        )}
+        
+        {!isLoading && !error && results?.data && results.data.length > 0 && (
+          <div>
+            {results.data.map((result) => (
+              <div
+                key={result.id}
+                onClick={() => handleSelectEntity(result)}
+                className="p-3 cursor-pointer border-b border-gray-100 last:border-b-0 hover:bg-gray-50"
+              >
+                <div className="text-sm text-gray-800">{result.title}</div>
+                {result.code && (
+                  <div className="text-xs text-gray-600 mt-1">{result.code}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 };
 

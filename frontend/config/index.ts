@@ -4,7 +4,7 @@
 const config = {
   // API configuration
   api: {
-    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+    baseUrl: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3003/api',
     timeout: Number(process.env.NEXT_PUBLIC_API_TIMEOUT || 10000),
   },
   
