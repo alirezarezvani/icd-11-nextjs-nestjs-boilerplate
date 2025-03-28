@@ -124,4 +124,79 @@
 - Operational complexity
 - Cost constraints
 - Team expertise
-**Timeline for Decision**: Before preparing for production deployment 
+**Timeline for Decision**: Before preparing for production deployment
+
+## Latest Decisions (2024-03-28)
+
+### WHO API Integration Refactor
+- **Decision**: Refactor WHO API integration to use proper type definitions and error handling
+- **Context**: Previous implementation lacked proper type safety and error handling
+- **Alternatives Considered**:
+  1. Keep existing implementation and add type assertions
+  2. Use third-party WHO API client library
+  3. Complete refactor with proper types
+- **Decision Rationale**: Complete refactor chosen for:
+  - Better type safety
+  - Improved error handling
+  - More maintainable code
+  - Better developer experience
+- **Consequences**:
+  - Need to handle type compatibility issues
+  - Temporary linter errors to resolve
+  - Better long-term maintainability
+  - Improved reliability
+
+### Port Configuration Change
+- **Decision**: Change backend port from 3001 to 3003
+- **Context**: Port conflict in development environment
+- **Alternatives Considered**:
+  1. Keep 3001 and handle conflicts manually
+  2. Use dynamic port allocation
+  3. Change to 3003
+- **Decision Rationale**: Changed to 3003 because:
+  - Avoids common port conflicts
+  - Consistent with other services
+  - Easy to implement
+- **Consequences**:
+  - Updated all configuration files
+  - No negative impact on existing functionality
+  - Better development experience
+
+### Caching Strategy Update
+- **Decision**: Use @nestjs/cache-manager instead of custom cache service
+- **Context**: Need for more robust caching solution
+- **Alternatives Considered**:
+  1. Keep custom cache service
+  2. Use Redis directly
+  3. Use @nestjs/cache-manager
+- **Decision Rationale**: @nestjs/cache-manager chosen for:
+  - Better integration with NestJS
+  - More features out of the box
+  - Better type safety
+  - Easier configuration
+- **Consequences**:
+  - Need to migrate existing cache implementation
+  - Better cache management
+  - Improved performance
+  - Better maintainability
+
+### Type System Implementation
+- **Decision**: Implement comprehensive type system for WHO API
+- **Context**: Need for better type safety and documentation
+- **Alternatives Considered**:
+  1. Minimal type definitions
+  2. Use third-party type definitions
+  3. Create comprehensive type system
+- **Decision Rationale**: Comprehensive type system chosen for:
+  - Better code reliability
+  - Improved developer experience
+  - Better documentation
+  - Easier maintenance
+- **Consequences**:
+  - More initial development time
+  - Better long-term maintainability
+  - Improved code quality
+  - Better error catching
+
+## Previous Decisions
+[Previous decisions remain unchanged...] 

@@ -1,132 +1,117 @@
-# Technical Context: ICD-11 Search Application
+# Technical Context
 
-## Technology Stack
+## Current Technical Stack
 
-### Frontend
-- **Framework**: Next.js
-- **Language**: TypeScript
-- **State Management**: React Context API / hooks
-- **Styling**: CSS-in-JS (styled-components/emotion)
-- **Testing**: Jest, React Testing Library
-- **Build Tools**: Webpack (via Next.js)
+### Backend (NestJS)
+- NestJS framework with TypeScript
+- WHO ICD-11 API integration with OAuth2
+- Built-in caching using @nestjs/cache-manager
+- Axios for HTTP requests with proper error handling
+- Type-safe DTOs and interfaces
+- Environment-based configuration
+- Port: 3003 (changed from 3001)
 
-### Backend
-- **Framework**: NestJS
-- **Language**: TypeScript
-- **API Style**: REST
-- **Testing**: Jest, Supertest
-- **Documentation**: Swagger (via NestJS OpenAPI)
-
-### Caching Layer
-- **Technology**: Redis
-- **Pattern**: Key-value store with TTL
+### Frontend (Next.js)
+- Next.js with TypeScript
+- React hooks for state management
+- Tailwind CSS for styling
+- Type-safe API integration
+- Environment-based configuration
+- Port: 3000
 
 ### Infrastructure
-- **Containerization**: Docker
-- **Deployment**: Container-based deployment
-- **CI/CD**: Automated pipelines (TBD)
+- Docker containerization
+- Redis for caching
+- Environment-based configuration
+- Port mapping and network configuration
 
-## Development Environment
-
-### Requirements
-- Node.js v18.x or higher
-- npm or yarn
-- Redis instance
-- WHO API credentials
-
-### Local Setup
-1. Clone repository
-2. Configure environment variables (.env files)
-3. Install dependencies for frontend and backend
-4. Start development servers
-
-### Environment Variables
-
-#### Frontend (.env.example)
-```
-NEXT_PUBLIC_API_URL=http://localhost:3001
-```
-
-#### Backend (.env.example)
-```
-WHO_API_CLIENT_ID=
-WHO_API_CLIENT_SECRET=
-REDIS_HOST=redis
-REDIS_PORT=6379
-```
-
-## External Dependencies
+## API Integration
 
 ### WHO ICD-11 API
-- **Base URL**: https://id.who.int/icd/release/11/
-- **Authentication**: OAuth2 client credentials
-- **Rate Limiting**: Yes (limits TBD)
-- **Documentation**: https://icd.who.int/icdapi
+- OAuth2 authentication
+- Token management with caching
+- API version: v2
+- Endpoints:
+  - /icdapi/release/11/2024-01/mms/search
+  - /icdapi/entity/{id}
+  - /icdapi/entity/{id}/children
 
-### Redis
-- **Purpose**: Caching layer for WHO API responses
-- **Configuration**: Single instance for development
-- **Key Structure**: Prefix-based namespacing
+### Internal API Structure
+- RESTful endpoints
+- Type-safe request/response handling
+- Proper error handling and logging
+- Caching layer for performance
+- Rate limiting compliance
 
-## Security Requirements
+## Type System
 
-### API Security
-- **Authentication**: OAuth2 for WHO API
-- **Rate Limiting**: Implement to prevent abuse
-- **Input Validation**: Strict validation on all endpoints
+### Backend Types
+- DTOs for request validation
+- Interfaces for WHO API responses
+- Entity mappings for type safety
+- Cache interfaces for type-safe caching
+- Common interfaces for shared types
 
-### Frontend Security
-- **Content Security Policy**: Restrict resource loading
-- **HTTPS Only**: Enforce secure connections
-- **Cross-Site Scripting (XSS) Prevention**: Output encoding, Content-Security-Policy
+### Frontend Types
+- Type-safe API client
+- Component prop types
+- Context types for state management
+- Shared interfaces with backend
 
-### Data Security
-- **No PII Storage**: Application does not store personal data
-- **Cache Security**: Implement secure Redis configuration
-- **Secure Headers**: HTTP security headers on all responses
+## Caching Strategy
+- Redis cache for API responses
+- In-memory caching for frequently accessed data
+- Token caching for WHO API
+- Cache invalidation strategy
+- TTL-based cache management
 
-## Technical Constraints
+## Error Handling
+- Global error handling
+- Type-safe error responses
+- HTTP exception filters
+- Frontend error boundaries
+- Logging and monitoring
 
-### WHO API Limitations
-- Rate limiting restrictions
-- Authentication requirements
-- Response format constraints
+## Configuration Management
+- Environment-based configuration
+- Docker environment variables
+- Type-safe configuration
+- Secure credential management
 
-### Performance Requirements
-- Search results under 500ms
-- Page load time under 1.5s
-- Efficient caching to minimize WHO API calls
+## Development Workflow
+- TypeScript for type safety
+- ESLint for code quality
+- Git for version control
+- Docker for containerization
+- Environment-based configuration
 
-### Browser Compatibility
-- Support for modern browsers (last 2 versions)
-- Graceful degradation for older browsers
+## Security Considerations
+- OAuth2 token management
+- Secure credential storage
+- HTTPS enforcement
+- Rate limiting
+- Input validation
+- CORS configuration
 
-## Technical Debt Management
+## Performance Optimization
+- Redis caching
+- Response compression
+- Bundle optimization
+- Code splitting
+- Lazy loading
 
-### Initial Known Debt
-- Boilerplate structure needs expansion
-- Test coverage to be implemented
-- Containerization to be completed
-- CI/CD pipeline to be established
+## Monitoring and Logging
+- Request logging
+- Error tracking
+- Performance monitoring
+- Cache hit/miss tracking
+- API response time monitoring
 
-### Debt Management Strategy
-- Regular technical debt review sessions
-- Debt ceiling policies to limit accumulation
-- Refactoring integrated into development cycle
-
-## Monitoring and Observability
-
-### Logging
-- Structured logging format
-- Error tracking integration (TBD)
-- Log aggregation solution (TBD)
-
-### Performance Monitoring
-- API response time tracking
-- Cache hit/miss ratio monitoring
-- WHO API call volume tracking
-
-### Alerting
-- Critical error alerting
-- Performance degradation alerts
-- WHO API availability monitoring 
+## Future Technical Considerations
+1. Implement GraphQL API
+2. Add WebSocket support
+3. Implement service worker
+4. Add PWA capabilities
+5. Implement automated testing
+6. Add CI/CD pipeline
+7. Implement monitoring dashboard 

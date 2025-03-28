@@ -1,6 +1,7 @@
 # ICD-11 Search Application
 
-A full-stack application for searching the WHO International Classification of Diseases 11th Revision (ICD-11), built with Next.js and NestJS.
+## Overview
+A full-stack application for searching WHO ICD-11 medical codes, built with Next.js frontend and NestJS backend. Features Redis caching for performance optimization.
 
 ## Features
 
@@ -90,5 +91,14 @@ http://localhost:3003/api/docs
 ```
 
 ## Project Structure
+
+- Please find more information in the /docs folder.
+
+## Creator
+
+This boilerplate was created by Alireza Rezvani CTO @ LINDERA, a Senior Solution Architect and Senior Fullstack Software Engineer. With extensive experience in modern web & mobile technologies, Sec- & DevOps, and healthcare systems integration, Alireza developed this boilerplate to provide a robust foundation for ICD-11 code search applications.
+
+- Feel free to fork and develope your own application on top of that. Happy shipping
+
 
 ```
