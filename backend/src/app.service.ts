@@ -1,5 +1,5 @@
-import { Injectable, HttpStatus } from '@nestjs/common';
-import { ApiSuccessResponse } from './common/interfaces/common.interface';
+import { Injectable, HttpStatus } from "@nestjs/common";
+import { ApiSuccessResponse } from "./common/interfaces/common.interface";
 
 @Injectable()
 export class AppService {
@@ -7,12 +7,12 @@ export class AppService {
     return {
       statusCode: HttpStatus.OK,
       data: {
-        status: 'ok',
-        version: process.env.npm_package_version || '1.0.0',
+        status: "ok",
+        version: process.env.npm_package_version || "1.0.0",
         timestamp: new Date().toISOString(),
-        environment: process.env.NODE_ENV || 'development',
+        environment: process.env.NODE_ENV || "development",
       },
-      message: 'Application is running properly',
+      message: "Application is running properly",
     };
   }
-} 
+}

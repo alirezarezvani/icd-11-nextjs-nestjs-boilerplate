@@ -1,8 +1,11 @@
 import type { AppProps } from 'next/app';
-import { useState, useEffect } from 'react';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
+import { QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
+import { queryClient } from '../lib/react-query';
 import Layout from '../components/Layout';
 import '../styles/globals.css';
+import { ICD11Provider } from '../context/ICD11Context';
 
 // Create theme
 const theme = createTheme({
@@ -16,12 +19,12 @@ const theme = createTheme({
   },
   typography: {
     fontFamily: [
-      '-apple-system', 
-      'BlinkMacSystemFont', 
-      '"Segoe UI"', 
-      'Roboto', 
-      '"Helvetica Neue"', 
-      'Arial', 
+      '-apple-system',
+      'BlinkMacSystemFont',
+      '"Segoe UI"',
+      'Roboto',
+      '"Helvetica Neue"',
+      'Arial',
       'sans-serif',
     ].join(','),
   },
@@ -37,23 +40,17 @@ const theme = createTheme({
 });
 
 export default function App({ Component, pageProps }: AppProps) {
-  const [isClient, setIsClient] = useState(false);
-
-  // This effect prevents hydration mismatch
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-
-  if (!isClient) {
-    return null;
-  }
-
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Layout>
-        <Component {...pageProps} />
-      </Layout>
-    </ThemeProvider>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <ICD11Provider>
+          <Layout>
+            <Component {...pageProps} />
+          </Layout>
+        </ICD11Provider>
+      </ThemeProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
   );
 } 

@@ -1,5 +1,13 @@
 import { apiRequest, QueryParams } from './client';
-import { ApiResponse, ICD11Entity, ICD11SearchResult, PaginatedResponse } from '../../types';
+import {
+  ApiSuccessResponse,
+  PaginatedResponse,
+} from "@shared/types/api";
+import {
+  ICD11Entity,
+  ICD11SearchResult,
+  ICD11SearchParams,
+} from "@shared/types/icd11";
 import config from '../../config';
 
 // Define the base path for ICD11 endpoints
@@ -13,25 +21,9 @@ export const icd11Service = {
    * Search ICD-11 entities
    */
   async search(
-    term: string,
-    language: string = config.app.defaultLanguage,
-    page: number = 1,
-    limit: number = config.pagination.defaultLimit,
-    flexisearch: boolean = true,
-    flatResults: boolean = false,
-    includeDescendants: boolean = false
+    params: ICD11SearchParams,
   ): Promise<PaginatedResponse<ICD11SearchResult>> {
-    const params: QueryParams = {
-      term,
-      language,
-      page,
-      limit,
-      flexisearch,
-      flatResults,
-      includeDescendants
-    };
-
-    const response = await apiRequest.get<ApiResponse<PaginatedResponse<ICD11SearchResult>>>(
+    const response = await apiRequest.post<ApiSuccessResponse<PaginatedResponse<ICD11SearchResult>>>(
       `${ICD11_BASE_PATH}/search`,
       params
     );
@@ -46,7 +38,7 @@ export const icd11Service = {
     language: string = config.app.defaultLanguage
   ): Promise<ICD11Entity> {
     const params: QueryParams = { language };
-    const response = await apiRequest.get<ApiResponse<ICD11Entity>>(
+    const response = await apiRequest.get<ApiSuccessResponse<ICD11Entity>>(
       `${ICD11_BASE_PATH}/entity/${id}`,
       params
     );
@@ -68,7 +60,7 @@ export const icd11Service = {
       limit
     };
 
-    const response = await apiRequest.get<ApiResponse<PaginatedResponse<ICD11Entity>>>(
+    const response = await apiRequest.get<ApiSuccessResponse<PaginatedResponse<ICD11Entity>>>(
       `${ICD11_BASE_PATH}/entity/${parentId}/children`,
       params
     );
@@ -83,7 +75,7 @@ export const icd11Service = {
     language: string = config.app.defaultLanguage
   ): Promise<ICD11Entity[]> {
     const params: QueryParams = { language };
-    const response = await apiRequest.get<ApiResponse<ICD11Entity[]>>(
+    const response = await apiRequest.get<ApiSuccessResponse<ICD11Entity[]>>(
       `${ICD11_BASE_PATH}/entity/${id}/ancestors`,
       params
     );

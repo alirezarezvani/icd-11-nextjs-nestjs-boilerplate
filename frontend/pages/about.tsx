@@ -76,7 +76,7 @@ const About: NextPage = () => {
             <Typography paragraph>
               All data is sourced from the{' '}
               <Link href="https://icd.who.int/en" target="_blank" rel="noopener noreferrer">
-                World Health Organization's ICD-11 API
+                World Health Organization&apos;s ICD-11 API
               </Link>. 
               This application does not store or modify any of the core ICD-11 data.
             </Typography>

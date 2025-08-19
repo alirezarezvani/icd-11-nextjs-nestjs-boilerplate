@@ -26,4 +26,4 @@ export interface ICD11SearchResult {
   id: string;
   title: string;
   definition?: string;
-} 
+}

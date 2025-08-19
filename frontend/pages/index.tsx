@@ -148,7 +148,7 @@ const Home: NextPage = () => {
               ))}
             </Box>
           ) : searchTerm && !isLoading ? (
-            <Typography variant="body1">No results found for "{searchTerm}"</Typography>
+            <Typography variant="body1">No results found for &quot;{searchTerm}&quot;</Typography>
           ) : null}
         </Box>
       </Container>

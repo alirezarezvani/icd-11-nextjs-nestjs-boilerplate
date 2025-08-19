@@ -1,7 +1,7 @@
 import { useICD11Context } from '@/context';
-import { ICD11SearchResult } from '@/types';
-import Link from 'next/link';
-import { ROUTES } from '@/config';
+import { ICD11SearchResult } from '@shared/types/icd11';
+import { SearchResultItem } from './SearchResultItem';
+import { Pagination } from './Pagination';
 
 interface SearchResultsProps {
   className?: string;
@@ -14,7 +14,7 @@ export function SearchResults({
   maxHeight = 'max-h-[600px]',
   onSelectResult,
 }: SearchResultsProps) {
-  const { searchParams, results, isLoading, error, search } = useICD11Context();
+  const { searchParams, results, isLoading, error } = useICD11Context();
 
   if (isLoading) {
     return (
@@ -40,17 +40,11 @@ export function SearchResults({
   if (results.data.length === 0) {
     return (
       <div className={`${className} text-center py-8 text-gray-500`}>
-        <p>No results found for "{searchParams.term}"</p>
+        <p>No results found for &quot;{searchParams.term}&quot;</p>
         <p className="text-sm mt-2">Try using different keywords or check your spelling</p>
       </div>
     );
   }
-
-  const handleResultClick = (result: ICD11SearchResult) => {
-    if (onSelectResult) {
-      onSelectResult(result);
-    }
-  };
 
   return (
     <div className={className}>
@@ -65,72 +59,15 @@ export function SearchResults({
 
       <div className={`overflow-y-auto ${maxHeight} space-y-4`}>
         {results.data.map((result) => (
-          <div
+          <SearchResultItem
             key={result.id}
-            className="p-4 border border-gray-200 rounded-lg hover:shadow-md transition-shadow cursor-pointer"
-            onClick={() => handleResultClick(result)}
-          >
-            <Link href={`${ROUTES.ENTITY}/${result.id}`}>
-              <div className="flex items-start">
-                {result.code && (
-                  <span className="text-blue-600 font-mono mr-3">{result.code}</span>
-                )}
-                <div className="flex-1">
-                  <h3 className="font-medium text-lg">{result.title}</h3>
-                  {result.matchingPhrases && result.matchingPhrases.length > 0 && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      <span className="font-medium">Matched terms:</span>{' '}
-                      {result.matchingPhrases.join(', ')}
-                    </p>
-                  )}
-                </div>
-                {typeof result.isLeaf !== 'undefined' && (
-                  <span
-                    className={`ml-2 text-xs px-2 py-1 rounded-full ${
-                      result.isLeaf
-                        ? 'bg-green-100 text-green-800'
-                        : 'bg-blue-100 text-blue-800'
-                    }`}
-                  >
-                    {result.isLeaf ? 'Leaf' : 'Category'}
-                  </span>
-                )}
-              </div>
-            </Link>
-          </div>
+            result={result}
+            onSelectResult={onSelectResult}
+          />
         ))}
       </div>
 
-      {results.meta && results.data.length > 0 && (
-        <div className="mt-6 flex justify-between">
-          <button
-            onClick={() => search({ page: Math.max(1, searchParams.page || 1) - 1 })}
-            disabled={searchParams.page === 1 || isLoading}
-            className="btn-secondary disabled:opacity-50"
-            aria-label="Previous page"
-          >
-            Previous
-          </button>
-          <div className="text-sm text-center text-gray-600 self-center">
-            Page {searchParams.page || 1} of{' '}
-            {results.meta.total
-              ? Math.ceil(results.meta.total / (searchParams.limit || 10))
-              : 1}
-          </div>
-          <button
-            onClick={() => search({ page: (searchParams.page || 1) + 1 })}
-            disabled={
-              !results.meta ||
-              results.meta.page * results.meta.limit >= results.meta.total ||
-              isLoading
-            }
-            className="btn-secondary disabled:opacity-50"
-            aria-label="Next page"
-          >
-            Next
-          </button>
-        </div>
-      )}
+      <Pagination />
     </div>
   );
 }

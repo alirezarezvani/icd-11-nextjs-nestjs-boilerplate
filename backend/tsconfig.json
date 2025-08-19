@@ -23,9 +23,10 @@
       "@common/*": ["src/common/*"],
       "@cache/*": ["src/cache/*"],
       "@icd11/*": ["src/icd11/*"],
-      "@config/*": ["src/config/*"]
+      "@config/*": ["src/config/*"],
+      "@shared/*": ["../shared/*"]
     }
   },
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../shared/**/*"],
   "exclude": ["node_modules", "dist", "test"]
 }

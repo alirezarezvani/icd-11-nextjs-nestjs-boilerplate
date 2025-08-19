@@ -1,4 +1,4 @@
-import { Logger } from '@nestjs/common';
+import { Logger } from "@nestjs/common";
 
 export class ErrorHandlerUtil {
   private static readonly logger = new Logger(ErrorHandlerUtil.name);
@@ -17,16 +17,16 @@ export class ErrorHandlerUtil {
     }
 
     // Convert to Error
-    let errorMessage = 'Unknown error occurred';
+    let errorMessage = "Unknown error occurred";
 
     // Try to get a message from the error
-    if (error !== null && typeof error === 'object') {
-      if ('message' in error && typeof error.message === 'string') {
+    if (error !== null && typeof error === "object") {
+      if ("message" in error && typeof error.message === "string") {
         errorMessage = error.message;
-      } else if ('toString' in error && typeof error.toString === 'function') {
+      } else if ("toString" in error && typeof error.toString === "function") {
         errorMessage = error.toString();
       }
-    } else if (typeof error === 'string') {
+    } else if (typeof error === "string") {
       errorMessage = error;
     }
 
@@ -41,11 +41,11 @@ export class ErrorHandlerUtil {
    * @param context Additional context
    */
   static logError(error: Error, context?: string): void {
-    const contextInfo = context ? ` [${context}]` : '';
+    const contextInfo = context ? ` [${context}]` : "";
     this.logger.error(`${error.message}${contextInfo}`);
-    
+
     if (error.stack) {
       this.logger.verbose(error.stack);
     }
   }
-} 
+}
