@@ -20,7 +20,7 @@ export interface ICD11SearchResult {
   id: string;
   title: string;
   code?: string;
-  isLeaf?: boolean;
+  isLeaf: boolean;
   matchingPhrases?: string[];
 }
 
@@ -57,4 +57,4 @@ export interface ICD11AuthResponse {
   expires_in: number;
   token_type: string;
   scope: string;
-} 
+}

@@ -1,9 +1,9 @@
-import { Module, Global } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { CacheModule as NestCacheModule } from '@nestjs/cache-manager';
-import { redisStore } from 'cache-manager-redis-yet';
-import { CacheConfig } from '../config';
-import { CacheService } from './cache.service';
+import { Module, Global } from "@nestjs/common";
+import { ConfigModule, ConfigService } from "@nestjs/config";
+import { CacheModule as NestCacheModule } from "@nestjs/cache-manager";
+import { redisStore } from "cache-manager-redis-yet";
+import { CacheConfig } from "../config";
+import { CacheService } from "./cache.service";
 
 @Global()
 @Module({
@@ -12,12 +12,12 @@ import { CacheService } from './cache.service';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
-        const cacheConfig = configService.get<CacheConfig>('cache');
-        
+        const cacheConfig = configService.get<CacheConfig>("cache");
+
         if (!cacheConfig) {
-          throw new Error('Cache configuration is missing');
+          throw new Error("Cache configuration is missing");
         }
-        
+
         return {
           store: await redisStore({
             socket: {
@@ -36,4 +36,4 @@ import { CacheService } from './cache.service';
   providers: [CacheService],
   exports: [CacheService, NestCacheModule],
 })
-export class CacheModule {} 
+export class CacheModule {}

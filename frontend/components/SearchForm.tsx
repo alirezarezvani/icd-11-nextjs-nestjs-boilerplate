@@ -1,4 +1,3 @@
-import { useState, useEffect } from 'react';
 import { useICD11Context } from '@/context';
 import { ICD11_CONFIG } from '@/config';
 
@@ -15,35 +14,23 @@ export function SearchForm({
   showLanguageSelect = true,
   showAdvancedOptions = false,
 }: SearchFormProps) {
-  const {
-    searchParams,
-    isLoading,
-    search,
-    setSearchTerm,
-    setLanguage,
-    toggleFlexisearch,
-  } = useICD11Context();
-
-  const [inputValue, setInputValue] = useState(searchParams.term || '');
-
-  // Update input value when searchParams.term changes
-  useEffect(() => {
-    setInputValue(searchParams.term || '');
-  }, [searchParams.term]);
+  const { searchParams, isLoading, search, setSearchParams } = useICD11Context();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    search();
+    search(searchParams);
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setInputValue(value);
-    setSearchTerm(value);
+    setSearchParams(prev => ({ ...prev, term: e.target.value }));
   };
 
   const handleLanguageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setLanguage(e.target.value);
+    setSearchParams(prev => ({ ...prev, language: e.target.value }));
+  };
+
+  const toggleFlexisearch = () => {
+    setSearchParams(prev => ({ ...prev, flexisearch: !prev.flexisearch }));
   };
 
   return (
@@ -51,37 +38,44 @@ export function SearchForm({
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row gap-2">
           <div className="flex-grow">
+            <label htmlFor="search-term" className="sr-only">
+              Search Term
+            </label>
             <input
+              id="search-term"
               type="text"
-              value={inputValue}
+              value={searchParams.term || ''}
               onChange={handleInputChange}
               placeholder="Search for medical terms..."
               className="w-full input-primary"
               autoFocus={autoFocus}
-              aria-label="Search term"
             />
           </div>
           
           {showLanguageSelect && (
-            <select
-              value={searchParams.language || ICD11_CONFIG.DEFAULT_LANGUAGE}
-              onChange={handleLanguageChange}
-              className="sm:w-32 input-primary"
-              aria-label="Language"
-            >
-              {ICD11_CONFIG.AVAILABLE_LANGUAGES.map((lang) => (
-                <option key={lang} value={lang}>
-                  {lang.toUpperCase()}
-                </option>
-              ))}
-            </select>
+            <div>
+              <label htmlFor="language-select" className="sr-only">
+                Language
+              </label>
+              <select
+                id="language-select"
+                value={searchParams.language || ICD11_CONFIG.DEFAULT_LANGUAGE}
+                onChange={handleLanguageChange}
+                className="sm:w-32 input-primary"
+              >
+                {ICD11_CONFIG.AVAILABLE_LANGUAGES.map((lang) => (
+                  <option key={lang} value={lang}>
+                    {lang.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
           
           <button
             type="submit"
-            disabled={isLoading || !inputValue.trim()}
+            disabled={isLoading || !searchParams.term?.trim()}
             className="btn-primary"
-            aria-label="Search"
           >
             {isLoading ? 'Searching...' : 'Search'}
           </button>
@@ -89,10 +83,11 @@ export function SearchForm({
 
         {showAdvancedOptions && (
           <div className="flex items-center space-x-2 text-sm text-gray-600">
-            <label className="flex items-center cursor-pointer">
+            <label htmlFor="flexible-search" className="flex items-center cursor-pointer">
               <input
+                id="flexible-search"
                 type="checkbox"
-                checked={searchParams.flexisearch !== false}
+                checked={searchParams.flexisearch}
                 onChange={toggleFlexisearch}
                 className="mr-1"
               />

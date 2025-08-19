@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useICD11Context } from '@/context';
-import { ICD11SearchResult } from '@/types';
+import { ICD11SearchResult } from '@shared/types/icd11';
 
 interface SearchProps {
   onSelectEntity: (id: string) => void;
@@ -49,7 +49,7 @@ const Search: React.FC<SearchProps> = ({ onSelectEntity }) => {
         
         {!isLoading && !error && results?.data?.length === 0 && inputValue && (
           <div className="p-3 text-center text-gray-600">
-            No results found for "{inputValue}"
+            No results found for &quot;{inputValue}&quot;
           </div>
         )}
         

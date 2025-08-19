@@ -1,5 +1,11 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, Logger } from '@nestjs/common';
-import { Request, Response } from 'express';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  Logger,
+} from "@nestjs/common";
+import { Request, Response } from "express";
 
 /**
  * Global HTTP exception filter to standardize error responses
@@ -16,15 +22,15 @@ export class HttpExceptionFilter implements ExceptionFilter {
     const errorResponse = exception.getResponse();
 
     // Extract error message and error name
-    const errorMessage = 
-      typeof errorResponse === 'object' && errorResponse
+    const errorMessage =
+      typeof errorResponse === "object" && errorResponse
         ? (errorResponse as any).message || exception.message
         : exception.message;
-    
-    const errorName = 
-      typeof errorResponse === 'object' && errorResponse 
-        ? (errorResponse as any).error || 'Error'
-        : 'Error';
+
+    const errorName =
+      typeof errorResponse === "object" && errorResponse
+        ? (errorResponse as any).error || "Error"
+        : "Error";
 
     // Log the error
     this.logger.error(
@@ -41,4 +47,4 @@ export class HttpExceptionFilter implements ExceptionFilter {
       path: request.url,
     });
   }
-} 
+}

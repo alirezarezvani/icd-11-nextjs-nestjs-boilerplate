@@ -1,18 +1,18 @@
-import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
-import { HttpModule } from '@nestjs/axios';
-import { CacheModule } from '@nestjs/cache-manager';
-import { ICD11Service } from './icd11.service';
-import { ICD11Controller } from './icd11.controller';
-import * as https from 'https';
+import { Module } from "@nestjs/common";
+import { ConfigModule } from "@nestjs/config";
+import { HttpModule } from "@nestjs/axios";
+import { CacheModule } from "@nestjs/cache-manager";
+import { ICD11Service } from "./icd11.service";
+import { ICD11Controller } from "./icd11.controller";
+import * as https from "https";
 
 @Module({
   imports: [
     ConfigModule,
     HttpModule.register({
       httpsAgent: new https.Agent({
-        rejectUnauthorized: false
-      })
+        rejectUnauthorized: false,
+      }),
     }),
     CacheModule.register({
       ttl: 3600, // 1 hour
@@ -23,4 +23,4 @@ import * as https from 'https';
   providers: [ICD11Service],
   exports: [ICD11Service],
 })
-export class ICD11Module {} 
+export class ICD11Module {}

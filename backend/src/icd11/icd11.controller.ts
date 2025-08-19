@@ -1,139 +1,171 @@
-import { Controller, Get, Post, Body, Param, Query, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
-import { ICD11Service } from './icd11.service';
-import { ICD11SearchDto, ICD11EntityDto, LanguageCode } from '../common/dto/icd11-search.dto';
-import { ApiSuccessResponse, ApiErrorResponse, PaginatedResponse } from '../common/interfaces/common.interface';
-import { ICD11Entity, ICD11SearchResult } from '../common/interfaces/icd11.interface';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Param,
+  Query,
+  HttpStatus,
+} from "@nestjs/common";
+import {
+  ApiTags,
+  ApiOperation,
+  ApiResponse,
+  ApiParam,
+  ApiQuery,
+} from "@nestjs/swagger";
+import { ICD11Service } from "./icd11.service";
+import { ICD11SearchDto, LanguageCode } from "../common/dto/icd11-search.dto";
+import {
+  ApiSuccessResponse,
+  PaginatedResponse,
+} from "@shared/types/api";
+import {
+  ICD11Entity,
+  ICD11SearchResult,
+} from "@shared/types/icd11";
 
-@ApiTags('icd11')
-@Controller('icd11')
+@ApiTags("icd11")
+@Controller("icd11")
 export class ICD11Controller {
   constructor(private readonly icd11Service: ICD11Service) {}
 
-  @Post('search')
-  @ApiOperation({ summary: 'Search ICD-11 entities' })
+  @Post("search")
+  @ApiOperation({ summary: "Search ICD-11 entities" })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Search results',
+    description: "Search results",
     type: Object,
   })
   @ApiResponse({
     status: HttpStatus.BAD_REQUEST,
-    description: 'Invalid search parameters',
+    description: "Invalid search parameters",
     type: Object,
   })
   async search(
     @Body() searchDto: ICD11SearchDto,
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
+    @Query("page") page = 1,
+    @Query("limit") limit = 20,
   ): Promise<ApiSuccessResponse<PaginatedResponse<ICD11SearchResult>>> {
-    const results = await this.icd11Service.search(searchDto, page, limit);
-    
+    const { term, language, flexisearch } = searchDto;
+    const results = await this.icd11Service.search(
+      term,
+      language,
+      page,
+      limit,
+      flexisearch,
+    );
+
     return {
       statusCode: HttpStatus.OK,
       data: results,
     };
   }
 
-  @Get('entity/:id')
-  @ApiOperation({ summary: 'Get ICD-11 entity by ID' })
-  @ApiParam({ name: 'id', description: 'Entity ID' })
+  @Get("entity/:id")
+  @ApiOperation({ summary: "Get ICD-11 entity by ID" })
+  @ApiParam({ name: "id", description: "Entity ID" })
   @ApiQuery({
-    name: 'language',
-    description: 'Language code',
+    name: "language",
+    description: "Language code",
     enum: LanguageCode,
     required: false,
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Entity details',
+    description: "Entity details",
     type: Object,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Entity not found',
+    description: "Entity not found",
     type: Object,
   })
   async getEntity(
-    @Param('id') id: string,
-    @Query('language') language?: string,
+    @Param("id") id: string,
+    @Query("language") language?: string,
   ): Promise<ApiSuccessResponse<ICD11Entity>> {
     const entity = await this.icd11Service.getEntityById(id, language);
-    
+
     return {
       statusCode: HttpStatus.OK,
       data: entity,
     };
   }
 
-  @Get('entity/:id/children')
-  @ApiOperation({ summary: 'Get children of ICD-11 entity' })
-  @ApiParam({ name: 'id', description: 'Entity ID' })
+  @Get("entity/:id/children")
+  @ApiOperation({ summary: "Get children of ICD-11 entity" })
+  @ApiParam({ name: "id", description: "Entity ID" })
   @ApiQuery({
-    name: 'language',
-    description: 'Language code',
+    name: "language",
+    description: "Language code",
     enum: LanguageCode,
     required: false,
   })
   @ApiQuery({
-    name: 'page',
-    description: 'Page number',
+    name: "page",
+    description: "Page number",
     required: false,
     type: Number,
   })
   @ApiQuery({
-    name: 'limit',
-    description: 'Results per page',
+    name: "limit",
+    description: "Results per page",
     required: false,
     type: Number,
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Child entities',
+    description: "Child entities",
     type: Object,
   })
   async getChildren(
-    @Param('id') id: string,
-    @Query('language') language?: string,
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
+    @Param("id") id: string,
+    @Query("language") language?: string,
+    @Query("page") page = 1,
+    @Query("limit") limit = 20,
   ): Promise<ApiSuccessResponse<PaginatedResponse<ICD11Entity>>> {
-    const children = await this.icd11Service.getChildren(id, language, page, limit);
-    
+    const children = await this.icd11Service.getChildren(
+      id,
+      language,
+      page,
+      limit,
+    );
+
     return {
       statusCode: HttpStatus.OK,
       data: children,
     };
   }
 
-  @Get('entity/:id/parent')
-  @ApiOperation({ summary: 'Get parent of ICD-11 entity' })
-  @ApiParam({ name: 'id', description: 'Entity ID' })
+  @Get("entity/:id/parent")
+  @ApiOperation({ summary: "Get parent of ICD-11 entity" })
+  @ApiParam({ name: "id", description: "Entity ID" })
   @ApiQuery({
-    name: 'language',
-    description: 'Language code',
+    name: "language",
+    description: "Language code",
     enum: LanguageCode,
     required: false,
   })
   @ApiResponse({
     status: HttpStatus.OK,
-    description: 'Parent entity',
+    description: "Parent entity",
     type: Object,
   })
   @ApiResponse({
     status: HttpStatus.NOT_FOUND,
-    description: 'Parent not found',
+    description: "Parent not found",
     type: Object,
   })
   async getParent(
-    @Param('id') id: string,
-    @Query('language') language?: string,
+    @Param("id") id: string,
+    @Query("language") language?: string,
   ): Promise<ApiSuccessResponse<ICD11Entity>> {
     const parent = await this.icd11Service.getParent(id, language);
-    
+
     return {
       statusCode: HttpStatus.OK,
       data: parent,
     };
   }
-} 
+}

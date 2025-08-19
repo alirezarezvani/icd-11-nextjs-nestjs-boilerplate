@@ -4,30 +4,33 @@ import Head from 'next/head';
 import { SearchForm, SearchResults } from '@/components';
 import { useICD11Context } from '@/context';
 import { ICD11_CONFIG } from '@/config';
-import { ICD11SearchResult } from '@/types';
+import { ICD11SearchResult } from '@shared/types/icd11';
 
 export default function SearchPage() {
   const router = useRouter();
-  const { search, searchParams, setSearchTerm, setLanguage } = useICD11Context();
+  const { search, searchParams, setSearchParams } = useICD11Context();
   const [selectedResult, setSelectedResult] = useState<ICD11SearchResult | null>(null);
-  
+
   // Handle incoming query parameters on initial load
   useEffect(() => {
     const { term, lang } = router.query;
-    
-    if (term && typeof term === 'string' && term !== searchParams.term) {
-      setSearchTerm(term);
+    const newParams = { ...searchParams };
+    let needsSearch = false;
+
+    if (term && typeof term === 'string' && term !== newParams.term) {
+      newParams.term = term;
+      needsSearch = true;
     }
-    
-    if (lang && typeof lang === 'string' && lang !== searchParams.language) {
-      setLanguage(lang);
+
+    if (lang && typeof lang === 'string' && lang !== newParams.language) {
+      newParams.language = lang;
+      needsSearch = true;
     }
-    
-    // Perform search if there's a term
-    if (term && typeof term === 'string' && term.trim()) {
-      search();
+
+    if (needsSearch) {
+      search(newParams);
     }
-  }, [router.query, search, searchParams.language, searchParams.term, setLanguage, setSearchTerm]);
+  }, [router.query, search, searchParams]);
   
   const handleSelectResult = (result: ICD11SearchResult) => {
     setSelectedResult(result);
@@ -65,7 +68,7 @@ export default function SearchPage() {
                       name="language"
                       value={lang}
                       checked={searchParams.language === lang}
-                      onChange={() => setLanguage(lang)}
+                      onChange={() => setSearchParams(prev => ({...prev, language: lang}))}
                       className="mr-2"
                     />
                     {lang.toUpperCase()}

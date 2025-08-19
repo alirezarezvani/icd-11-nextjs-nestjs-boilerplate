@@ -1,4 +1,4 @@
-// Common interfaces for backend application
+// Common interfaces for the API
 
 export interface PaginationParams {
   page: number;
@@ -14,7 +14,7 @@ export interface PaginatedResponse<T> {
     page: number;
     limit: number;
     total: number;
-    pages: number;
+    totalPages: number;
   };
 }
 
@@ -37,4 +37,4 @@ export class ApiErrorResponse {
 }
 
 export type Nullable<T> = T | null;
-export type Optional<T> = T | undefined; 
+export type Optional<T> = T | undefined;

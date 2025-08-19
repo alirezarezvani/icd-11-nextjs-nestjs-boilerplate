@@ -1,6 +1,12 @@
-import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger } from '@nestjs/common';
-import { Request, Response } from 'express';
-import { ErrorHandlerUtil } from '../utils';
+import {
+  ExceptionFilter,
+  Catch,
+  ArgumentsHost,
+  HttpException,
+  HttpStatus,
+  Logger,
+} from "@nestjs/common";
+import { Request, Response } from "express";
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -20,20 +26,23 @@ export class AllExceptionsFilter implements ExceptionFilter {
       // Handle known HTTP exceptions from NestJS
       status = exception.getStatus();
       const errorResponse = exception.getResponse();
-      
-      if (typeof errorResponse === 'object' && errorResponse !== null) {
+
+      if (typeof errorResponse === "object" && errorResponse !== null) {
         message = (errorResponse as any).message || exception.message;
-        error = (errorResponse as any).error || 'Error';
+        error = (errorResponse as any).error || "Error";
       } else {
-        message = errorResponse as string || exception.message;
-        error = 'Error';
+        message = (errorResponse as string) || exception.message;
+        error = "Error";
       }
     } else {
       // Handle unknown exceptions
-      this.logger.error(`Unhandled exception: ${exception.message}`, exception.stack);
+      this.logger.error(
+        `Unhandled exception: ${exception.message}`,
+        exception.stack,
+      );
       status = HttpStatus.INTERNAL_SERVER_ERROR;
-      message = 'Internal server error';
-      error = 'Internal Server Error';
+      message = "Internal server error";
+      error = "Internal Server Error";
     }
 
     // Log the error
@@ -51,4 +60,4 @@ export class AllExceptionsFilter implements ExceptionFilter {
       path: request.url,
     });
   }
-} 
+}
