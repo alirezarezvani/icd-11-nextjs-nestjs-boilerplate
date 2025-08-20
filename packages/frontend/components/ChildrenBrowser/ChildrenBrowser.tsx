@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import {
   Box,
@@ -15,7 +15,8 @@ import {
 } from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import { ICD11Entity, PaginatedResponse } from '@shared/types/icd11';
+import { ICD11Entity } from '@shared/types/icd11';
+import { PaginatedResponse } from '@shared/types/api';
 import { icd11Service } from '../../services/api/icd11.service';
 
 interface ChildrenBrowserProps {
@@ -34,11 +35,7 @@ export const ChildrenBrowser: React.FC<ChildrenBrowserProps> = ({
   const [page, setPage] = useState(1);
   const limit = 10;
 
-  useEffect(() => {
-    loadChildren();
-  }, [parentEntity.id, language, page]);
-
-  const loadChildren = async () => {
+  const loadChildren = useCallback(async () => {
     setLoading(true);
     setError(null);
     
@@ -61,7 +58,11 @@ export const ChildrenBrowser: React.FC<ChildrenBrowserProps> = ({
     } finally {
       setLoading(false);
     }
-  };
+  }, [parentEntity.id, language, page, limit]);
+
+  useEffect(() => {
+    loadChildren();
+  }, [loadChildren]);
 
   const handleChildClick = (child: ICD11Entity) => {
     router.push(`/entity/${encodeURIComponent(child.id)}`);
