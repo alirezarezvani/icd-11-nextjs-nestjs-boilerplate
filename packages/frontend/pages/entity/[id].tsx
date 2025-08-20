@@ -160,13 +160,6 @@ export default function EntityDetail() {
               />
             )}
             
-            {entity.isLeaf === false && (
-              <Chip 
-                label="Has children" 
-                color="secondary"
-                size="small"
-              />
-            )}
             
             <Chip 
               label={entity.isLeaf ? 'Leaf Entity' : 'Category'}
@@ -270,7 +263,7 @@ export default function EntityDetail() {
                     Type
                   </Typography>
                   <Typography variant="body2">
-                    {entity.isLeaf ? "Leaf entity (no children)" : "Category (has children)"}
+                    {entity.isLeaf ? "Leaf entity (no children)" : "Category"}
                   </Typography>
                 </Box>
                 

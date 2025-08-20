@@ -202,7 +202,7 @@ export class ICD11Service {
             language,
             "Untitled",
           ),
-          isLeaf: !entity.id.endsWith("/"),
+          isLeaf: false, // Cannot determine from search results, will be properly set when entity details are fetched
         }),
       );
 
@@ -257,9 +257,9 @@ export class ICD11Service {
         title: this.getMultilingualValue(response.title, language),
         definition: this.getMultilingualValue(response.definition, language),
         code: response.code,
-        // Leaf detection: if it has a diagnostic code, it's a terminal node
-        // Even if classKind is 'category', a coded entity is usually a leaf
-        isLeaf: !!response.code,
+        // Proper leaf detection based on WHO API classKind
+        // 'category' = can have children, 'class' = leaf node
+        isLeaf: response.classKind !== 'category',
       };
 
       await this.cacheManager.set(cacheKey, data, 3600);
@@ -336,6 +336,20 @@ export class ICD11Service {
       return results;
     } catch (error) {
       this.logger.error(`Failed to get children for ${id}:`, error);
+      if (error instanceof AxiosError && error.response?.status === 404) {
+        // 404 means no children exist for this entity, return empty results
+        const emptyResults: PaginatedResponse<ICD11Entity> = {
+          data: [],
+          meta: {
+            total: 0,
+            page,
+            limit,
+            totalPages: 0,
+          },
+        };
+        await this.cacheManager.set(cacheKey, emptyResults, 3600);
+        return emptyResults;
+      }
       throw new HttpException(
         "Failed to get entity children",
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -392,6 +406,9 @@ export class ICD11Service {
       this.logger.error(`Failed to get parent for ${id}:`, error);
       if (error instanceof HttpException) {
         throw error;
+      }
+      if (error instanceof AxiosError && error.response?.status === 404) {
+        throw new HttpException("Parent not found", HttpStatus.NOT_FOUND);
       }
       throw new HttpException(
         "Failed to get entity parent",
