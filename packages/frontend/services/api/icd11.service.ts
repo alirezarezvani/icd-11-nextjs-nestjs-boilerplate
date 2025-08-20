@@ -70,6 +70,22 @@ export const icd11Service = {
   },
 
   /**
+   * Get entity parent by ID
+   */
+  async getEntityParent(
+    id: string,
+    language: string = config.app.defaultLanguage
+  ): Promise<ICD11Entity> {
+    const params: QueryParams = { language };
+    const encodedId = encodeURIComponent(id);
+    const response = await apiRequest.get<ApiSuccessResponse<ICD11Entity>>(
+      `${ICD11_BASE_PATH}/entity/${encodedId}/parent`,
+      params
+    );
+    return response.data.data;
+  },
+
+  /**
    * Get entity ancestors by ID
    */
   async getEntityAncestors(
