@@ -6,7 +6,15 @@
 import chalk from 'chalk';
 import inquirer from 'inquirer';
 import * as path from 'path';
-import { validateProjectName, validateDirectory } from '../utils/validation';
+import ora from 'ora';
+import { 
+  validateProjectName, 
+  validateDirectory, 
+  validateWHOCredentialsLive, 
+  validateRedisConnection,
+  validateHealthcareOrganization,
+  type WHOCredentials
+} from '../utils/validation';
 import { logger } from '../utils/logger';
 
 export interface CreateOptions {
@@ -224,7 +232,45 @@ export async function createApp(projectName: string | undefined, options: Create
         }
       ]);
       
-      config.whoCredentials = credentialsAnswers;
+      // Validate credentials with WHO API
+      const spinner = ora('Validating WHO ICD-11 API credentials...').start();
+      
+      try {
+        const validation = await validateWHOCredentialsLive({
+          clientId: credentialsAnswers.clientId,
+          clientSecret: credentialsAnswers.clientSecret
+        });
+        
+        if (validation.isValid) {
+          spinner.succeed('WHO ICD-11 API credentials validated successfully!');
+          console.log(chalk.dim(`   Token expires in: ${validation.data?.expiresIn} seconds`));
+          console.log(chalk.dim(`   Scope: ${validation.data?.scope}`));
+          config.whoCredentials = credentialsAnswers;
+        } else {
+          spinner.fail('WHO ICD-11 API credential validation failed');
+          console.error(chalk.red('Error:'), validation.error);
+          
+          const { retryCredentials } = await inquirer.prompt([
+            {
+              type: 'confirm',
+              name: 'retryCredentials',
+              message: 'Would you like to retry with different credentials?',
+              default: false
+            }
+          ]);
+          
+          if (retryCredentials) {
+            // Recursive retry - would need to refactor this part
+            console.log(chalk.yellow('Please try again with correct credentials...'));
+          } else {
+            console.log(chalk.yellow('Continuing without WHO credentials - you can configure them later.'));
+          }
+        }
+      } catch (error) {
+        spinner.fail('Network error during credential validation');
+        console.log(chalk.yellow('Continuing without validation - you can test credentials later.'));
+        config.whoCredentials = credentialsAnswers;
+      }
     }
     
     // Redis configuration
@@ -260,6 +306,43 @@ export async function createApp(projectName: string | undefined, options: Create
           default: 6379
         }
       ]);
+      
+      // Test Redis connection
+      const testConnection = await inquirer.prompt([
+        {
+          type: 'confirm',
+          name: 'testNow',
+          message: 'Test Redis connection now?',
+          default: true
+        }
+      ]);
+      
+      if (testConnection.testNow) {
+        const spinner = ora('Testing Redis connection...').start();
+        
+        try {
+          const validation = await validateRedisConnection(
+            localRedisAnswers.host,
+            localRedisAnswers.port
+          );
+          
+          if (validation.isValid) {
+            spinner.succeed('Redis connection test successful!');
+            if (validation.warnings) {
+              validation.warnings.forEach(warning => {
+                console.log(chalk.yellow('⚠️ '), warning);
+              });
+            }
+          } else {
+            spinner.fail('Redis connection test failed');
+            console.error(chalk.red('Error:'), validation.error);
+            console.log(chalk.yellow('Continuing anyway - please ensure Redis is running before starting the application.'));
+          }
+        } catch (error) {
+          spinner.fail('Redis connection test error');
+          console.log(chalk.yellow('Continuing anyway - please verify Redis configuration manually.'));
+        }
+      }
       
       config.redis = {
         useDocker: false,

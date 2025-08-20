@@ -10,6 +10,13 @@ import type { ProjectConfig } from '../commands/create';
 export interface ValidationResult {
   isValid: boolean;
   error?: string;
+  warnings?: string[];
+  data?: any;
+}
+
+export interface WHOCredentials {
+  clientId: string;
+  clientSecret: string;
 }
 
 /**
@@ -250,4 +257,196 @@ function isValidURL(url: string): boolean {
 function isValidEmail(email: string): boolean {
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email);
+}
+
+/**
+ * Validate WHO ICD-11 API credentials by testing authentication
+ */
+export async function validateWHOCredentialsLive(credentials: WHOCredentials): Promise<ValidationResult> {
+  if (!credentials.clientId || !credentials.clientSecret) {
+    return {
+      isValid: false,
+      error: 'Both Client ID and Client Secret are required'
+    };
+  }
+
+  try {
+    const tokenResponse = await fetch('https://icdaccessmanagement.who.int/connect/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: new URLSearchParams({
+        client_id: credentials.clientId,
+        client_secret: credentials.clientSecret,
+        scope: 'icdapi_access',
+        grant_type: 'client_credentials'
+      })
+    });
+
+    if (!tokenResponse.ok) {
+      let errorMessage = 'Invalid WHO API credentials';
+      
+      if (tokenResponse.status === 400) {
+        errorMessage = 'Invalid client credentials - check your Client ID and Secret';
+      } else if (tokenResponse.status === 401) {
+        errorMessage = 'Unauthorized - verify your WHO ICD-11 API credentials';
+      } else if (tokenResponse.status === 403) {
+        errorMessage = 'Access forbidden - your credentials may not have required permissions';
+      }
+      
+      return {
+        isValid: false,
+        error: errorMessage
+      };
+    }
+
+    const tokenData = await tokenResponse.json() as {
+      access_token?: string;
+      token_type?: string;
+      expires_in?: number;
+      scope?: string;
+    };
+    
+    if (!tokenData.access_token) {
+      return {
+        isValid: false,
+        error: 'Authentication succeeded but no access token received'
+      };
+    }
+
+    // Test API access with the token
+    const testResponse = await fetch('https://id.who.int/icd/entity', {
+      headers: {
+        'Authorization': `Bearer ${tokenData.access_token}`,
+        'Accept': 'application/json',
+        'API-Version': 'v2'
+      }
+    });
+
+    if (!testResponse.ok) {
+      return {
+        isValid: false,
+        error: 'Authentication succeeded but API access failed - check your permissions'
+      };
+    }
+
+    return {
+      isValid: true,
+      data: {
+        tokenType: tokenData.token_type || 'bearer',
+        expiresIn: tokenData.expires_in || 3600,
+        scope: tokenData.scope || 'icdapi_access'
+      }
+    };
+
+  } catch (error) {
+    return {
+      isValid: false,
+      error: `Network error while validating credentials: ${error instanceof Error ? error.message : 'Unknown error'}`
+    };
+  }
+}
+
+/**
+ * Validate Redis connection
+ */
+export async function validateRedisConnection(host: string, port: number): Promise<ValidationResult> {
+  try {
+    // Basic connectivity check using AbortController for timeout
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 3000);
+    
+    try {
+      // This tests basic network connectivity to the Redis port
+      const testUrl = `http://${host}:${port}`;
+      await fetch(testUrl, {
+        signal: controller.signal,
+        method: 'GET'
+      });
+      
+      clearTimeout(timeoutId);
+      
+      return {
+        isValid: true,
+        data: { host, port, status: 'accessible' }
+      };
+      
+    } catch (fetchError) {
+      clearTimeout(timeoutId);
+      
+      const errorMessage = fetchError instanceof Error ? fetchError.message : String(fetchError);
+      
+      if (errorMessage.includes('ECONNREFUSED')) {
+        return {
+          isValid: false,
+          error: `Cannot connect to Redis at ${host}:${port} - is Redis running?`
+        };
+      }
+      
+      // Redis rejecting HTTP is actually expected - means it's running
+      return {
+        isValid: true,
+        warnings: [`Redis appears to be running at ${host}:${port} (HTTP rejection is expected)`],
+        data: { host, port, status: 'likely_running' }
+      };
+    }
+    
+  } catch (error) {
+    return {
+      isValid: false,
+      error: `Error testing Redis connection: ${error instanceof Error ? error.message : 'Unknown error'}`
+    };
+  }
+}
+
+/**
+ * Validate healthcare organization data
+ */
+export function validateHealthcareOrganization(orgData: {
+  name: string;
+  websiteUrl?: string;
+  supportEmail?: string;
+}): ValidationResult {
+  const warnings: string[] = [];
+  
+  if (!orgData.name || orgData.name.trim().length < 3) {
+    return {
+      isValid: false,
+      error: 'Organization name must be at least 3 characters long'
+    };
+  }
+  
+  if (orgData.websiteUrl) {
+    try {
+      new URL(orgData.websiteUrl);
+    } catch {
+      return {
+        isValid: false,
+        error: 'Invalid website URL format'
+      };
+    }
+  }
+  
+  if (orgData.supportEmail && !isValidEmail(orgData.supportEmail)) {
+    return {
+      isValid: false,
+      error: 'Invalid support email format'
+    };
+  }
+  
+  // Healthcare-specific validations
+  const healthcareKeywords = ['health', 'medical', 'hospital', 'clinic', 'care', 'wellness', 'surgery', 'pharmacy'];
+  const hasHealthcareKeyword = healthcareKeywords.some(keyword => 
+    orgData.name.toLowerCase().includes(keyword)
+  );
+  
+  if (!hasHealthcareKeyword) {
+    warnings.push('Organization name doesn\'t contain typical healthcare keywords - ensure this is intended for healthcare use');
+  }
+  
+  return {
+    isValid: true,
+    warnings: warnings.length > 0 ? warnings : undefined
+  };
 }

@@ -23,8 +23,11 @@ class Logger {
     console.log(chalk.yellow('⚠️'), message);
   }
 
-  error(message: string): void {
+  error(message: string, error?: any): void {
     console.log(chalk.red('❌'), message);
+    if (error && this.verbose) {
+      console.log(chalk.gray('Details:'), chalk.dim(error instanceof Error ? error.message : String(error)));
+    }
   }
 
   debug(message: string): void {
