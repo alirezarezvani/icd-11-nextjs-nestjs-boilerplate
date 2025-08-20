@@ -8,6 +8,7 @@ import chalk from 'chalk';
 import ora from 'ora';
 import { exec } from 'child_process';
 import { promisify } from 'util';
+import { ProjectConfig } from '../commands/create';
 
 const execAsync = promisify(exec);
 
@@ -19,10 +20,12 @@ export interface EnvironmentCheckResult {
 
 export class EnvironmentSetup {
   private projectPath: string;
+  private config: ProjectConfig;
   private spinner: any;
 
-  constructor(projectPath: string) {
+  constructor(projectPath: string, config: ProjectConfig) {
     this.projectPath = projectPath;
+    this.config = config;
   }
 
   async setupEnvironment(): Promise<void> {
@@ -30,6 +33,11 @@ export class EnvironmentSetup {
 
     await this.checkNodeVersion();
     await this.checkNpmVersion();
+    
+    if (this.config.redis.useDocker && this.config.template !== 'frontend-only') {
+      await this.setupRedisDocker();
+    }
+    
     await this.installDependencies();
     await this.setupEnvironmentFiles();
     await this.validateServices();
@@ -157,6 +165,37 @@ export class EnvironmentSetup {
     this.showPostInstallInstructions();
   }
 
+  private async setupRedisDocker(): Promise<void> {
+    this.spinner = ora('Setting up Redis with Docker...').start();
+    
+    try {
+      // Check if Docker is available
+      await execAsync('docker --version');
+      
+      // Check if Redis container already exists
+      const { stdout: containers } = await execAsync('docker ps -a --filter name=redis --format "{{.Names}}"');
+      
+      if (containers.includes('redis')) {
+        this.spinner.info('Redis container already exists, starting it...');
+        await execAsync('docker start redis');
+      } else {
+        this.spinner.text = 'Creating Redis container...';
+        await execAsync('docker run -d --name redis -p 6379:6379 redis:7-alpine redis-server --appendonly yes');
+      }
+      
+      // Wait a moment for Redis to start
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Test connection
+      await execAsync('docker exec redis redis-cli ping');
+      
+      this.spinner.succeed('Redis Docker container ready ✅');
+    } catch (error) {
+      this.spinner.warn('Docker Redis setup failed, you can set it up manually');
+      console.log(chalk.yellow('   Manual setup: docker run -d --name redis -p 6379:6379 redis:7-alpine'));
+    }
+  }
+
   private async checkRedisConnection(): Promise<EnvironmentCheckResult> {
     try {
       // Try to connect to Redis on default port
@@ -197,10 +236,22 @@ export class EnvironmentSetup {
       }
 
       const envContent = await fs.readFile(envPath, 'utf-8');
-      const hasClientId = envContent.includes('ICD11_CLIENT_ID=') && !envContent.includes('your_who_client_id_here');
-      const hasClientSecret = envContent.includes('ICD11_CLIENT_SECRET=') && !envContent.includes('your_who_client_secret_here');
+      const hasClientId = envContent.includes('ICD11_CLIENT_ID=') && 
+                         !envContent.includes('your_who_client_id_here') && 
+                         envContent.match(/ICD11_CLIENT_ID=\S+/);
+      const hasClientSecret = envContent.includes('ICD11_CLIENT_SECRET=') && 
+                            !envContent.includes('your_who_client_secret_here') && 
+                            envContent.match(/ICD11_CLIENT_SECRET=\S+/);
 
       if (!hasClientId || !hasClientSecret) {
+        // Check if credentials were provided during setup
+        if (this.config.whoCredentials) {
+          return {
+            success: true,
+            message: 'Credentials configured during setup'
+          };
+        }
+        
         return {
           success: false,
           message: 'WHO API credentials not configured',
@@ -222,25 +273,58 @@ export class EnvironmentSetup {
   }
 
   private showPostInstallInstructions(): void {
-    console.log(chalk.blue('\n📋 Next Steps for Healthcare Providers:\n'));
+    const { branding, deployment, template, whoCredentials, redis } = this.config;
+    
+    console.log(chalk.blue(`\n📋 ${branding.organizationName} Setup Complete:\n`));
 
-    console.log('1. 🔐 Configure WHO ICD-11 API Credentials:');
-    console.log(chalk.dim('   • Visit: https://icd.who.int/icdapi'));
-    console.log(chalk.dim('   • Register and get your Client ID and Secret'));
-    console.log(chalk.dim(`   • Update: packages/backend/.env`));
+    if (!whoCredentials && template !== 'frontend-only') {
+      console.log('1. 🔐 Configure WHO ICD-11 API Credentials:');
+      console.log(chalk.dim('   • Visit: https://icd.who.int/icdapi'));
+      console.log(chalk.dim('   • Register and get your Client ID and Secret'));
+      console.log(chalk.dim('   • Update: packages/backend/.env'));
+    } else if (whoCredentials) {
+      console.log(chalk.green('✅ WHO ICD-11 API Credentials: Configured'));
+    }
 
-    console.log('\n2. 🗄️  Start Redis Server:');
-    console.log(chalk.dim('   • Docker: docker run -d -p 6379:6379 redis'));
-    console.log(chalk.dim('   • Or install locally: https://redis.io/download'));
+    if (template !== 'frontend-only') {
+      if (redis.useDocker) {
+        console.log(chalk.green('✅ Redis Server: Docker container configured'));
+      } else {
+        console.log(`\n🗄️  Redis Server: ${redis.host}:${redis.port}`);
+        console.log(chalk.dim('   • Ensure Redis is running on the configured host/port'));
+      }
+    }
 
-    console.log('\n3. 🚀 Start Development:');
+    console.log('\n🚀 Development Commands:');
     console.log(chalk.cyan(`   cd ${path.basename(this.projectPath)}`));
     console.log(chalk.cyan('   npm run dev'));
 
-    console.log('\n4. 🌐 Access Your Application:');
-    console.log(chalk.dim('   • Frontend: http://localhost:3000'));
-    console.log(chalk.dim('   • API Docs: http://localhost:3003/api/docs'));
+    console.log('\n🌐 Access Points:');
+    if (template !== 'api-only') {
+      console.log(chalk.dim('   • Frontend: http://localhost:3000'));
+    }
+    if (template !== 'frontend-only') {
+      console.log(chalk.dim('   • API Docs: http://localhost:3003/api/docs'));
+    }
+    
+    if (deployment.provider !== 'none') {
+      console.log('\n🚢 Deployment:');
+      console.log(chalk.dim(`   • Provider: ${deployment.provider}`));
+      console.log(chalk.dim(`   • Files: ./${deployment.provider}/ directory`));
+      
+      if (deployment.enableCI) {
+        console.log(chalk.dim(`   • CI/CD: ${deployment.ciProvider} pipeline configured`));
+      }
+    }
+    
+    if (branding.websiteUrl) {
+      console.log(`\n🌐 Organization: ${chalk.cyan(branding.websiteUrl)}`);
+    }
+    
+    if (branding.supportEmail) {
+      console.log(`📧 Support: ${chalk.cyan(branding.supportEmail)}`);
+    }
 
-    console.log(chalk.green('\n🎉 Your ICD-11 Healthcare Application is ready!'));
+    console.log(chalk.green(`\n🎉 ${branding.organizationName} ICD-11 Healthcare Application is ready!`));
   }
 }

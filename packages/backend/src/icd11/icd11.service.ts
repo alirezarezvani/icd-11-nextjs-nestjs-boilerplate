@@ -257,7 +257,9 @@ export class ICD11Service {
         title: this.getMultilingualValue(response.title, language),
         definition: this.getMultilingualValue(response.definition, language),
         code: response.code,
-        isLeaf: response.classKind !== 'category',
+        // Leaf detection: if it has a diagnostic code, it's a terminal node
+        // Even if classKind is 'category', a coded entity is usually a leaf
+        isLeaf: !!response.code,
       };
 
       await this.cacheManager.set(cacheKey, data, 3600);

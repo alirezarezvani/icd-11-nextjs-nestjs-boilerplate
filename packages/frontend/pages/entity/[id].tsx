@@ -66,10 +66,12 @@ export default function EntityDetail() {
         config.app.defaultLanguage
       );
       setParent(parentData);
-      // TODO: Implement ancestors fetching for full breadcrumb
-    } catch (err) {
+    } catch (err: any) {
       console.error('Error fetching parent:', err);
-      // Parent might not exist (root entity)
+      // 404 means no parent exists (root entity or leaf entity)
+      if (err?.response?.status === 404) {
+        setParent(null);
+      }
     } finally {
       setLoadingBreadcrumb(false);
     }
@@ -183,24 +185,38 @@ export default function EntityDetail() {
                 <Typography variant="h6" gutterBottom>
                   Description
                 </Typography>
-                {entity.definition ? (
+                {entity.definition && entity.definition.trim() ? (
                   <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.6 }}>
                     {entity.definition}
                   </Typography>
                 ) : (
                   <Typography variant="body1" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                    No description available
+                    No description available for this ICD-11 entity. The WHO API does not provide a definition for "{entity.title}".
                   </Typography>
                 )}
               </CardContent>
             </Card>
             
-            {/* Children Browser */}
+            {/* Children Browser - only show for non-leaf entities */}
             {!entity.isLeaf && (
               <ChildrenBrowser 
                 parentEntity={entity}
                 language={config.app.defaultLanguage}
               />
+            )}
+            
+            {/* Message for leaf entities */}
+            {entity.isLeaf && (
+              <Card sx={{ mb: 3 }}>
+                <CardContent>
+                  <Typography variant="h6" gutterBottom>
+                    Classification Information
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    This is a terminal diagnostic code ({entity.code}) and does not have subcategories.
+                  </Typography>
+                </CardContent>
+              </Card>
             )}
           </Grid>
           

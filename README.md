@@ -1,15 +1,44 @@
-# ICD-11 Search Application
+# ICD-11 Healthcare Boilerplate Platform
+
+## 🚀 Quick Start with CLI Tool
+
+Create a new ICD-11 healthcare application instantly:
+
+```bash
+npx create-icd11-app my-healthcare-app
+```
+
+**✨ What you get:**
+- Complete ICD-11 healthcare application with custom branding
+- WHO API integration with OAuth2 authentication  
+- Production-ready deployment configurations (Docker, AWS, Azure, GCP)
+- CI/CD pipelines (GitHub Actions, GitLab CI)
+- Redis caching and comprehensive testing setup
+
+[📚 CLI Documentation](./packages/cli/README.md) | [🚀 Deployment Guide](./packages/cli/docs/DEPLOYMENT.md)
+
+---
 
 ## Overview
-A full-stack application for searching WHO ICD-11 medical codes, built with Next.js frontend and NestJS backend. Features Redis caching for performance optimization.
+A comprehensive full-stack platform for building production-ready ICD-11 healthcare applications. This project serves as both a complete ICD-11 search application and a powerful CLI tool (`create-icd11-app`) for generating customized healthcare applications.
 
 ## Features
 
+### 🏥 Healthcare Application Platform
 - **Fast ICD-11 Search**: Search the full ICD-11 database efficiently
-- **Flexible Search Options**: Fine-tune your search parameters
+- **Hierarchical Navigation**: Full support for ICD-11 code hierarchy with breadcrumbs
+- **Flexible Search Options**: Advanced search with filtering and pagination
 - **Optimized Performance**: Redis caching for improved response times
 - **User-friendly Interface**: Clean, responsive design for all devices
 - **Full-stack TypeScript**: Type safety throughout the application
+
+### 🛠️ CLI Tool (`create-icd11-app`)
+- **Interactive Setup Wizard**: Guided setup with healthcare provider branding
+- **Multiple Templates**: Full-stack, frontend-only, API-only, and minimal options
+- **Custom Branding**: Organization colors, logos, and contact information
+- **WHO API Integration**: Secure credential configuration with validation
+- **Deployment Ready**: Docker, AWS, Azure, GCP templates with CI/CD pipelines
+- **Redis Configuration**: Automatic Docker setup or custom Redis configuration
 
 ## Tech Stack
 
