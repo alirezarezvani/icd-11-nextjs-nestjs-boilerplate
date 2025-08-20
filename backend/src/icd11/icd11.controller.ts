@@ -47,7 +47,7 @@ export class ICD11Controller {
     @Query("page") page = 1,
     @Query("limit") limit = 20,
   ): Promise<ApiSuccessResponse<PaginatedResponse<ICD11SearchResult>>> {
-    const { term, language, flexisearch } = searchDto;
+    const { term, language = 'en', flexisearch = true } = searchDto;
     const results = await this.icd11Service.search(
       term,
       language,

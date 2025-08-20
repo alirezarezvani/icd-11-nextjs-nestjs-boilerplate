@@ -2,7 +2,18 @@ import { Injectable, Inject } from "@nestjs/common";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Cache } from "cache-manager";
 import { ConfigService } from "@nestjs/config";
-import { CacheOptions, CacheStats } from "../common/interfaces/cache.interface";
+
+export interface CacheOptions {
+  ttl?: number;
+  key?: string;
+  disableCache?: boolean;
+}
+
+export interface CacheStats {
+  hits: number;
+  misses: number;
+  size: number;
+}
 
 @Injectable()
 export class CacheService {
