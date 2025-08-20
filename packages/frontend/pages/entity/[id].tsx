@@ -171,7 +171,7 @@ export default function EntityDetail() {
         
         {/* Main Content Grid */}
         <Grid container spacing={3}>
-          <Grid item xs={12} md={8}>
+          <Grid item {...{ xs: 12, md: 8 } as any}>
             {/* Description Card */}
             <Card sx={{ mb: 3 }}>
               <CardContent>
@@ -184,7 +184,7 @@ export default function EntityDetail() {
                   </Typography>
                 ) : (
                   <Typography variant="body1" color="text.secondary" sx={{ fontStyle: 'italic' }}>
-                    No description available for this ICD-11 entity. The WHO API does not provide a definition for "{entity.title}".
+                    No description available for this ICD-11 entity. The WHO API does not provide a definition for &quot;{entity.title}&quot;.
                   </Typography>
                 )}
               </CardContent>
@@ -214,7 +214,7 @@ export default function EntityDetail() {
           </Grid>
           
           {/* Sidebar */}
-          <Grid item xs={12} md={4}>
+          <Grid item {...{ xs: 12, md: 4 } as any}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
