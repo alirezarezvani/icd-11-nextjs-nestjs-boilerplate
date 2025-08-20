@@ -117,7 +117,35 @@ export class TemplateProcessor {
       return '';
     });
 
+    // Handle special includes patterns like {{#if_includes_redis}}
+    const includesRegex = /{{#if_includes_([^}]+)}}([\s\S]*?){{\/if_includes_\1}}/g;
+    
+    processed = processed.replace(includesRegex, (match, component, block) => {
+      if (this.evaluateIncludesCondition(component)) {
+        return block;
+      }
+      return '';
+    });
+
     return processed;
+  }
+
+  /**
+   * Evaluate includes conditions for template patterns
+   */
+  private evaluateIncludesCondition(component: string): boolean {
+    switch (component) {
+      case 'frontend':
+        return this.context.INCLUDES_FRONTEND;
+      case 'backend':
+        return this.context.INCLUDES_BACKEND;
+      case 'redis':
+        return this.context.INCLUDES_REDIS;
+      case 'docker':
+        return this.context.INCLUDES_DOCKER;
+      default:
+        return false;
+    }
   }
 
   /**
