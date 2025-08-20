@@ -1,0 +1,51 @@
+{
+  "name": "create-icd11-app",
+  "version": "1.0.0",
+  "description": "CLI tool to create ICD-11 healthcare applications",
+  "main": "dist/index.js",
+  "bin": {
+    "create-icd11-app": "dist/cli.js"
+  },
+  "files": [
+    "dist/**/*",
+    "templates/**/*"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli.js",
+    "test": "jest",
+    "prepublishOnly": "npm run build"
+  },
+  "keywords": [
+    "icd11",
+    "healthcare",
+    "medical-codes",
+    "cli",
+    "boilerplate",
+    "nextjs",
+    "nestjs"
+  ],
+  "author": "ICD-11 Healthcare Boilerplate",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "^11.1.0",
+    "chalk": "^4.1.2",
+    "fs-extra": "^11.2.0",
+    "inquirer": "^8.2.6",
+    "ora": "^5.4.1",
+    "validate-npm-package-name": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/inquirer": "^8.2.10",
+    "@types/node": "^20.10.0",
+    "@types/validate-npm-package-name": "^4.0.2",
+    "typescript": "^5.3.0",
+    "jest": "^29.7.0",
+    "@types/jest": "^29.5.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  }
+}
