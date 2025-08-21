@@ -90,18 +90,20 @@ export class ProjectScaffolder {
       await this.copyFullStack(sourceRoot);
     }
 
-    // Ensure PostCSS config exists in frontend
-    const postCSSConfig = `module.exports = {
+    // Ensure PostCSS config exists in frontend (only for templates that include frontend)
+    if (template !== 'api-only') {
+      const postCSSConfig = `module.exports = {
   plugins: {
     tailwindcss: {},
     autoprefixer: {},
   },
 }`;
 
-    await fs.writeFile(
-      path.join(this.options.targetPath, 'packages', 'frontend', 'postcss.config.js'),
-      postCSSConfig
-    );
+      await fs.writeFile(
+        path.join(this.options.targetPath, 'packages', 'frontend', 'postcss.config.js'),
+        postCSSConfig
+      );
+    }
 
     this.spinner.succeed('Template files copied');
   }

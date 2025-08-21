@@ -111,6 +111,7 @@ npm run docker:down
 - **Search Debouncing**: 500ms debounce delay prevents rapid API calls during typing
 - **Timeout Handling**: 30-second timeouts on both frontend and backend for slow WHO API responses
 - **Minimum Query Length**: Only searches with 2+ characters to reduce unnecessary API calls
+- **Entity URL Encoding**: URL-safe base64 encoding for WHO ICD-11 entity IDs containing special characters
 
 ## Environment Configuration
 
@@ -143,6 +144,8 @@ When backend is running, Swagger documentation is available at:
 - ✅ **Phase 2A**: Enhanced hierarchical navigation with 6-language support (en, es, fr, ar, zh, ru)
 - ✅ **Phase 2B**: Healthcare provider customization system with branding capabilities
 - ✅ **Search Performance**: Fixed timeout issues with debouncing and increased timeout limits
+- ✅ **UI/UX Enhancement**: Complete redesign with improved search interface and responsive layout
+- ✅ **Entity Routing**: Fixed 404 issues with URL-safe base64 encoding for entity IDs
 - ✅ **Integration Testing**: All pages loading correctly with proper error handling
 
 ### Performance Optimizations
@@ -150,6 +153,12 @@ When backend is running, Swagger documentation is available at:
 - **Timeout Configuration**: Increased from 10s to 30s for WHO API responses
 - **React Query Optimization**: Added proper retry limits and disabled unnecessary refetches
 - **WHO API Integration**: Stable OAuth2 authentication with proper error handling
+
+### URL Routing Improvements
+- **Entity ID Encoding**: Implemented URL-safe base64 encoding for WHO ICD-11 entity IDs
+- **Navigation Consistency**: All navigation components use consistent encoding (SearchResultItem, Breadcrumb, ChildrenBrowser)
+- **Backward Compatibility**: Fallback URL decoding for legacy entity URLs
+- **Special Character Handling**: Proper handling of entity IDs containing slashes, colons, and other URL-unsafe characters
 
 ## Important Notes
 

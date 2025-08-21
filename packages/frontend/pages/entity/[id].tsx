@@ -15,67 +15,68 @@ import {
   Divider
 } from '@mui/material';
 import { Home as HomeIcon, ArrowBack } from '@mui/icons-material';
-import Layout from '@/components/Layout';
+import { Layout } from '../../components/Layout/Layout';
 import { Breadcrumb, ChildrenBrowser } from '@/components';
 import { icd11Service } from '../../services/api';
-import { ICD11Entity } from '@shared/types/icd11';
+import { ICD11Entity, ICD11NavigationContext, ICD11EntityDetails } from '@shared/types/icd11';
+import { useLanguage } from '../../context/LanguageContext';
 import config from '../../config';
 
 export default function EntityDetail() {
   const router = useRouter();
   const { id } = router.query;
+  const { currentLanguage } = useLanguage();
   
-  const [entity, setEntity] = useState<ICD11Entity | null>(null);
-  const [parent, setParent] = useState<ICD11Entity | null>(null);
-  const [ancestors, setAncestors] = useState<ICD11Entity[]>([]);
+  const [navigationContext, setNavigationContext] = useState<ICD11NavigationContext | null>(null);
+  const [entityDetails, setEntityDetails] = useState<ICD11EntityDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [loadingBreadcrumb, setLoadingBreadcrumb] = useState(false);
 
   useEffect(() => {
     if (!id) return;
     
-    const fetchEntity = async () => {
+    const fetchEntityData = async () => {
       setIsLoading(true);
       setError(null);
       
       try {
         const rawId = Array.isArray(id) ? id[0] : id;
-        const entityId = decodeURIComponent(rawId);
-        const entityData = await icd11Service.getEntity(entityId);
-        setEntity(entityData);
+        // Decode URL-safe base64 encoding
+        let entityId: string;
+        try {
+          // First try to decode as base64 (URL-safe)
+          const base64 = rawId.replace(/[-_]/g, (m) => ({ '-': '+', '_': '/' }[m]!));
+          const padded = base64 + '='.repeat((4 - base64.length % 4) % 4);
+          entityId = Buffer.from(padded, 'base64').toString('utf-8');
+        } catch {
+          // Fallback to URL decoding for backward compatibility
+          entityId = decodeURIComponent(rawId);
+        }
         
-        // Load parent for breadcrumb
-        await fetchParent(entityId);
+        // Fetch navigation context and entity details in parallel
+        const [navContext, details] = await Promise.all([
+          icd11Service.getNavigationContext(entityId, currentLanguage),
+          icd11Service.getEntityDetails(entityId, currentLanguage)
+        ]);
+        
+        setNavigationContext(navContext);
+        setEntityDetails(details);
       } catch (err: any) {
-        console.error('Error fetching entity:', err);
+        console.error('Error fetching entity data:', err);
         setError(err.message || 'Failed to load entity details');
       } finally {
         setIsLoading(false);
       }
     };
     
-    fetchEntity();
-  }, [id]);
+    fetchEntityData();
+  }, [id, currentLanguage]);
   
-  const fetchParent = async (entityId: string) => {
-    setLoadingBreadcrumb(true);
-    try {
-      const parentData = await icd11Service.getEntityParent(
-        entityId, 
-        config.app.defaultLanguage
-      );
-      setParent(parentData);
-    } catch (err: any) {
-      console.error('Error fetching parent:', err);
-      // 404 means no parent exists (root entity or leaf entity)
-      if (err?.response?.status === 404) {
-        setParent(null);
-      }
-    } finally {
-      setLoadingBreadcrumb(false);
-    }
-  };
+  const entity = navigationContext?.currentEntity || null;
+  const parent = navigationContext?.parent || null;
+  const ancestors = navigationContext?.ancestors || [];
+  const breadcrumbs = navigationContext?.breadcrumbs || [];
+  const children = navigationContext?.children || [];
 
   if (isLoading) {
     return (
@@ -136,13 +137,17 @@ export default function EntityDetail() {
   }
 
   return (
-    <Layout title={`${entity.title} | ICD-11 Healthcare Search`}>
+    <Layout 
+      title={entity ? `${entity.title} | ICD-11 Healthcare Search` : 'Loading... | ICD-11 Healthcare Search'}
+      description={entity?.definition ? entity.definition.substring(0, 160) + '...' : 'WHO ICD-11 medical classification entity details'}
+    >
       <Box sx={{ maxWidth: '6xl', mx: 'auto', p: 2 }}>
         {/* Breadcrumb Navigation */}
         <Breadcrumb
           currentEntity={entity}
-          ancestors={parent ? [parent] : []}
-          loading={loadingBreadcrumb}
+          ancestors={ancestors}
+          breadcrumbs={breadcrumbs}
+          loading={isLoading}
         />
         
         {/* Header */}
@@ -187,6 +192,37 @@ export default function EntityDetail() {
                     No description available for this ICD-11 entity. The WHO API does not provide a definition for &quot;{entity.title}&quot;.
                   </Typography>
                 )}
+                
+                {/* Long definition if available */}
+                {entity.longDefinition && entity.longDefinition !== entity.definition && (
+                  <Box sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Detailed Definition
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary" sx={{ lineHeight: 1.6 }}>
+                      {entity.longDefinition}
+                    </Typography>
+                  </Box>
+                )}
+                
+                {/* Coding rules if available */}
+                {entityDetails?.codingRules && entityDetails.codingRules.length > 0 && (
+                  <Box sx={{ mt: 2, pt: 2, borderTop: 1, borderColor: 'divider' }}>
+                    <Typography variant="subtitle2" gutterBottom>
+                      Coding Rules
+                    </Typography>
+                    {entityDetails.codingRules.map((rule, index) => (
+                      <Box key={index} sx={{ mb: 1 }}>
+                        <Typography variant="body2" fontWeight="medium">
+                          {rule.label}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                          {rule.content}
+                        </Typography>
+                      </Box>
+                    ))}
+                  </Box>
+                )}
               </CardContent>
             </Card>
             
@@ -194,7 +230,7 @@ export default function EntityDetail() {
             {!entity.isLeaf && (
               <ChildrenBrowser 
                 parentEntity={entity}
-                language={config.app.defaultLanguage}
+                language={currentLanguage}
               />
             )}
             
@@ -267,19 +303,60 @@ export default function EntityDetail() {
                   </Typography>
                 </Box>
                 
-                {parent && (
+                {/* Classification information */}
+                {entity.classKind && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                      Classification
+                    </Typography>
+                    <Typography variant="body2" sx={{ textTransform: 'capitalize' }}>
+                      {entity.classKind}
+                    </Typography>
+                  </Box>
+                )}
+                
+                {/* Children count */}
+                {entityDetails?.childrenCount !== undefined && (
+                  <Box sx={{ mt: 2 }}>
+                    <Typography variant="subtitle2" color="text.secondary" gutterBottom>
+                      Child Categories
+                    </Typography>
+                    <Typography variant="body2">
+                      {entityDetails.childrenCount === 0 ? 'None' : entityDetails.childrenCount}
+                    </Typography>
+                  </Box>
+                )}
+                
+                {/* Navigation */}
+                {(parent || ancestors.length > 0) && (
                   <Box sx={{ mt: 3 }}>
                     <Divider sx={{ mb: 2 }} />
                     <Typography variant="subtitle2" color="text.secondary" gutterBottom>
-                      Parent Category
+                      Navigation
                     </Typography>
-                    <Button
-                      variant="outlined"
-                      fullWidth
-                      onClick={() => router.push(`/entity/${encodeURIComponent(parent.id)}`)}
-                    >
-                      {parent.title || 'View parent category'}
-                    </Button>
+                    
+                    {parent && (
+                      <Button
+                        variant="outlined"
+                        fullWidth
+                        size="small"
+                        sx={{ mb: 1 }}
+                        onClick={() => router.push(`/entity/${Buffer.from(parent.id).toString('base64').replace(/[+/=]/g, (m) => ({ '+': '-', '/': '_', '=': '' }[m]!))}`)}
+                      >
+                        ↑ {parent.title || 'Parent Category'}
+                      </Button>
+                    )}
+                    
+                    {ancestors.length > 1 && (
+                      <Button
+                        variant="text"
+                        fullWidth
+                        size="small"
+                        onClick={() => router.push(`/entity/${Buffer.from(ancestors[0].id).toString('base64').replace(/[+/=]/g, (m) => ({ '+': '-', '/': '_', '=': '' }[m]!))}`)}
+                      >
+                        ↑↑ {ancestors[0].title || 'Root Category'}
+                      </Button>
+                    )}
                   </Box>
                 )}
               </CardContent>

@@ -10,7 +10,13 @@ import { HttpService } from "@nestjs/axios";
 import { firstValueFrom } from "rxjs";
 import { CACHE_MANAGER } from "@nestjs/cache-manager";
 import { Cache } from "cache-manager";
-import { ICD11Entity, ICD11SearchResult } from "@shared/types/icd11";
+import {
+  ICD11Entity,
+  ICD11SearchResult,
+  ICD11EntityDetails,
+  ICD11NavigationContext,
+  ICD11BreadcrumbItem,
+} from "@shared/types/icd11";
 import { PaginatedResponse } from "@shared/types/api";
 import { AxiosError } from "axios";
 import { map } from "rxjs/operators";
@@ -72,44 +78,51 @@ export class ICD11Service {
   }
 
   private getMultilingualValue(
-    field: WHOTitle | WHODefinition | string | { '@value': string; '@language': string } | undefined,
+    field:
+      | WHOTitle
+      | WHODefinition
+      | string
+      | { "@value": string; "@language": string }
+      | undefined,
     language: string,
     fallback = "",
   ): string {
     if (!field) {
       return fallback;
     }
-    
+
     // If field is already a string, clean HTML tags and return
-    if (typeof field === 'string') {
+    if (typeof field === "string") {
       return this.cleanHtmlTags(field);
     }
-    
+
     // Handle WHO API v2 format with @value property
-    if (field && typeof field === 'object' && '@value' in field) {
+    if (field && typeof field === "object" && "@value" in field) {
       const v2Field = field as WHOV2Field;
-      return this.cleanHtmlTags(v2Field['@value']);
+      return this.cleanHtmlTags(v2Field["@value"]);
     }
-    
+
     // Handle multilingual object (fallback for search results)
-    if (field && typeof field === 'object' && language in field) {
+    if (field && typeof field === "object" && language in field) {
       const value = field[language];
       return value ? this.cleanHtmlTags(value) : fallback;
     }
-    if (field && typeof field === 'object' && 'en' in field && field.en) {
+    if (field && typeof field === "object" && "en" in field && field.en) {
       return this.cleanHtmlTags(field.en);
     }
-    if (field && typeof field === 'object') {
+    if (field && typeof field === "object") {
       const values = Object.values(field).filter(Boolean);
-      return values.length > 0 ? this.cleanHtmlTags(values[0] as string) : fallback;
+      return values.length > 0
+        ? this.cleanHtmlTags(values[0] as string)
+        : fallback;
     }
-    
+
     return fallback;
   }
 
   private cleanHtmlTags(text: string): string {
     // Remove HTML tags like <em class='found'>...</em>
-    return text.replace(/<[^>]*>/g, '');
+    return text.replace(/<[^>]*>/g, "");
   }
 
   private async getAccessToken(): Promise<string> {
@@ -174,34 +187,27 @@ export class ICD11Service {
     try {
       const token = await this.getAccessToken();
       const response = await firstValueFrom(
-        this.httpService.get<WHOSearchResponse>(
-          this.getApiUrl("/mms/search"),
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-              "API-Version": "v2",
-              Accept: "application/json",
-              "Accept-Language": language || this.icd11Config.defaultLanguage,
-            },
-            params: {
-              q: term,
-              useFlexisearch: flexisearch,
-              flatResults: true,
-              page,
-              limit,
-            },
+        this.httpService.get<WHOSearchResponse>(this.getApiUrl("/mms/search"), {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "API-Version": "v2",
+            Accept: "application/json",
+            "Accept-Language": language || this.icd11Config.defaultLanguage,
           },
-        ),
+          params: {
+            q: term,
+            useFlexisearch: flexisearch,
+            flatResults: true,
+            page,
+            limit,
+          },
+        }),
       );
 
       const data = response.data.destinationEntities.map(
         (entity): ICD11SearchResult => ({
           id: entity.id,
-          title: this.getMultilingualValue(
-            entity.title,
-            language,
-            "Untitled",
-          ),
+          title: this.getMultilingualValue(entity.title, language, "Untitled"),
           isLeaf: false, // Cannot determine from search results, will be properly set when entity details are fetched
         }),
       );
@@ -217,7 +223,10 @@ export class ICD11Service {
       };
     } catch (error) {
       this.logger.error("Search failed:", error);
-      throw new HttpException("Search failed", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(
+        "Search failed",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -236,8 +245,10 @@ export class ICD11Service {
       const accessToken = await this.getAccessToken();
 
       // The entity ID is already a full URL, use it directly
-      const entityUrl = id.startsWith('http') ? id : `${this.icd11Config.baseUrl}/entity/${id}`;
-      
+      const entityUrl = id.startsWith("http")
+        ? id
+        : `${this.icd11Config.baseUrl}/entity/${id}`;
+
       const response = await firstValueFrom(
         this.httpService
           .get<WHOEntityResponse>(entityUrl, {
@@ -251,15 +262,14 @@ export class ICD11Service {
           .pipe(map((res) => res.data)),
       );
 
-
       const data: ICD11Entity = {
-        id: response['@id'] || response.id || id,
+        id: response["@id"] || response.id || id,
         title: this.getMultilingualValue(response.title, language),
         definition: this.getMultilingualValue(response.definition, language),
         code: response.code,
         // Proper leaf detection based on WHO API classKind
         // 'category' = can have children, 'class' = leaf node
-        isLeaf: response.classKind !== 'category',
+        isLeaf: response.classKind !== "category",
       };
 
       await this.cacheManager.set(cacheKey, data, 3600);
@@ -294,22 +304,22 @@ export class ICD11Service {
       const accessToken = await this.getAccessToken();
 
       // Handle entity URL for children endpoint
-      const baseEntityUrl = id.startsWith('http') ? id : `${this.icd11Config.baseUrl}/entity/${id}`;
+      const baseEntityUrl = id.startsWith("http")
+        ? id
+        : `${this.icd11Config.baseUrl}/entity/${id}`;
       const childrenUrl = `${baseEntityUrl}/children`;
-      
+
       const response = await firstValueFrom(
         this.httpService
-          .get<WHOChildrenResponse>(childrenUrl,
-            {
-              params: { page, limit },
-              headers: {
-                "API-Version": "v2",
-                Accept: "application/json",
-                Authorization: `Bearer ${accessToken}`,
-                "Accept-Language": language,
-              },
+          .get<WHOChildrenResponse>(childrenUrl, {
+            params: { page, limit },
+            headers: {
+              "API-Version": "v2",
+              Accept: "application/json",
+              Authorization: `Bearer ${accessToken}`,
+              "Accept-Language": language,
             },
-          )
+          })
           .pipe(map((res) => res.data)),
       );
 
@@ -371,10 +381,12 @@ export class ICD11Service {
     try {
       const accessToken = await this.getAccessToken();
 
-      // Handle entity URL for parent endpoint  
-      const baseEntityUrl = id.startsWith('http') ? id : `${this.icd11Config.baseUrl}/entity/${id}`;
+      // Handle entity URL for parent endpoint
+      const baseEntityUrl = id.startsWith("http")
+        ? id
+        : `${this.icd11Config.baseUrl}/entity/${id}`;
       const parentUrl = `${baseEntityUrl}/parent`;
-      
+
       const response = await firstValueFrom(
         this.httpService
           .get<WHOEntity[]>(parentUrl, {
@@ -412,6 +424,217 @@ export class ICD11Service {
       }
       throw new HttpException(
         "Failed to get entity parent",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getAncestors(
+    id: string,
+    language = this.icd11Config.defaultLanguage,
+  ): Promise<ICD11Entity[]> {
+    const cacheKey = `ancestors:${id}:${language}`;
+    const cachedResult = await this.cacheManager.get<ICD11Entity[]>(cacheKey);
+
+    if (cachedResult) {
+      return cachedResult;
+    }
+
+    try {
+      const accessToken = await this.getAccessToken();
+      const baseEntityUrl = id.startsWith("http")
+        ? id
+        : `${this.icd11Config.baseUrl}/entity/${id}`;
+      const ancestorsUrl = `${baseEntityUrl}/ancestors`;
+
+      const response = await firstValueFrom(
+        this.httpService
+          .get<WHOEntity[]>(ancestorsUrl, {
+            headers: {
+              "API-Version": "v2",
+              Accept: "application/json",
+              Authorization: `Bearer ${accessToken}`,
+              "Accept-Language": language,
+            },
+          })
+          .pipe(map((res) => res.data)),
+      );
+
+      const ancestors = response.map((ancestor: WHOEntity) => ({
+        id: ancestor.id,
+        title: this.getMultilingualValue(ancestor.title, language),
+        definition: this.getMultilingualValue(ancestor.definition, language),
+        code: ancestor.code,
+        isLeaf: ancestor.classKind !== "category",
+        classKind: ancestor.classKind as "category" | "class" | "block",
+      }));
+
+      await this.cacheManager.set(cacheKey, ancestors, 3600);
+      return ancestors;
+    } catch (error) {
+      this.logger.error(`Failed to get ancestors for ${id}:`, error);
+      if (error instanceof AxiosError && error.response?.status === 404) {
+        // 404 means no ancestors exist for this entity, return empty array
+        const emptyResults: ICD11Entity[] = [];
+        await this.cacheManager.set(cacheKey, emptyResults, 3600);
+        return emptyResults;
+      }
+      throw new HttpException(
+        "Failed to get entity ancestors",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getBreadcrumbs(
+    id: string,
+    language = this.icd11Config.defaultLanguage,
+  ): Promise<ICD11BreadcrumbItem[]> {
+    try {
+      const ancestors = await this.getAncestors(id, language);
+      const currentEntity = await this.getEntityById(id, language);
+
+      const breadcrumbs: ICD11BreadcrumbItem[] = [];
+
+      // Add ancestors in reverse order (root to parent)
+      ancestors.reverse().forEach((ancestor, index) => {
+        breadcrumbs.push({
+          id: ancestor.id,
+          title: ancestor.title,
+          level: index,
+        });
+      });
+
+      // Add current entity
+      breadcrumbs.push({
+        id: currentEntity.id,
+        title: currentEntity.title,
+        level: breadcrumbs.length,
+      });
+
+      return breadcrumbs;
+    } catch (error) {
+      this.logger.error(`Failed to get breadcrumbs for ${id}:`, error);
+      throw new HttpException(
+        "Failed to get breadcrumbs",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getNavigationContext(
+    id: string,
+    language = this.icd11Config.defaultLanguage,
+  ): Promise<ICD11NavigationContext> {
+    try {
+      const [currentEntity, ancestors, childrenResponse] =
+        await Promise.allSettled([
+          this.getEntityById(id, language),
+          this.getAncestors(id, language),
+          this.getChildren(id, language, 1, 50), // Get first 50 children
+        ]);
+
+      const entity =
+        currentEntity.status === "fulfilled" ? currentEntity.value : null;
+      const ancestorsList =
+        ancestors.status === "fulfilled" ? ancestors.value : [];
+      const children =
+        childrenResponse.status === "fulfilled"
+          ? childrenResponse.value.data
+          : [];
+
+      if (!entity) {
+        throw new HttpException("Entity not found", HttpStatus.NOT_FOUND);
+      }
+
+      // Get parent (last ancestor)
+      const parent =
+        ancestorsList.length > 0
+          ? ancestorsList[ancestorsList.length - 1]
+          : undefined;
+
+      // Build breadcrumbs
+      const breadcrumbs: ICD11BreadcrumbItem[] = [];
+      ancestorsList.reverse().forEach((ancestor, index) => {
+        breadcrumbs.push({
+          id: ancestor.id,
+          title: ancestor.title,
+          level: index,
+        });
+      });
+
+      breadcrumbs.push({
+        id: entity.id,
+        title: entity.title,
+        level: breadcrumbs.length,
+      });
+
+      return {
+        currentEntity: entity,
+        ancestors: ancestorsList.reverse(), // Restore original order
+        children,
+        parent,
+        breadcrumbs,
+      };
+    } catch (error) {
+      this.logger.error(`Failed to get navigation context for ${id}:`, error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        "Failed to get navigation context",
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
+  async getEntityDetails(
+    id: string,
+    language = this.icd11Config.defaultLanguage,
+  ): Promise<ICD11EntityDetails> {
+    try {
+      const [entity, childrenResponse, ancestors] = await Promise.allSettled([
+        this.getEntityById(id, language),
+        this.getChildren(id, language, 1, 10), // Get first 10 children for preview
+        this.getAncestors(id, language),
+      ]);
+
+      const baseEntity = entity.status === "fulfilled" ? entity.value : null;
+      if (!baseEntity) {
+        throw new HttpException("Entity not found", HttpStatus.NOT_FOUND);
+      }
+
+      const children =
+        childrenResponse.status === "fulfilled"
+          ? childrenResponse.value.data
+          : [];
+      const ancestorsList =
+        ancestors.status === "fulfilled" ? ancestors.value : [];
+      const childrenCount =
+        childrenResponse.status === "fulfilled"
+          ? childrenResponse.value.meta.total
+          : 0;
+
+      // Build breadcrumbs
+      const breadcrumbs = await this.getBreadcrumbs(id, language);
+
+      const details: ICD11EntityDetails = {
+        ...baseEntity,
+        children,
+        ancestors: ancestorsList,
+        breadcrumbs,
+        childrenCount,
+        siblingCount: 0, // Would need parent's children count for this
+      };
+
+      return details;
+    } catch (error) {
+      this.logger.error(`Failed to get entity details for ${id}:`, error);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        "Failed to get entity details",
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

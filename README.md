@@ -326,14 +326,17 @@ For security-related issues or vulnerabilities:
 
 ### Current Version (1.0.0)
 - ✅ Complete WHO ICD-11 API integration
-- ✅ Multi-template CLI tool
+- ✅ Multi-template CLI tool  
 - ✅ Docker and multi-cloud deployment
 - ✅ Healthcare branding system
+- ✅ Multi-language support (EN, ES, FR, AR, ZH, RU)
+- ✅ Enhanced UI/UX with responsive design
+- ✅ Search performance optimization with debouncing
+- ✅ URL routing improvements with entity ID encoding
 - ✅ Comprehensive documentation
 
 ### Upcoming Features (1.1.0)
 - 🔄 FHIR integration support
-- 🔄 Multi-language support (ES, FR, DE)
 - 🔄 Advanced search filters
 - 🔄 Bulk code import/export
 - 🔄 Analytics dashboard

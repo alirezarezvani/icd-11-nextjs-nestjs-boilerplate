@@ -18,14 +18,16 @@ export interface WHODefinition {
 }
 
 export interface WHOV2Field {
-  '@value': string;
-  '@language': string;
+  "@value": string;
+  "@language": string;
 }
 
 export interface WHOEntity {
   id: string;
   title: WHOTitle | string; // Can be either multilingual object or plain string
   definition?: WHODefinition;
+  code?: string;
+  classKind?: string;
 }
 
 export interface WHOSearchResponse {
@@ -38,7 +40,7 @@ export interface WHOChildrenResponse {
 }
 
 export interface WHOEntityResponse {
-  '@id': string;
+  "@id": string;
   id?: string;
   title: WHOTitle | string | WHOV2Field; // Can be either multilingual object, plain string, or WHO v2 format
   definition?: WHODefinition | string | WHOV2Field;

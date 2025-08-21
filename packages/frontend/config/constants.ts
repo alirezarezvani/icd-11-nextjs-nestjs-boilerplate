@@ -10,8 +10,8 @@ export const API_CONFIG = {
 
 // ICD-11 Configuration
 export const ICD11_CONFIG = {
-  DEFAULT_LANGUAGE: 'en',
-  AVAILABLE_LANGUAGES: ['en', 'es', 'fr', 'ar', 'zh', 'ru'],
+  DEFAULT_LANGUAGE: 'en' as const,
+  AVAILABLE_LANGUAGES: ['en', 'es', 'fr', 'ar', 'zh', 'ru'] as const,
   RESULTS_PER_PAGE: 20,
 };
 

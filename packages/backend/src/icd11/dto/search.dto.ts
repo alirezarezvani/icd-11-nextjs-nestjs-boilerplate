@@ -1,4 +1,10 @@
-import { IsString, IsOptional, IsNumber, IsBoolean, Min } from "class-validator";
+import {
+  IsString,
+  IsOptional,
+  IsNumber,
+  IsBoolean,
+  Min,
+} from "class-validator";
 import { Transform } from "class-transformer";
 
 export class SearchDto {
@@ -24,8 +30,8 @@ export class SearchDto {
   @IsBoolean()
   @IsOptional()
   @Transform(({ value }) => {
-    if (typeof value === 'boolean') return value;
-    if (typeof value === 'string') return value === 'true';
+    if (typeof value === "boolean") return value;
+    if (typeof value === "string") return value === "true";
     return Boolean(value);
   })
   flexisearch?: boolean;

@@ -15,18 +15,18 @@ import {
 } from '@mui/material';
 import FolderIcon from '@mui/icons-material/Folder';
 import InsertDriveFileIcon from '@mui/icons-material/InsertDriveFile';
-import { ICD11Entity } from '@shared/types/icd11';
+import { ICD11Entity, SupportedLanguage } from '@shared/types/icd11';
 import { PaginatedResponse } from '@shared/types/api';
 import { icd11Service } from '../../services/api/icd11.service';
 
 interface ChildrenBrowserProps {
   parentEntity: ICD11Entity;
-  language?: string;
+  language?: SupportedLanguage;
 }
 
 export const ChildrenBrowser: React.FC<ChildrenBrowserProps> = ({
   parentEntity,
-  language = 'en'
+  language = 'en' as SupportedLanguage
 }) => {
   const router = useRouter();
   const [children, setChildren] = useState<PaginatedResponse<ICD11Entity> | null>(null);
@@ -65,7 +65,7 @@ export const ChildrenBrowser: React.FC<ChildrenBrowserProps> = ({
   }, [loadChildren]);
 
   const handleChildClick = (child: ICD11Entity) => {
-    router.push(`/entity/${encodeURIComponent(child.id)}`);
+    router.push(`/entity/${Buffer.from(child.id).toString('base64').replace(/[+/=]/g, (m) => ({ '+': '-', '/': '_', '=': '' }[m]!))}`);
   };
 
   const handlePageChange = (event: React.ChangeEvent<unknown>, newPage: number) => {

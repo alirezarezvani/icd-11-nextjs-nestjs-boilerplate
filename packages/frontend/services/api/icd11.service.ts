@@ -7,6 +7,10 @@ import {
   ICD11Entity,
   ICD11SearchResult,
   ICD11SearchParams,
+  ICD11EntityDetails,
+  ICD11NavigationContext,
+  ICD11BreadcrumbItem,
+  SupportedLanguage,
 } from "@shared/types/icd11";
 import config from '../../config';
 
@@ -35,7 +39,7 @@ export const icd11Service = {
    */
   async getEntity(
     id: string, 
-    language: string = config.app.defaultLanguage
+    language: SupportedLanguage = config.app.defaultLanguage as SupportedLanguage
   ): Promise<ICD11Entity> {
     const params: QueryParams = { language };
     const encodedId = encodeURIComponent(id);
@@ -51,7 +55,7 @@ export const icd11Service = {
    */
   async getEntityChildren(
     parentId: string,
-    language: string = config.app.defaultLanguage,
+    language: SupportedLanguage = config.app.defaultLanguage as SupportedLanguage,
     page: number = 1,
     limit: number = config.pagination.defaultLimit
   ): Promise<PaginatedResponse<ICD11Entity>> {
@@ -74,7 +78,7 @@ export const icd11Service = {
    */
   async getEntityParent(
     id: string,
-    language: string = config.app.defaultLanguage
+    language: SupportedLanguage = config.app.defaultLanguage as SupportedLanguage
   ): Promise<ICD11Entity> {
     const params: QueryParams = { language };
     const encodedId = encodeURIComponent(id);
@@ -90,7 +94,7 @@ export const icd11Service = {
    */
   async getEntityAncestors(
     id: string,
-    language: string = config.app.defaultLanguage
+    language: SupportedLanguage = config.app.defaultLanguage as SupportedLanguage
   ): Promise<ICD11Entity[]> {
     const params: QueryParams = { language };
     const encodedId = encodeURIComponent(id);
@@ -99,5 +103,53 @@ export const icd11Service = {
       params
     );
     return response.data.data;
-  }
+  },
+
+  /**
+   * Get entity breadcrumbs by ID
+   */
+  async getEntityBreadcrumbs(
+    id: string,
+    language: SupportedLanguage = config.app.defaultLanguage as SupportedLanguage
+  ): Promise<ICD11BreadcrumbItem[]> {
+    const params: QueryParams = { language };
+    const encodedId = encodeURIComponent(id);
+    const response = await apiRequest.get<ApiSuccessResponse<ICD11BreadcrumbItem[]>>(
+      `${ICD11_BASE_PATH}/entity/${encodedId}/breadcrumbs`,
+      params
+    );
+    return response.data.data;
+  },
+
+  /**
+   * Get navigation context for entity
+   */
+  async getNavigationContext(
+    id: string,
+    language: SupportedLanguage = config.app.defaultLanguage as SupportedLanguage
+  ): Promise<ICD11NavigationContext> {
+    const params: QueryParams = { language };
+    const encodedId = encodeURIComponent(id);
+    const response = await apiRequest.get<ApiSuccessResponse<ICD11NavigationContext>>(
+      `${ICD11_BASE_PATH}/entity/${encodedId}/navigation`,
+      params
+    );
+    return response.data.data;
+  },
+
+  /**
+   * Get detailed entity information
+   */
+  async getEntityDetails(
+    id: string,
+    language: SupportedLanguage = config.app.defaultLanguage as SupportedLanguage
+  ): Promise<ICD11EntityDetails> {
+    const params: QueryParams = { language };
+    const encodedId = encodeURIComponent(id);
+    const response = await apiRequest.get<ApiSuccessResponse<ICD11EntityDetails>>(
+      `${ICD11_BASE_PATH}/entity/${encodedId}/details`,
+      params
+    );
+    return response.data.data;
+  },
 }; 
