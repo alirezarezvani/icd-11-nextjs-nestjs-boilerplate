@@ -10,8 +10,12 @@ import * as https from "https";
   imports: [
     ConfigModule,
     HttpModule.register({
+      timeout: 30000, // 30 second timeout
+      maxRedirects: 3,
       httpsAgent: new https.Agent({
         rejectUnauthorized: false,
+        keepAlive: true,
+        timeout: 30000,
       }),
     }),
     CacheModule.register({

@@ -108,6 +108,9 @@ npm run docker:down
 - **Rate limiting**: Respectful API usage with proper throttling
 - **Circuit breaker pattern**: Graceful handling of API failures
 - **Response normalization**: Consistent data structures across the application
+- **Search Debouncing**: 500ms debounce delay prevents rapid API calls during typing
+- **Timeout Handling**: 30-second timeouts on both frontend and backend for slow WHO API responses
+- **Minimum Query Length**: Only searches with 2+ characters to reduce unnecessary API calls
 
 ## Environment Configuration
 
@@ -134,6 +137,20 @@ Required environment variables for WHO API integration:
 When backend is running, Swagger documentation is available at:
 `http://localhost:3003/api/docs`
 
+## Recent Updates
+
+### Sprint 2 Phase 2 Completion (August 2025)
+- ✅ **Phase 2A**: Enhanced hierarchical navigation with 6-language support (en, es, fr, ar, zh, ru)
+- ✅ **Phase 2B**: Healthcare provider customization system with branding capabilities
+- ✅ **Search Performance**: Fixed timeout issues with debouncing and increased timeout limits
+- ✅ **Integration Testing**: All pages loading correctly with proper error handling
+
+### Performance Optimizations
+- **Search Debouncing**: Implemented 500ms debounce in `useICD11Search` hook
+- **Timeout Configuration**: Increased from 10s to 30s for WHO API responses
+- **React Query Optimization**: Added proper retry limits and disabled unnecessary refetches
+- **WHO API Integration**: Stable OAuth2 authentication with proper error handling
+
 ## Important Notes
 
 - **Port Configuration**: Backend runs on port 3003 (changed from default 3000)
@@ -141,5 +158,6 @@ When backend is running, Swagger documentation is available at:
 - **WHO API Credentials**: Valid WHO ICD-11 API credentials required for functionality
 - **TypeScript**: Full TypeScript coverage across frontend and backend
 - **Docker Support**: Full Docker Compose setup available for development and production
+- **Search Performance**: Core ICD-11 search fully functional with WHO API integration
 - Add to memory. Never beautify the results of the coding tasks. Be honest on the progress on the tasks, subtasks and the project. Make sure, the documentation is always up to date.
 - do not create new files, when there is an existing one there. Ensure you write in the correct file and update this file. If you have created a file make sure, it was necessary. If you create temporary files, ALWAYS DELETE THEM when they are not needed anymore.
