@@ -1,0 +1,126 @@
+{
+  "meta": {
+    "title": "About - ICD-11 Healthcare Platform",
+    "description": "Learn about the ICD-11 Healthcare Platform - your comprehensive solution for WHO medical code search and classification."
+  },
+  "hero": {
+    "title": "About ICD-11",
+    "subtitle": "Healthcare Platform",
+    "description": "Empowering healthcare professionals worldwide with instant access to WHO's comprehensive medical classification system."
+  },
+  "sections": {
+    "platformOverview": {
+      "title": "Platform Overview",
+      "description": "The ICD-11 Healthcare Platform provides healthcare professionals with seamless access to the World Health Organization's International Classification of Diseases, 11th Revision.",
+      "features": {
+        "title": "Key Features",
+        "items": [
+          "Comprehensive medical code search with real-time results",
+          "Multi-language support for global accessibility",
+          "Advanced filtering and flexible search options",
+          "Healthcare-grade caching for optimal performance",
+          "Professional interface designed for clinical workflows"
+        ]
+      }
+    },
+    "healthcareApplications": {
+      "title": "Healthcare Applications",
+      "description": "Designed for medical professionals, researchers, and healthcare institutions requiring accurate ICD-11 classification.",
+      "useCases": {
+        "title": "Use Cases",
+        "items": [
+          "Clinical documentation and patient record management",
+          "Medical research and epidemiological studies",
+          "Insurance claims processing and healthcare billing",
+          "Public health reporting and statistical analysis",
+          "International healthcare data standardization"
+        ]
+      }
+    },
+    "globalAccessibility": {
+      "title": "Global Accessibility",
+      "description": "Supporting healthcare professionals worldwide with comprehensive internationalization and accessibility features.",
+      "languages": {
+        "title": "Supported Languages",
+        "description": "Available in 6 languages to serve the global healthcare community:",
+        "items": [
+          "English - Primary international language",
+          "Spanish - Serving Latin America and Spain",
+          "French - Supporting Francophone regions",
+          "Arabic - Middle East and North Africa",
+          "Chinese - East Asia and Chinese-speaking regions",
+          "Russian - Eastern Europe and Central Asia"
+        ]
+      },
+      "accessibility": {
+        "title": "Accessibility Features",
+        "items": [
+          "Right-to-Left (RTL) language support for Arabic",
+          "High contrast and professional healthcare color palette",
+          "Responsive design for desktop, tablet, and mobile devices",
+          "Keyboard navigation and screen reader compatibility"
+        ]
+      }
+    },
+    "whoPartnership": {
+      "title": "WHO Partnership",
+      "description": "Built in collaboration with World Health Organization standards and utilizing official WHO ICD-11 APIs.",
+      "compliance": {
+        "title": "WHO Compliance",
+        "items": [
+          "Direct integration with official WHO ICD-11 API",
+          "Real-time synchronization with WHO database updates",
+          "Adherence to WHO data classification standards",
+          "Respect for WHO intellectual property and usage guidelines"
+        ]
+      },
+      "dataSource": {
+        "title": "Official Data Source",
+        "description": "All medical codes and classifications are sourced directly from the World Health Organization's ICD-11 API, ensuring accuracy and up-to-date information.",
+        "copyright": "ICD-11 content is © World Health Organization. All rights reserved."
+      }
+    },
+    "technicalExcellence": {
+      "title": "Technical Excellence",
+      "description": "Built with modern web technologies and best practices to ensure reliability, performance, and scalability.",
+      "architecture": {
+        "title": "Technology Stack",
+        "frontend": {
+          "title": "Frontend Technologies",
+          "items": [
+            "Next.js 13 - React framework with server-side rendering",
+            "TypeScript - Type-safe development environment",
+            "Material-UI - Professional healthcare interface components",
+            "React Context - Efficient state management"
+          ]
+        },
+        "backend": {
+          "title": "Backend Technologies", 
+          "items": [
+            "NestJS - Scalable Node.js server framework",
+            "TypeScript - Full-stack type safety",
+            "Redis - High-performance caching system",
+            "OAuth2 - Secure WHO API authentication"
+          ]
+        }
+      },
+      "performance": {
+        "title": "Performance Features",
+        "items": [
+          "Redis caching for sub-second response times",
+          "Optimized API calls with intelligent rate limiting",
+          "Progressive web app capabilities",
+          "Healthcare-grade reliability and uptime"
+        ]
+      }
+    }
+  },
+  "cta": {
+    "title": "Ready to Get Started?",
+    "description": "Join thousands of healthcare professionals using the ICD-11 Healthcare Platform for accurate medical classification.",
+    "buttons": {
+      "startSearching": "Start Searching",
+      "learnMore": "Learn More"
+    }
+  }
+}

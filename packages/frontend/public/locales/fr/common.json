@@ -1,0 +1,73 @@
+{
+  "nav": {
+    "home": "Accueil",
+    "search": "Rechercher",
+    "about": "À propos",
+    "customization": "Personnalisation",
+    "integrationTest": "Test d'intégration",
+    "openMenu": "Ouvrir le menu",
+    "language": "Langue",
+    "subtitle": "Recherche de codes de santé"
+  },
+  "footer": {
+    "copyright": "© {{year}} {{appName}}",
+    "aboutLink": "À propos",
+    "dataSource": "Données provenant de l'API WHO ICD-11"
+  },
+  "meta": {
+    "defaultDescription": "Recherche de codes médicaux WHO ICD-11",
+    "defaultTitle": "Recherche de codes médicaux ICD-11"
+  },
+  "homepage": {
+    "hero": {
+      "title": "Santé ICD-11",
+      "subtitle": "Recherche de codes",
+      "description": "Recherche officielle dans la base de données de la Classification internationale des maladies (CIM-11) de l'OMS. Trouvez des codes et classifications médicales précis pour la documentation de santé.",
+      "features": {
+        "whoDatabase": "Base de données officielle OMS",
+        "languages": "6 langues prises en charge",
+        "realtime": "Recherche en temps réel"
+      }
+    },
+    "search": {
+      "title": "Rechercher des codes et classifications médicales",
+      "description": "Entrez des termes médicaux, conditions ou symptômes pour trouver les codes ICD-11 correspondants"
+    },
+    "guide": {
+      "title": "Comment rechercher efficacement",
+      "medicalTerms": {
+        "title": "Utiliser des termes médicaux",
+        "description": "Recherchez en utilisant la terminologie médicale appropriée comme 'hypertension' au lieu de 'pression artérielle élevée'"
+      },
+      "chooseLanguage": {
+        "title": "Choisir la langue",
+        "description": "Sélectionnez parmi l'anglais, l'espagnol, le français, l'arabe, le chinois ou le russe pour des résultats localisés"
+      },
+      "flexibleSearch": {
+        "title": "Utiliser la recherche flexible",
+        "description": "Activez la recherche flexible pour inclure les synonymes, orthographes alternatives et termes connexes"
+      }
+    }
+  },
+  "buttons": {
+    "submit": "Soumettre",
+    "cancel": "Annuler",
+    "clear": "Effacer",
+    "search": "Rechercher",
+    "reset": "Réinitialiser",
+    "save": "Sauvegarder",
+    "load": "Charger",
+    "delete": "Supprimer",
+    "edit": "Modifier",
+    "view": "Voir",
+    "close": "Fermer",
+    "open": "Ouvrir",
+    "expand": "Développer",
+    "collapse": "Réduire"
+  },
+  "loading": "Chargement...",
+  "error": "Une erreur s'est produite",
+  "success": "Succès",
+  "warning": "Avertissement",
+  "info": "Information"
+}

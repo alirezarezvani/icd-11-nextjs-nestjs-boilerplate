@@ -1,0 +1,57 @@
+{
+  "form": {
+    "labels": {
+      "searchTerm": "Buscar Términos Médicos o Códigos",
+      "searchLanguage": "Idioma de Búsqueda",
+      "flexibleSearch": "Búsqueda Flexible"
+    },
+    "placeholders": {
+      "searchInput": "Ingrese término médico, condición o código ICD-11..."
+    },
+    "buttons": {
+      "search": "Buscar",
+      "searching": "Buscando..."
+    },
+    "options": {
+      "title": "Opciones de Búsqueda",
+      "flexibleSearchDescription": "Incluir sinónimos, términos relacionados y ortografías alternativas en los resultados"
+    },
+    "stats": {
+      "searchingIn": "Buscando en base de datos WHO ICD-11",
+      "language": "Idioma: {{language}}"
+    }
+  },
+  "languages": {
+    "en": "Inglés",
+    "es": "Español", 
+    "fr": "Francés",
+    "ar": "Árabe",
+    "zh": "Chino",
+    "ru": "Ruso"
+  },
+  "results": {
+    "title": "Resultados de Búsqueda",
+    "noResults": "No se encontraron resultados",
+    "noResultsDescription": "Intente ajustar sus términos de búsqueda o usar la opción de búsqueda flexible",
+    "loading": "Buscando...",
+    "error": "Error en la búsqueda",
+    "errorDescription": "Inténtelo de nuevo o contacte soporte si el problema persiste",
+    "showingResults": "Mostrando {{start}}-{{end}} de {{total}}",
+    "foundResults": "{{total}} resultados encontrados",
+    "loadMore": "Cargar Más Resultados",
+    "viewDetails": "Ver Detalles",
+    "copyCode": "Copiar Código",
+    "codeHierarchy": "Jerarquía de Códigos",
+    "parentCodes": "Códigos Padre",
+    "childCodes": "Códigos Hijo",
+    "relatedCodes": "Códigos Relacionados"
+  },
+  "filters": {
+    "title": "Filtrar Resultados",
+    "clear": "Limpiar Filtros",
+    "apply": "Aplicar Filtros",
+    "category": "Categoría",
+    "chapter": "Capítulo",
+    "codeType": "Tipo de Código"
+  }
+}

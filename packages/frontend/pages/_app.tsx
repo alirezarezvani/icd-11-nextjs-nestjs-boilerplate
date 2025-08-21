@@ -1,0 +1,37 @@
+import type { AppProps } from 'next/app';
+import { QueryClientProvider } from 'react-query';
+import { ReactQueryDevtools } from 'react-query/devtools';
+import { appWithTranslation } from 'next-i18next';
+import nextI18nConfig from '../next-i18next.config';
+import { queryClient } from '../lib/react-query';
+import '../styles/globals.css';
+import { ICD11Provider } from '../context/ICD11Context';
+import { LanguageProvider } from '../context/LanguageContext';
+import { OrganizationProvider } from '../context/OrganizationContext';
+import { CustomThemeProvider } from '../context/ThemeContext';
+import { AccessibilityProvider } from '../components/Accessibility';
+
+function App({ Component, pageProps }: AppProps) {
+  // Extract organization info from URL or props for multi-tenant support
+  const organizationSlug = pageProps.organizationSlug;
+  const domain = pageProps.domain;
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <OrganizationProvider organizationSlug={organizationSlug} domain={domain}>
+        <LanguageProvider>
+          <CustomThemeProvider>
+            <AccessibilityProvider>
+              <ICD11Provider>
+                <Component {...pageProps} />
+              </ICD11Provider>
+            </AccessibilityProvider>
+          </CustomThemeProvider>
+        </LanguageProvider>
+      </OrganizationProvider>
+      <ReactQueryDevtools initialIsOpen={false} />
+    </QueryClientProvider>
+  );
+}
+
+export default appWithTranslation(App, nextI18nConfig); 

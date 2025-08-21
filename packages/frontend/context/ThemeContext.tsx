@@ -1,0 +1,352 @@
+import React, { createContext, useContext, useEffect, ReactNode, useMemo } from 'react';
+import { ThemeProvider, createTheme, Theme } from '@mui/material/styles';
+import { CssBaseline } from '@mui/material';
+import { prefixer } from 'stylis';
+import rtlPlugin from 'stylis-plugin-rtl';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
+import { useBranding } from './OrganizationContext';
+import { useLanguage } from './LanguageContext';
+
+interface CustomThemeContextType {
+  theme: Theme;
+  cssVariables: string;
+  updateThemeFromBranding: () => void;
+  emotionCache: any;
+}
+
+const CustomThemeContext = createContext<CustomThemeContextType | undefined>(undefined);
+
+interface CustomThemeProviderProps {
+  children: ReactNode;
+}
+
+export function CustomThemeProvider({ children }: CustomThemeProviderProps) {
+  const { branding } = useBranding();
+  const { isRTL } = useLanguage();
+  
+  // Create emotion cache for RTL support - with SSR safety
+  const emotionCache = useMemo(() => {
+    const cacheRtl = createCache({
+      key: isRTL ? 'muirtl' : 'muiltr',
+      stylisPlugins: isRTL ? [prefixer, rtlPlugin] : [prefixer],
+    });
+    return cacheRtl;
+  }, [isRTL]);
+  
+  // Create Material-UI theme from branding with RTL support
+  const createCustomTheme = () => {
+    const theme = createTheme({
+      direction: isRTL ? 'rtl' : 'ltr',
+      palette: {
+        mode: 'light',
+        primary: {
+          main: branding.colorScheme.primary,
+        },
+        secondary: {
+          main: branding.colorScheme.secondary,
+        },
+        error: {
+          main: branding.colorScheme.error,
+        },
+        warning: {
+          main: branding.colorScheme.warning,
+        },
+        info: {
+          main: branding.colorScheme.info,
+        },
+        success: {
+          main: branding.colorScheme.success,
+        },
+        background: {
+          default: branding.colorScheme.background,
+          paper: branding.colorScheme.surface,
+        },
+        text: {
+          primary: branding.colorScheme.text,
+          secondary: branding.colorScheme.textSecondary,
+        },
+      },
+      typography: {
+        fontFamily: branding.typography.fontFamily,
+        fontSize: parseFloat(branding.typography.fontSize.base) * 16,
+        fontWeightLight: branding.typography.fontWeight.light,
+        fontWeightRegular: branding.typography.fontWeight.normal,
+        fontWeightMedium: branding.typography.fontWeight.medium,
+        fontWeightBold: branding.typography.fontWeight.bold,
+        h1: {
+          fontSize: branding.typography.fontSize['4xl'],
+          fontWeight: branding.typography.fontWeight.bold,
+          lineHeight: branding.typography.lineHeight.tight,
+        },
+        h2: {
+          fontSize: branding.typography.fontSize['3xl'],
+          fontWeight: branding.typography.fontWeight.bold,
+          lineHeight: branding.typography.lineHeight.tight,
+        },
+        h3: {
+          fontSize: branding.typography.fontSize['2xl'],
+          fontWeight: branding.typography.fontWeight.semibold,
+          lineHeight: branding.typography.lineHeight.normal,
+        },
+        h4: {
+          fontSize: branding.typography.fontSize.xl,
+          fontWeight: branding.typography.fontWeight.semibold,
+          lineHeight: branding.typography.lineHeight.normal,
+        },
+        h5: {
+          fontSize: branding.typography.fontSize.lg,
+          fontWeight: branding.typography.fontWeight.medium,
+          lineHeight: branding.typography.lineHeight.normal,
+        },
+        h6: {
+          fontSize: branding.typography.fontSize.base,
+          fontWeight: branding.typography.fontWeight.medium,
+          lineHeight: branding.typography.lineHeight.normal,
+        },
+        body1: {
+          fontSize: branding.typography.fontSize.base,
+          lineHeight: branding.typography.lineHeight.relaxed,
+        },
+        body2: {
+          fontSize: branding.typography.fontSize.sm,
+          lineHeight: branding.typography.lineHeight.normal,
+        },
+        caption: {
+          fontSize: branding.typography.fontSize.xs,
+          lineHeight: branding.typography.lineHeight.normal,
+        },
+      },
+      shape: {
+        borderRadius: parseFloat(branding.layout.borderRadius),
+      },
+      spacing: parseFloat(branding.layout.spacing.md) * 16,
+      shadows: [
+        'none',
+        branding.layout.shadows.sm,
+        branding.layout.shadows.md,
+        branding.layout.shadows.md,
+        branding.layout.shadows.lg,
+        branding.layout.shadows.lg,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+        branding.layout.shadows.xl,
+      ],
+      components: {
+        MuiCssBaseline: {
+          styleOverrides: {
+            body: {
+              direction: isRTL ? 'rtl' : 'ltr',
+            },
+          },
+        },
+        MuiAppBar: {
+          styleOverrides: {
+            root: {
+              height: branding.layout.headerHeight,
+              minHeight: branding.layout.headerHeight,
+            },
+          },
+        },
+        MuiDrawer: {
+          styleOverrides: {
+            paper: {
+              width: branding.layout.sidebarWidth,
+            },
+          },
+        },
+        MuiButton: {
+          styleOverrides: {
+            root: {
+              borderRadius: branding.layout.borderRadius,
+              textTransform: 'none',
+              fontWeight: branding.typography.fontWeight.medium,
+            },
+          },
+        },
+        MuiCard: {
+          styleOverrides: {
+            root: {
+              borderRadius: branding.layout.borderRadius,
+              boxShadow: branding.layout.shadows.md,
+            },
+          },
+        },
+        MuiPaper: {
+          styleOverrides: {
+            root: {
+              borderRadius: branding.layout.borderRadius,
+            },
+          },
+        },
+        MuiTextField: {
+          styleOverrides: {
+            root: {
+              '& .MuiOutlinedInput-root': {
+                borderRadius: branding.layout.borderRadius,
+              },
+              // RTL-specific input handling
+              '& .MuiInputBase-input': {
+                textAlign: isRTL ? 'right' : 'left',
+              },
+            },
+          },
+        },
+        // RTL-aware component styles
+        MuiFormLabel: {
+          styleOverrides: {
+            root: {
+              transformOrigin: isRTL ? 'top right' : 'top left',
+              '&.Mui-focused, &.MuiFormLabel-filled': {
+                transform: isRTL 
+                  ? 'translate(-14px, -9px) scale(0.75)' 
+                  : 'translate(14px, -9px) scale(0.75)',
+              },
+            },
+          },
+        },
+        MuiSelect: {
+          styleOverrides: {
+            icon: {
+              left: isRTL ? '7px' : 'auto',
+              right: isRTL ? 'auto' : '7px',
+            },
+          },
+        },
+        MuiMenuItem: {
+          styleOverrides: {
+            root: {
+              textAlign: isRTL ? 'right' : 'left',
+            },
+          },
+        },
+      },
+    });
+
+    return theme;
+  };
+
+  // Generate CSS variables from branding
+  const generateCssVariables = () => {
+    const cssVars: string[] = [];
+
+    // Color scheme variables
+    Object.entries(branding.colorScheme).forEach(([key, value]) => {
+      cssVars.push(`  --color-${kebabCase(key)}: ${value};`);
+    });
+
+    // Typography variables
+    cssVars.push(`  --font-family: ${branding.typography.fontFamily};`);
+    
+    Object.entries(branding.typography.fontSize).forEach(([key, value]) => {
+      cssVars.push(`  --font-size-${key}: ${value};`);
+    });
+    
+    Object.entries(branding.typography.fontWeight).forEach(([key, value]) => {
+      cssVars.push(`  --font-weight-${key}: ${value};`);
+    });
+    
+    Object.entries(branding.typography.lineHeight).forEach(([key, value]) => {
+      cssVars.push(`  --line-height-${key}: ${value};`);
+    });
+
+    // Layout variables
+    cssVars.push(`  --header-height: ${branding.layout.headerHeight};`);
+    cssVars.push(`  --sidebar-width: ${branding.layout.sidebarWidth};`);
+    cssVars.push(`  --border-radius: ${branding.layout.borderRadius};`);
+    
+    Object.entries(branding.layout.spacing).forEach(([key, value]) => {
+      cssVars.push(`  --spacing-${key}: ${value};`);
+    });
+    
+    Object.entries(branding.layout.shadows).forEach(([key, value]) => {
+      cssVars.push(`  --shadow-${key}: ${value};`);
+    });
+
+    return `:root {\n${cssVars.join('\n')}\n}`;
+  };
+
+  const theme = useMemo(() => createCustomTheme(), [branding]);
+  const cssVariables = useMemo(() => generateCssVariables(), [branding]);
+
+  // Apply CSS variables to document - only on client side
+  useEffect(() => {
+    // Only run on client side to avoid SSR issues
+    if (typeof window === 'undefined') return;
+    
+    const styleElement = document.getElementById('custom-theme-css');
+    if (styleElement) {
+      styleElement.textContent = cssVariables;
+    } else {
+      const newStyleElement = document.createElement('style');
+      newStyleElement.id = 'custom-theme-css';
+      newStyleElement.textContent = cssVariables;
+      document.head.appendChild(newStyleElement);
+    }
+
+    // Apply font family to body
+    document.body.style.fontFamily = branding.typography.fontFamily;
+
+    // Clean up on unmount
+    return () => {
+      const styleElement = document.getElementById('custom-theme-css');
+      if (styleElement) {
+        styleElement.remove();
+      }
+    };
+  }, [cssVariables, branding.typography.fontFamily]);
+
+  const updateThemeFromBranding = () => {
+    // Force re-render by updating the key
+    window.location.reload();
+  };
+
+  const contextValue: CustomThemeContextType = {
+    theme,
+    cssVariables,
+    updateThemeFromBranding,
+    emotionCache,
+  };
+
+  return (
+    <CustomThemeContext.Provider value={contextValue}>
+      <CacheProvider value={emotionCache}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      </CacheProvider>
+    </CustomThemeContext.Provider>
+  );
+}
+
+export function useCustomTheme(): CustomThemeContextType {
+  const context = useContext(CustomThemeContext);
+  
+  if (context === undefined) {
+    throw new Error('useCustomTheme must be used within a CustomThemeProvider');
+  }
+  
+  return context;
+}
+
+// Utility function to convert camelCase to kebab-case
+function kebabCase(str: string): string {
+  return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+}

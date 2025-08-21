@@ -1,0 +1,106 @@
+{
+  "templates": {
+    "default": {
+      "name": "Full Stack Healthcare Application",
+      "description": "Complete ICD-11 healthcare application with Next.js frontend, NestJS backend, and Redis caching",
+      "includes": ["frontend", "backend", "shared", "docker", "redis"],
+      "features": {
+        "whoApi": true,
+        "redis": true,
+        "docker": true,
+        "branding": true,
+        "testing": true,
+        "deployment": true
+      },
+      "ports": {
+        "frontend": 3000,
+        "backend": 3003,
+        "redis": 6379
+      }
+    },
+    "frontend-only": {
+      "name": "Frontend Healthcare Interface",
+      "description": "Next.js frontend with ICD-11 search interface and mock API responses",
+      "includes": ["frontend", "shared"],
+      "features": {
+        "whoApi": false,
+        "redis": false,
+        "docker": false,
+        "branding": true,
+        "testing": true,
+        "deployment": true
+      },
+      "ports": {
+        "frontend": 3000
+      }
+    },
+    "api-only": {
+      "name": "ICD-11 API Service",
+      "description": "NestJS backend with WHO API integration and Redis caching",
+      "includes": ["backend", "shared", "docker", "redis"],
+      "features": {
+        "whoApi": true,
+        "redis": true,
+        "docker": true,
+        "branding": false,
+        "testing": true,
+        "deployment": true
+      },
+      "ports": {
+        "backend": 3003,
+        "redis": 6379
+      }
+    },
+    "minimal": {
+      "name": "Minimal ICD-11 Setup",
+      "description": "Basic Next.js + NestJS setup with essential ICD-11 functionality",
+      "includes": ["frontend", "backend", "shared"],
+      "features": {
+        "whoApi": true,
+        "redis": false,
+        "docker": false,
+        "branding": true,
+        "testing": false,
+        "deployment": false
+      },
+      "ports": {
+        "frontend": 3000,
+        "backend": 3003
+      }
+    }
+  },
+  "deploymentProviders": {
+    "docker": {
+      "name": "Docker Compose",
+      "files": ["docker-compose.prod.yml", "deploy.sh"],
+      "supports": ["all"]
+    },
+    "aws": {
+      "name": "Amazon Web Services",
+      "files": ["task-definition.json", "cloudformation.json", "deploy-aws.sh"],
+      "supports": ["default", "api-only"]
+    },
+    "azure": {
+      "name": "Microsoft Azure",
+      "files": ["container-app.json", "deploy-azure.sh"],
+      "supports": ["default", "frontend-only"]
+    },
+    "gcp": {
+      "name": "Google Cloud Platform", 
+      "files": ["cloud-run.yaml", "deploy-gcp.sh"],
+      "supports": ["default", "frontend-only"]
+    }
+  },
+  "ciProviders": {
+    "github-actions": {
+      "name": "GitHub Actions",
+      "files": [".github/workflows/deploy.yml"],
+      "supports": ["all"]
+    },
+    "gitlab-ci": {
+      "name": "GitLab CI",
+      "files": [".gitlab-ci.yml"],
+      "supports": ["all"]
+    }
+  }
+}

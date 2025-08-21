@@ -1,0 +1,223 @@
+# ICD-11 Healthcare Boilerplate Platform
+# GitHub Actions CI/CD Pipeline
+# Sprint 2 Emergency Deployment
+
+name: Deploy ICD-11 Healthcare Platform
+
+on:
+  push:
+    branches: [ main, develop, refactor-and-fix-bugs ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  NODE_VERSION: '18'
+
+jobs:
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+
+      - name: Install workspace dependencies
+        run: |
+          cd packages/backend && npm ci
+          cd ../frontend && npm ci
+          cd ../cli && npm ci
+
+      - name: Lint backend
+        run: |
+          cd packages/backend
+          npm run lint
+
+      - name: Lint frontend
+        run: |
+          cd packages/frontend
+          npm run lint
+
+      - name: Type check frontend
+        run: |
+          cd packages/frontend
+          npm run type-check
+
+      - name: Test backend
+        run: |
+          cd packages/backend
+          npm run test
+        env:
+          NODE_ENV: test
+          REDIS_HOST: localhost
+          REDIS_PORT: 6379
+          ICD11_CLIENT_ID: test-client-id
+          ICD11_CLIENT_SECRET: test-client-secret
+
+      - name: Test CLI
+        run: |
+          cd packages/cli
+          npm run test
+
+      - name: Build backend
+        run: |
+          cd packages/backend
+          npm run build
+
+      - name: Build frontend
+        run: |
+          cd packages/frontend
+          npm run build
+        env:
+          NODE_ENV: production
+          NEXT_PUBLIC_API_URL: http://localhost:3003/api
+
+      - name: Security audit
+        run: |
+          npm audit --audit-level moderate
+
+  build:
+    name: Build Application
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          cd packages/backend && npm ci
+          cd ../frontend && npm ci
+
+      - name: Build production artifacts
+        run: |
+          cd packages/backend && npm run build
+          cd ../frontend && npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Package CLI for NPM
+        run: |
+          cd packages/cli
+          npm ci
+          npm run build
+          npm pack
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: |
+            packages/backend/dist/
+            packages/frontend/.next/
+            packages/cli/*.tgz
+
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Deploy to staging environment
+        run: |
+          echo "Deploying to staging environment"
+          echo "Backend artifacts available at: packages/backend/dist/"
+          echo "Frontend artifacts available at: packages/frontend/.next/"
+          # Add actual staging deployment commands here
+
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    environment: production
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+
+      - name: Deploy to production environment
+        run: |
+          echo "Deploying to production environment"
+          echo "Backend artifacts available at: packages/backend/dist/"
+          echo "Frontend artifacts available at: packages/frontend/.next/"
+          echo "CLI package available for NPM publication"
+          # Add actual production deployment commands here
+
+  publish-cli:
+    name: Publish CLI Package
+    runs-on: ubuntu-latest
+    needs: test
+    if: github.ref == 'refs/heads/main' && contains(github.event.head_commit.message, '[publish-cli]')
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Install CLI dependencies
+        run: |
+          cd packages/cli
+          npm ci
+
+      - name: Build CLI package
+        run: |
+          cd packages/cli
+          npm run build
+
+      - name: Publish to NPM
+        run: |
+          cd packages/cli
+          npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

@@ -1,0 +1,57 @@
+{
+  "form": {
+    "labels": {
+      "searchTerm": "البحث في المصطلحات أو الرموز الطبية",
+      "searchLanguage": "لغة البحث",
+      "flexibleSearch": "البحث المرن"
+    },
+    "placeholders": {
+      "searchInput": "أدخل مصطلح طبي، حالة مرضية، أو رمز ICD-11..."
+    },
+    "buttons": {
+      "search": "بحث",
+      "searching": "جاري البحث..."
+    },
+    "options": {
+      "title": "خيارات البحث",
+      "flexibleSearchDescription": "تضمين المرادفات، المصطلحات ذات الصلة، والإملاء البديل في نتائج البحث"
+    },
+    "stats": {
+      "searchingIn": "البحث في قاعدة بيانات منظمة الصحة العالمية ICD-11",
+      "language": "اللغة: {{language}}"
+    }
+  },
+  "languages": {
+    "en": "English",
+    "es": "Español", 
+    "fr": "Français",
+    "ar": "العربية",
+    "zh": "中文",
+    "ru": "Русский"
+  },
+  "results": {
+    "title": "نتائج البحث",
+    "noResults": "لم يتم العثور على نتائج",
+    "noResultsDescription": "حاول تعديل مصطلحات البحث أو استخدم خيار البحث المرن",
+    "loading": "جاري البحث...",
+    "error": "فشل في البحث",
+    "errorDescription": "الرجاء المحاولة مرة أخرى أو التواصل مع الدعم الفني إذا استمرت المشكلة",
+    "showingResults": "عرض {{start}}-{{end}} من أصل {{total}}",
+    "foundResults": "تم العثور على {{total}} نتيجة",
+    "loadMore": "عرض نتائج إضافية",
+    "viewDetails": "عرض التفاصيل",
+    "copyCode": "نسخ الرمز",
+    "codeHierarchy": "هيكلية الرمز",
+    "parentCodes": "الرموز الرئيسية",
+    "childCodes": "الرموز الفرعية",
+    "relatedCodes": "الرموز ذات الصلة"
+  },
+  "filters": {
+    "title": "ترشيح النتائج",
+    "clear": "مسح المرشحات",
+    "apply": "تطبيق المرشحات",
+    "category": "الفئة",
+    "chapter": "الفصل",
+    "codeType": "نوع الرمز"
+  }
+}

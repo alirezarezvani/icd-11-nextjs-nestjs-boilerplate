@@ -1,0 +1,279 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "description": "{{ORGANIZATION_NAME}} ICD-11 Healthcare Application - Azure Container Apps Deployment",
+    "author": "create-icd11-app"
+  },
+  "parameters": {
+    "containerAppName": {
+      "type": "string",
+      "defaultValue": "{{PROJECT_NAME}}",
+      "metadata": {
+        "description": "Name of the container app"
+      }
+    },
+    "organizationName": {
+      "type": "string",
+      "defaultValue": "{{ORGANIZATION_NAME}}",
+      "metadata": {
+        "description": "Healthcare organization name"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for all resources"
+      }
+    },
+    "containerImage": {
+      "type": "string",
+      "defaultValue": "{{PROJECT_NAME}}:latest",
+      "metadata": {
+        "description": "Container image to deploy"
+      }
+    }{{#if_who_credentials}},
+    "whoClientId": {
+      "type": "securestring",
+      "metadata": {
+        "description": "WHO ICD-11 API Client ID"
+      }
+    },
+    "whoClientSecret": {
+      "type": "securestring",
+      "metadata": {
+        "description": "WHO ICD-11 API Client Secret"
+      }
+    }{{/if_who_credentials}}{{#if_includes_redis}},
+    "redisConnectionString": {
+      "type": "securestring",
+      "metadata": {
+        "description": "Redis cache connection string"
+      }
+    }{{/if_includes_redis}}
+  },
+  "variables": {
+    "containerAppEnvironmentName": "[concat(parameters('containerAppName'), '-env')]",
+    "logAnalyticsWorkspaceName": "[concat(parameters('containerAppName'), '-logs')]"{{#if_includes_redis}},
+    "redisCacheName": "[concat(parameters('containerAppName'), '-redis')]"{{/if_includes_redis}}
+  },
+  "resources": [
+    {
+      "type": "Microsoft.OperationalInsights/workspaces",
+      "apiVersion": "2022-10-01",
+      "name": "[variables('logAnalyticsWorkspaceName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "PerGB2018"
+        },
+        "retentionInDays": 30,
+        "features": {
+          "searchVersion": 1,
+          "legacy": 0
+        }
+      }
+    },
+    {
+      "type": "Microsoft.App/managedEnvironments",
+      "apiVersion": "2023-05-01",
+      "name": "[variables('containerAppEnvironmentName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))]"
+      ],
+      "properties": {
+        "appLogsConfiguration": {
+          "destination": "log-analytics",
+          "logAnalyticsConfiguration": {
+            "customerId": "[reference(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName'))).customerId]",
+            "sharedKey": "[listKeys(resourceId('Microsoft.OperationalInsights/workspaces', variables('logAnalyticsWorkspaceName')), '2022-10-01').primarySharedKey]"
+          }
+        }
+      }
+    }{{#if_includes_redis}},
+    {
+      "type": "Microsoft.Cache/Redis",
+      "apiVersion": "2023-04-01",
+      "name": "[variables('redisCacheName')]",
+      "location": "[parameters('location')]",
+      "properties": {
+        "sku": {
+          "name": "Basic",
+          "family": "C",
+          "capacity": 0
+        },
+        "enableNonSslPort": true,
+        "redisConfiguration": {
+          "maxclients": "1000",
+          "maxmemory-reserved": "50",
+          "maxfragmentationmemory-reserved": "50",
+          "maxmemory-delta": "50"
+        }
+      }
+    }{{/if_includes_redis}},
+    {
+      "type": "Microsoft.App/containerApps",
+      "apiVersion": "2023-05-01",
+      "name": "[parameters('containerAppName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvironmentName'))]"{{#if_includes_redis}},
+        "[resourceId('Microsoft.Cache/Redis', variables('redisCacheName'))]"{{/if_includes_redis}}
+      ],
+      "properties": {
+        "environmentId": "[resourceId('Microsoft.App/managedEnvironments', variables('containerAppEnvironmentName'))]",
+        "configuration": {
+          "secrets": [{{#if_who_credentials}}
+            {
+              "name": "who-client-id",
+              "value": "[parameters('whoClientId')]"
+            },
+            {
+              "name": "who-client-secret", 
+              "value": "[parameters('whoClientSecret')]"
+            }{{#if_includes_redis}},{{/if_includes_redis}}{{/if_who_credentials}}{{#if_includes_redis}}
+            {
+              "name": "redis-connection-string",
+              "value": "[parameters('redisConnectionString')]"
+            }{{/if_includes_redis}}
+          ],
+          "activeRevisionsMode": "Single",
+          "ingress": {
+            "external": true,
+            "targetPort": {{#if_includes_frontend}}3000{{else}}3003{{/if_includes_frontend}},
+            "allowInsecure": false,
+            "traffic": [
+              {
+                "weight": 100,
+                "latestRevision": true
+              }
+            ]
+          }
+        },
+        "template": {
+          "revisionSuffix": "v1",
+          "containers": [{{#if_includes_frontend}}
+            {
+              "name": "frontend",
+              "image": "[parameters('containerImage')]-frontend",
+              "resources": {
+                "cpu": "0.5",
+                "memory": "1.0Gi"
+              },
+              "env": [
+                {
+                  "name": "NEXT_PUBLIC_APP_NAME",
+                  "value": "[parameters('organizationName')]"
+                },
+                {
+                  "name": "NEXT_PUBLIC_PRIMARY_COLOR",
+                  "value": "{{PRIMARY_COLOR}}"
+                },
+                {
+                  "name": "NEXT_PUBLIC_SECONDARY_COLOR",
+                  "value": "{{SECONDARY_COLOR}}"
+                },
+                {
+                  "name": "NODE_ENV",
+                  "value": "production"
+                }{{#if_includes_backend}},
+                {
+                  "name": "NEXT_PUBLIC_API_URL",
+                  "value": "http://localhost:3003/api"
+                }{{/if_includes_backend}}
+              ]
+            }{{#if_includes_backend}},{{/if_includes_backend}}{{/if_includes_frontend}}{{#if_includes_backend}}
+            {
+              "name": "backend",
+              "image": "[parameters('containerImage')]-backend",
+              "resources": {
+                "cpu": "0.5",
+                "memory": "1.0Gi"
+              },
+              "env": [
+                {
+                  "name": "NODE_ENV",
+                  "value": "production"
+                },
+                {
+                  "name": "PORT",
+                  "value": "3003"
+                },
+                {
+                  "name": "ORG_NAME",
+                  "value": "[parameters('organizationName')]"
+                }{{#if_org_website}},
+                {
+                  "name": "ORG_WEBSITE",
+                  "value": "{{ORG_WEBSITE}}"
+                }{{/if_org_website}}{{#if_support_email}},
+                {
+                  "name": "SUPPORT_EMAIL", 
+                  "value": "{{SUPPORT_EMAIL}}"
+                }{{/if_support_email}}{{#if_who_credentials}},
+                {
+                  "name": "ICD11_CLIENT_ID",
+                  "secretRef": "who-client-id"
+                },
+                {
+                  "name": "ICD11_CLIENT_SECRET",
+                  "secretRef": "who-client-secret"
+                }{{/if_who_credentials}}{{#if_includes_redis}},
+                {
+                  "name": "REDIS_HOST",
+                  "value": "[concat(variables('redisCacheName'), '.redis.cache.windows.net')]"
+                },
+                {
+                  "name": "REDIS_PORT",
+                  "value": "6380"
+                },
+                {
+                  "name": "REDIS_PASSWORD",
+                  "value": "[listKeys(resourceId('Microsoft.Cache/Redis', variables('redisCacheName')), '2023-04-01').primaryKey]"
+                },
+                {
+                  "name": "REDIS_TLS",
+                  "value": "true"
+                }{{/if_includes_redis}}
+              ]
+            }{{/if_includes_backend}}
+          ],
+          "scale": {
+            "minReplicas": 1,
+            "maxReplicas": 10,
+            "rules": [
+              {
+                "name": "http-scale-rule",
+                "http": {
+                  "metadata": {
+                    "concurrentRequests": "30"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "containerAppFQDN": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.App/containerApps', parameters('containerAppName'))).configuration.ingress.fqdn]"
+    },
+    "containerAppUrl": {
+      "type": "string",
+      "value": "[concat('https://', reference(resourceId('Microsoft.App/containerApps', parameters('containerAppName'))).configuration.ingress.fqdn)]"
+    }{{#if_includes_redis}},
+    "redisHostName": {
+      "type": "string",
+      "value": "[concat(variables('redisCacheName'), '.redis.cache.windows.net')]"
+    },
+    "redisPort": {
+      "type": "string",
+      "value": "6380"
+    }{{/if_includes_redis}}
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "terms": {
+    "condition": "Medical Condition",
+    "disease": "Disease",
+    "disorder": "Disorder",
+    "syndrome": "Syndrome",
+    "symptom": "Symptom",
+    "diagnosis": "Diagnosis",
+    "treatment": "Treatment",
+    "procedure": "Medical Procedure",
+    "medication": "Medication",
+    "anatomy": "Anatomy",
+    "pathology": "Pathology",
+    "epidemiology": "Epidemiology"
+  },
+  "categories": {
+    "infectious": "Infectious Diseases",
+    "neoplasms": "Neoplasms",
+    "blood": "Blood and Immune Disorders",
+    "endocrine": "Endocrine Disorders",
+    "mental": "Mental Health Disorders",
+    "nervous": "Nervous System Disorders",
+    "sensory": "Sensory System Disorders",
+    "circulatory": "Circulatory System Disorders",
+    "respiratory": "Respiratory System Disorders",
+    "digestive": "Digestive System Disorders",
+    "skin": "Skin and Subcutaneous Disorders",
+    "musculoskeletal": "Musculoskeletal Disorders",
+    "genitourinary": "Genitourinary Disorders",
+    "pregnancy": "Pregnancy and Childbirth",
+    "perinatal": "Perinatal Conditions",
+    "congenital": "Congenital Malformations",
+    "symptoms": "Symptoms and Signs",
+    "injury": "Injury and Poisoning",
+    "external": "External Causes",
+    "health": "Health Status Factors"
+  },
+  "properties": {
+    "code": "ICD-11 Code",
+    "title": "Title",
+    "definition": "Definition", 
+    "inclusion": "Inclusions",
+    "exclusion": "Exclusions",
+    "synonym": "Synonyms",
+    "parent": "Parent Category",
+    "children": "Subcategories",
+    "related": "Related Codes"
+  },
+  "search": {
+    "suggestions": {
+      "title": "Search Suggestions",
+      "general": "Try more general terms (e.g., \"diabetes\" instead of \"diabetic ketoacidosis\")",
+      "terminology": "Use medical terminology for best results",
+      "spelling": "Check spelling of medical terms",
+      "flexible": "Enable \"Flexible Search\" option",
+      "language": "Try searching in a different language",
+      "commonNames": "Try both common and scientific names",
+      "codes": "Search by ICD-11 codes if known",
+      "specific": "Too many results? Use more specific terms",
+      "broad": "Too few results? Try related terms"
+    }
+  }
+}
