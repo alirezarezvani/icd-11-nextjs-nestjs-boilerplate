@@ -1,11 +1,16 @@
-import { Injectable, Logger, NotFoundException, BadRequestException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Organization } from '../../entities/organization.entity';
-import { OrganizationBranding } from '../../entities/organization-branding.entity';
-import { EncryptionService } from './encryption.service';
-import { AuditLogService } from './audit-log.service';
-import { FileUploadService } from './file-upload.service';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  BadRequestException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Organization } from "../../entities/organization.entity";
+import { OrganizationBranding } from "../../entities/organization-branding.entity";
+import { EncryptionService } from "./encryption.service";
+import { AuditLogService } from "./audit-log.service";
+import { FileUploadService } from "./file-upload.service";
 
 export interface BrandingTheme {
   colorScheme: {
@@ -29,9 +34,9 @@ export interface BrandingTheme {
       base: string;
       lg: string;
       xl: string;
-      '2xl': string;
-      '3xl': string;
-      '4xl': string;
+      "2xl": string;
+      "3xl": string;
+      "4xl": string;
     };
     fontWeight: {
       light: number;
@@ -69,9 +74,9 @@ export interface BrandingTheme {
 export interface CreateBrandingDto {
   logoUrl?: string;
   faviconUrl?: string;
-  colorScheme: BrandingTheme['colorScheme'];
-  typography?: BrandingTheme['typography'];
-  layout?: BrandingTheme['layout'];
+  colorScheme: BrandingTheme["colorScheme"];
+  typography?: BrandingTheme["typography"];
+  layout?: BrandingTheme["layout"];
   customCss?: string;
 }
 
@@ -95,11 +100,13 @@ export class OrganizationBrandingService {
    * Get organization branding
    * @param organizationId Organization ID
    */
-  async getBranding(organizationId: string): Promise<OrganizationBranding | null> {
+  async getBranding(
+    organizationId: string,
+  ): Promise<OrganizationBranding | null> {
     try {
       const branding = await this.brandingRepository.findOne({
         where: { organizationId, isActive: true },
-        relations: ['organization'],
+        relations: ["organization"],
       });
 
       if (!branding) {
@@ -109,16 +116,20 @@ export class OrganizationBrandingService {
       // Decrypt custom CSS if present
       if (branding.customCss) {
         try {
-          branding.customCss = this.encryptionService.decrypt(branding.customCss);
+          branding.customCss = this.encryptionService.decrypt(
+            branding.customCss,
+          );
         } catch (error) {
-          this.logger.warn(`Failed to decrypt custom CSS for organization ${organizationId}`);
+          this.logger.warn(
+            `Failed to decrypt custom CSS for organization ${organizationId}`,
+          );
           branding.customCss = null;
         }
       }
 
       return branding;
     } catch (error) {
-      this.logger.error('Failed to get organization branding', error.stack);
+      this.logger.error("Failed to get organization branding", error.stack);
       throw error;
     }
   }
@@ -143,16 +154,18 @@ export class OrganizationBrandingService {
       });
 
       if (!organization) {
-        throw new NotFoundException('Organization not found');
+        throw new NotFoundException("Organization not found");
       }
 
       // Check if organization has branding feature enabled
       if (!organization.features?.customBranding) {
-        throw new BadRequestException('Custom branding feature not available for this organization');
+        throw new BadRequestException(
+          "Custom branding feature not available for this organization",
+        );
       }
 
       // Get existing branding
-      let existingBranding = await this.brandingRepository.findOne({
+      const existingBranding = await this.brandingRepository.findOne({
         where: { organizationId, isActive: true },
       });
 
@@ -161,29 +174,32 @@ export class OrganizationBrandingService {
         organizationId,
         userId: updatedBy,
         userEmail,
-        action: existingBranding ? 'update_branding' : 'create_branding',
-        resource: 'organization_branding',
+        action: existingBranding ? "update_branding" : "create_branding",
+        resource: "organization_branding",
         resourceId: existingBranding?.id,
       };
 
       // Encrypt custom CSS if provided
       let encryptedCustomCss: string | undefined;
       if (brandingData.customCss) {
-        encryptedCustomCss = this.encryptionService.encrypt(brandingData.customCss);
+        encryptedCustomCss = this.encryptionService.encrypt(
+          brandingData.customCss,
+        );
       }
 
       // Set default typography if not provided
-      const defaultTypography: BrandingTheme['typography'] = {
-        fontFamily: 'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+      const defaultTypography: BrandingTheme["typography"] = {
+        fontFamily:
+          'Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
         fontSize: {
-          xs: '0.75rem',
-          sm: '0.875rem',
-          base: '1rem',
-          lg: '1.125rem',
-          xl: '1.25rem',
-          '2xl': '1.5rem',
-          '3xl': '1.875rem',
-          '4xl': '2.25rem',
+          xs: "0.75rem",
+          sm: "0.875rem",
+          base: "1rem",
+          lg: "1.125rem",
+          xl: "1.25rem",
+          "2xl": "1.5rem",
+          "3xl": "1.875rem",
+          "4xl": "2.25rem",
         },
         fontWeight: {
           light: 300,
@@ -193,29 +209,29 @@ export class OrganizationBrandingService {
           bold: 700,
         },
         lineHeight: {
-          tight: '1.25',
-          normal: '1.5',
-          relaxed: '1.625',
+          tight: "1.25",
+          normal: "1.5",
+          relaxed: "1.625",
         },
       };
 
       // Set default layout if not provided
-      const defaultLayout: BrandingTheme['layout'] = {
-        headerHeight: '64px',
-        sidebarWidth: '280px',
-        borderRadius: '8px',
+      const defaultLayout: BrandingTheme["layout"] = {
+        headerHeight: "64px",
+        sidebarWidth: "280px",
+        borderRadius: "8px",
         spacing: {
-          xs: '0.25rem',
-          sm: '0.5rem',
-          md: '1rem',
-          lg: '1.5rem',
-          xl: '2rem',
+          xs: "0.25rem",
+          sm: "0.5rem",
+          md: "1rem",
+          lg: "1.5rem",
+          xl: "2rem",
         },
         shadows: {
-          sm: '0 1px 2px 0 rgba(0, 0, 0, 0.05)',
-          md: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-          lg: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-          xl: '0 20px 25px -5px rgba(0, 0, 0, 0.1)',
+          sm: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
+          md: "0 4px 6px -1px rgba(0, 0, 0, 0.1)",
+          lg: "0 10px 15px -3px rgba(0, 0, 0, 0.1)",
+          xl: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
         },
       };
 
@@ -223,15 +239,24 @@ export class OrganizationBrandingService {
         // Update existing branding
         const oldValues = { ...existingBranding };
 
-        existingBranding.logoUrl = brandingData.logoUrl ?? existingBranding.logoUrl;
-        existingBranding.faviconUrl = brandingData.faviconUrl ?? existingBranding.faviconUrl;
-        existingBranding.colorScheme = brandingData.colorScheme ?? existingBranding.colorScheme;
-        existingBranding.typography = brandingData.typography ?? existingBranding.typography ?? defaultTypography;
-        existingBranding.layout = brandingData.layout ?? existingBranding.layout ?? defaultLayout;
-        existingBranding.customCss = encryptedCustomCss ?? existingBranding.customCss;
+        existingBranding.logoUrl =
+          brandingData.logoUrl ?? existingBranding.logoUrl;
+        existingBranding.faviconUrl =
+          brandingData.faviconUrl ?? existingBranding.faviconUrl;
+        existingBranding.colorScheme =
+          brandingData.colorScheme ?? existingBranding.colorScheme;
+        existingBranding.typography =
+          brandingData.typography ??
+          existingBranding.typography ??
+          defaultTypography;
+        existingBranding.layout =
+          brandingData.layout ?? existingBranding.layout ?? defaultLayout;
+        existingBranding.customCss =
+          encryptedCustomCss ?? existingBranding.customCss;
         existingBranding.version = this.generateVersion();
 
-        const savedBranding = await this.brandingRepository.save(existingBranding);
+        const savedBranding =
+          await this.brandingRepository.save(existingBranding);
 
         // Log the update
         await this.auditLogService.logSuccess({
@@ -287,7 +312,7 @@ export class OrganizationBrandingService {
         return savedBranding;
       }
     } catch (error) {
-      this.logger.error('Failed to upsert organization branding', error.stack);
+      this.logger.error("Failed to upsert organization branding", error.stack);
       throw error;
     }
   }
@@ -307,15 +332,15 @@ export class OrganizationBrandingService {
     // Typography variables
     if (branding.typography) {
       cssVars.push(`  --font-family: ${branding.typography.fontFamily};`);
-      
+
       Object.entries(branding.typography.fontSize).forEach(([key, value]) => {
         cssVars.push(`  --font-size-${key}: ${value};`);
       });
-      
+
       Object.entries(branding.typography.fontWeight).forEach(([key, value]) => {
         cssVars.push(`  --font-weight-${key}: ${value};`);
       });
-      
+
       Object.entries(branding.typography.lineHeight).forEach(([key, value]) => {
         cssVars.push(`  --line-height-${key}: ${value};`);
       });
@@ -326,17 +351,17 @@ export class OrganizationBrandingService {
       cssVars.push(`  --header-height: ${branding.layout.headerHeight};`);
       cssVars.push(`  --sidebar-width: ${branding.layout.sidebarWidth};`);
       cssVars.push(`  --border-radius: ${branding.layout.borderRadius};`);
-      
+
       Object.entries(branding.layout.spacing).forEach(([key, value]) => {
         cssVars.push(`  --spacing-${key}: ${value};`);
       });
-      
+
       Object.entries(branding.layout.shadows).forEach(([key, value]) => {
         cssVars.push(`  --shadow-${key}: ${value};`);
       });
     }
 
-    return `:root {\n${cssVars.join('\n')}\n}`;
+    return `:root {\n${cssVars.join("\n")}\n}`;
   }
 
   /**
@@ -346,7 +371,7 @@ export class OrganizationBrandingService {
   generateMuiThemeConfig(branding: OrganizationBranding): any {
     const config = {
       palette: {
-        mode: 'light',
+        mode: "light",
         primary: {
           main: branding.colorScheme.primary,
         },
@@ -377,7 +402,7 @@ export class OrganizationBrandingService {
     };
 
     if (branding.typography) {
-      config['typography'] = {
+      config["typography"] = {
         fontFamily: branding.typography.fontFamily,
         fontSize: parseFloat(branding.typography.fontSize.base) * 16,
         fontWeightLight: branding.typography.fontWeight.light,
@@ -388,11 +413,11 @@ export class OrganizationBrandingService {
     }
 
     if (branding.layout) {
-      config['shape'] = {
+      config["shape"] = {
         borderRadius: parseFloat(branding.layout.borderRadius),
       };
-      
-      config['spacing'] = parseFloat(branding.layout.spacing.md) * 16;
+
+      config["spacing"] = parseFloat(branding.layout.spacing.md) * 16;
     }
 
     return config;
@@ -423,8 +448,8 @@ export class OrganizationBrandingService {
           organizationId,
           userId: resetBy,
           userEmail,
-          action: 'reset_branding',
-          resource: 'organization_branding',
+          action: "reset_branding",
+          resource: "organization_branding",
           resourceId: existingBranding.id,
           metadata: {
             previousVersion: existingBranding.version,
@@ -432,7 +457,7 @@ export class OrganizationBrandingService {
         });
       }
     } catch (error) {
-      this.logger.error('Failed to reset organization branding', error.stack);
+      this.logger.error("Failed to reset organization branding", error.stack);
       throw error;
     }
   }
@@ -442,6 +467,6 @@ export class OrganizationBrandingService {
   }
 
   private kebabCase(str: string): string {
-    return str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
+    return str.replace(/([a-z0-9])([A-Z])/g, "$1-$2").toLowerCase();
   }
 }

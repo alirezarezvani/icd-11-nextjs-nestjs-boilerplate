@@ -82,8 +82,14 @@ export const getServerSideProps: GetServerSideProps<OrganizationHomeProps> = asy
   const { slug } = context.params!;
   const organizationSlug = Array.isArray(slug) ? slug[0] : slug;
   
+  if (!organizationSlug) {
+    return {
+      notFound: true,
+    };
+  }
+  
   // Get organization domain from headers if available
-  const domain = context.req.headers['x-organization-domain'] as string;
+  const domain = context.req.headers['x-organization-domain'] as string || '';
 
   return {
     props: {

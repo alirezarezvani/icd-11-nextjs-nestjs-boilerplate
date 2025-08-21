@@ -1,6 +1,6 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import * as crypto from 'crypto';
+import { Injectable, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import * as crypto from "crypto";
 
 @Injectable()
 export class EncryptionService {
@@ -11,14 +11,14 @@ export class EncryptionService {
   private readonly tagLength: number;
 
   constructor(private readonly configService: ConfigService) {
-    const encryptionConfig = this.configService.get('encryption');
+    const encryptionConfig = this.configService.get("encryption");
     this.algorithm = encryptionConfig.algorithm;
     this.ivLength = encryptionConfig.ivLength;
     this.tagLength = encryptionConfig.tagLength;
-    
+
     // Create a consistent key from the configuration
     const keyString = encryptionConfig.key;
-    this.key = crypto.scryptSync(keyString, 'salt', 32);
+    this.key = crypto.scryptSync(keyString, "salt", 32);
   }
 
   /**
@@ -30,18 +30,18 @@ export class EncryptionService {
     try {
       const iv = crypto.randomBytes(this.ivLength);
       const cipher = crypto.createCipher(this.algorithm, this.key, { iv });
-      
-      let encrypted = cipher.update(plaintext, 'utf8', 'hex');
-      encrypted += cipher.final('hex');
-      
+
+      let encrypted = cipher.update(plaintext, "utf8", "hex");
+      encrypted += cipher.final("hex");
+
       const tag = cipher.getAuthTag();
-      
+
       // Combine IV, tag, and encrypted data
-      const combined = Buffer.concat([iv, tag, Buffer.from(encrypted, 'hex')]);
-      return combined.toString('base64');
+      const combined = Buffer.concat([iv, tag, Buffer.from(encrypted, "hex")]);
+      return combined.toString("base64");
     } catch (error) {
-      this.logger.error('Encryption failed', error.stack);
-      throw new Error('Failed to encrypt data');
+      this.logger.error("Encryption failed", error.stack);
+      throw new Error("Failed to encrypt data");
     }
   }
 
@@ -52,23 +52,26 @@ export class EncryptionService {
    */
   decrypt(encryptedData: string): string {
     try {
-      const combined = Buffer.from(encryptedData, 'base64');
-      
+      const combined = Buffer.from(encryptedData, "base64");
+
       // Extract IV, tag, and encrypted data
       const iv = combined.subarray(0, this.ivLength);
-      const tag = combined.subarray(this.ivLength, this.ivLength + this.tagLength);
+      const tag = combined.subarray(
+        this.ivLength,
+        this.ivLength + this.tagLength,
+      );
       const encrypted = combined.subarray(this.ivLength + this.tagLength);
-      
+
       const decipher = crypto.createDecipher(this.algorithm, this.key, { iv });
       decipher.setAuthTag(tag);
-      
-      let decrypted = decipher.update(encrypted, null, 'utf8');
-      decrypted += decipher.final('utf8');
-      
+
+      let decrypted = decipher.update(encrypted, null, "utf8");
+      decrypted += decipher.final("utf8");
+
       return decrypted;
     } catch (error) {
-      this.logger.error('Decryption failed', error.stack);
-      throw new Error('Failed to decrypt data');
+      this.logger.error("Decryption failed", error.stack);
+      throw new Error("Failed to decrypt data");
     }
   }
 
@@ -78,7 +81,7 @@ export class EncryptionService {
    * @returns Hashed data as hex string
    */
   hash(data: string): string {
-    return crypto.createHash('sha256').update(data).digest('hex');
+    return crypto.createHash("sha256").update(data).digest("hex");
   }
 
   /**
@@ -87,7 +90,7 @@ export class EncryptionService {
    * @returns Random token as hex string
    */
   generateToken(length: number = 32): string {
-    return crypto.randomBytes(length).toString('hex');
+    return crypto.randomBytes(length).toString("hex");
   }
 
   /**
@@ -98,6 +101,9 @@ export class EncryptionService {
    */
   compareHash(plaintext: string, hash: string): boolean {
     const plaintextHash = this.hash(plaintext);
-    return crypto.timingSafeEqual(Buffer.from(hash), Buffer.from(plaintextHash));
+    return crypto.timingSafeEqual(
+      Buffer.from(hash),
+      Buffer.from(plaintextHash),
+    );
   }
 }

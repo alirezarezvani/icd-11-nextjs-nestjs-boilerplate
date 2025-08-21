@@ -1,5 +1,5 @@
 import { Module, NestModule, MiddlewareConsumer } from "@nestjs/common";
-import { ConfigModule, ConfigService } from "@nestjs/config";
+import { ConfigModule } from "@nestjs/config";
 // import { TypeOrmModule } from "@nestjs/typeorm";  // Temporarily disabled for Phase 2A testing
 import { ThrottlerModule } from "@nestjs/throttler";
 import { APP_FILTER, APP_INTERCEPTOR } from "@nestjs/core";

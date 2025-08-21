@@ -1,49 +1,49 @@
-import { IsObject, IsOptional, IsString, IsUrl, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, IsUrl, ValidateNested } from "class-validator";
+import { Type } from "class-transformer";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 
 export class ColorSchemeDto {
-  @ApiProperty({ description: 'Primary color' })
+  @ApiProperty({ description: "Primary color" })
   @IsString()
   primary: string;
 
-  @ApiProperty({ description: 'Secondary color' })
+  @ApiProperty({ description: "Secondary color" })
   @IsString()
   secondary: string;
 
-  @ApiProperty({ description: 'Accent color' })
+  @ApiProperty({ description: "Accent color" })
   @IsString()
   accent: string;
 
-  @ApiProperty({ description: 'Background color' })
+  @ApiProperty({ description: "Background color" })
   @IsString()
   background: string;
 
-  @ApiProperty({ description: 'Surface color' })
+  @ApiProperty({ description: "Surface color" })
   @IsString()
   surface: string;
 
-  @ApiProperty({ description: 'Text color' })
+  @ApiProperty({ description: "Text color" })
   @IsString()
   text: string;
 
-  @ApiProperty({ description: 'Secondary text color' })
+  @ApiProperty({ description: "Secondary text color" })
   @IsString()
   textSecondary: string;
 
-  @ApiProperty({ description: 'Error color' })
+  @ApiProperty({ description: "Error color" })
   @IsString()
   error: string;
 
-  @ApiProperty({ description: 'Warning color' })
+  @ApiProperty({ description: "Warning color" })
   @IsString()
   warning: string;
 
-  @ApiProperty({ description: 'Info color' })
+  @ApiProperty({ description: "Info color" })
   @IsString()
   info: string;
 
-  @ApiProperty({ description: 'Success color' })
+  @ApiProperty({ description: "Success color" })
   @IsString()
   success: string;
 }
@@ -71,15 +71,15 @@ export class FontSizeDto {
 
   @ApiProperty()
   @IsString()
-  '2xl': string;
+  "2xl": string;
 
   @ApiProperty()
   @IsString()
-  '3xl': string;
+  "3xl": string;
 
   @ApiProperty()
   @IsString()
-  '4xl': string;
+  "4xl": string;
 }
 
 export class FontWeightDto {
@@ -114,7 +114,7 @@ export class LineHeightDto {
 }
 
 export class TypographyDto {
-  @ApiProperty({ description: 'Font family' })
+  @ApiProperty({ description: "Font family" })
   @IsString()
   fontFamily: string;
 
@@ -175,15 +175,15 @@ export class ShadowsDto {
 }
 
 export class LayoutDto {
-  @ApiProperty({ description: 'Header height' })
+  @ApiProperty({ description: "Header height" })
   @IsString()
   headerHeight: string;
 
-  @ApiProperty({ description: 'Sidebar width' })
+  @ApiProperty({ description: "Sidebar width" })
   @IsString()
   sidebarWidth: string;
 
-  @ApiProperty({ description: 'Border radius' })
+  @ApiProperty({ description: "Border radius" })
   @IsString()
   borderRadius: string;
 
@@ -199,12 +199,12 @@ export class LayoutDto {
 }
 
 export class CreateBrandingDto {
-  @ApiPropertyOptional({ description: 'Logo URL' })
+  @ApiPropertyOptional({ description: "Logo URL" })
   @IsOptional()
   @IsUrl()
   logoUrl?: string;
 
-  @ApiPropertyOptional({ description: 'Favicon URL' })
+  @ApiPropertyOptional({ description: "Favicon URL" })
   @IsOptional()
   @IsUrl()
   faviconUrl?: string;
@@ -226,19 +226,19 @@ export class CreateBrandingDto {
   @Type(() => LayoutDto)
   layout?: LayoutDto;
 
-  @ApiPropertyOptional({ description: 'Custom CSS' })
+  @ApiPropertyOptional({ description: "Custom CSS" })
   @IsOptional()
   @IsString()
   customCss?: string;
 }
 
 export class UpdateBrandingDto {
-  @ApiPropertyOptional({ description: 'Logo URL' })
+  @ApiPropertyOptional({ description: "Logo URL" })
   @IsOptional()
   @IsUrl()
   logoUrl?: string;
 
-  @ApiPropertyOptional({ description: 'Favicon URL' })
+  @ApiPropertyOptional({ description: "Favicon URL" })
   @IsOptional()
   @IsUrl()
   faviconUrl?: string;
@@ -261,7 +261,7 @@ export class UpdateBrandingDto {
   @Type(() => LayoutDto)
   layout?: LayoutDto;
 
-  @ApiPropertyOptional({ description: 'Custom CSS' })
+  @ApiPropertyOptional({ description: "Custom CSS" })
   @IsOptional()
   @IsString()
   customCss?: string;

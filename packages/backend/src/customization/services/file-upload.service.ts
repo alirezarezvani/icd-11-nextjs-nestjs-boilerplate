@@ -1,13 +1,13 @@
-import { Injectable, Logger, BadRequestException } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import * as path from 'path';
-import * as fs from 'fs';
-import * as sharp from 'sharp';
-import { v4 as uuidv4 } from 'uuid';
-import { FileUpload } from '../../entities/file-upload.entity';
-import { AuditLogService } from './audit-log.service';
+import { Injectable, Logger, BadRequestException } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import * as path from "path";
+import * as fs from "fs";
+import * as sharp from "sharp";
+import { v4 as uuidv4 } from "uuid";
+import { FileUpload } from "../../entities/file-upload.entity";
+import { AuditLogService } from "./audit-log.service";
 
 export interface UploadedFile {
   fieldname: string;
@@ -40,9 +40,9 @@ export class FileUploadService {
     private readonly configService: ConfigService,
     private readonly auditLogService: AuditLogService,
   ) {
-    this.storageConfig = this.configService.get('storage');
+    this.storageConfig = this.configService.get("storage");
     this.uploadDir = this.storageConfig.local.uploadDir;
-    
+
     // Ensure upload directory exists
     if (!fs.existsSync(this.uploadDir)) {
       fs.mkdirSync(this.uploadDir, { recursive: true });
@@ -61,7 +61,7 @@ export class FileUploadService {
     file: UploadedFile,
     organizationId: string,
     uploadedBy: string,
-    fileType: 'logo' | 'favicon' | 'image' | 'document' | 'other',
+    fileType: "logo" | "favicon" | "image" | "document" | "other",
     metadata?: Record<string, any>,
   ): Promise<FileUploadResult> {
     try {
@@ -72,30 +72,30 @@ export class FileUploadService {
       const fileExtension = path.extname(file.originalname).toLowerCase();
       const fileName = `${uuidv4()}${fileExtension}`;
       const filePath = path.join(this.uploadDir, organizationId);
-      
+
       // Ensure organization directory exists
       if (!fs.existsSync(filePath)) {
         fs.mkdirSync(filePath, { recursive: true });
       }
-      
+
       const fullPath = path.join(filePath, fileName);
-      
+
       // Process and save file
       let processedBuffer = file.buffer;
       let imageMetadata = {};
-      
+
       if (this.isImageFile(file.mimetype)) {
         const result = await this.processImage(file.buffer, fileType);
         processedBuffer = result.buffer;
         imageMetadata = result.metadata;
       }
-      
+
       // Save file to disk
       fs.writeFileSync(fullPath, processedBuffer);
-      
+
       // Create public URL
       const publicUrl = this.generatePublicUrl(organizationId, fileName);
-      
+
       // Save file metadata to database
       const fileUpload = this.fileUploadRepository.create({
         organizationId,
@@ -110,16 +110,16 @@ export class FileUploadService {
         storageProvider: this.storageConfig.type,
         metadata: { ...metadata, ...imageMetadata },
       });
-      
+
       const savedFile = await this.fileUploadRepository.save(fileUpload);
-      
+
       // Log the upload
       await this.auditLogService.logSuccess({
         organizationId,
         userId: uploadedBy,
-        userEmail: 'system', // This should be passed from the request context
-        action: 'upload_file',
-        resource: 'file',
+        userEmail: "system", // This should be passed from the request context
+        action: "upload_file",
+        resource: "file",
         resourceId: savedFile.id,
         metadata: {
           fileName: file.originalname,
@@ -128,7 +128,7 @@ export class FileUploadService {
           mimeType: file.mimetype,
         },
       });
-      
+
       return {
         id: savedFile.id,
         url: publicUrl,
@@ -139,15 +139,15 @@ export class FileUploadService {
         metadata: savedFile.metadata,
       };
     } catch (error) {
-      this.logger.error('File upload failed', error.stack);
-      
+      this.logger.error("File upload failed", error.stack);
+
       // Log the failure
       await this.auditLogService.logFailure({
         organizationId,
         userId: uploadedBy,
-        userEmail: 'system',
-        action: 'upload_file',
-        resource: 'file',
+        userEmail: "system",
+        action: "upload_file",
+        resource: "file",
         metadata: {
           fileName: file.originalname,
           fileType,
@@ -155,7 +155,7 @@ export class FileUploadService {
         },
         errorMessage: error.message,
       });
-      
+
       throw error;
     }
   }
@@ -175,36 +175,35 @@ export class FileUploadService {
       const fileUpload = await this.fileUploadRepository.findOne({
         where: { id: fileId, organizationId },
       });
-      
+
       if (!fileUpload) {
-        throw new BadRequestException('File not found');
+        throw new BadRequestException("File not found");
       }
-      
+
       // Delete physical file
       if (fs.existsSync(fileUpload.filePath)) {
         fs.unlinkSync(fileUpload.filePath);
       }
-      
+
       // Soft delete from database
       fileUpload.isActive = false;
       await this.fileUploadRepository.save(fileUpload);
-      
+
       // Log the deletion
       await this.auditLogService.logSuccess({
         organizationId,
         userId: deletedBy,
-        userEmail: 'system',
-        action: 'delete_file',
-        resource: 'file',
+        userEmail: "system",
+        action: "delete_file",
+        resource: "file",
         resourceId: fileId,
         metadata: {
           fileName: fileUpload.originalName,
           fileType: fileUpload.fileType,
         },
       });
-      
     } catch (error) {
-      this.logger.error('File deletion failed', error.stack);
+      this.logger.error("File deletion failed", error.stack);
       throw error;
     }
   }
@@ -214,7 +213,10 @@ export class FileUploadService {
    * @param fileId File ID
    * @param organizationId Organization ID
    */
-  async getFile(fileId: string, organizationId: string): Promise<FileUpload | null> {
+  async getFile(
+    fileId: string,
+    organizationId: string,
+  ): Promise<FileUpload | null> {
     return this.fileUploadRepository.findOne({
       where: { id: fileId, organizationId, isActive: true },
     });
@@ -234,15 +236,15 @@ export class FileUploadService {
     offset: number = 0,
   ): Promise<{ files: FileUpload[]; total: number }> {
     const queryBuilder = this.fileUploadRepository
-      .createQueryBuilder('file')
-      .where('file.organizationId = :organizationId', { organizationId })
-      .andWhere('file.isActive = :isActive', { isActive: true })
-      .orderBy('file.createdAt', 'DESC')
+      .createQueryBuilder("file")
+      .where("file.organizationId = :organizationId", { organizationId })
+      .andWhere("file.isActive = :isActive", { isActive: true })
+      .orderBy("file.createdAt", "DESC")
       .skip(offset)
       .take(limit);
 
     if (fileType) {
-      queryBuilder.andWhere('file.fileType = :fileType', { fileType });
+      queryBuilder.andWhere("file.fileType = :fileType", { fileType });
     }
 
     const [files, total] = await queryBuilder.getManyAndCount();
@@ -254,18 +256,22 @@ export class FileUploadService {
     const allowedMimeTypes = this.storageConfig.allowedMimeTypes;
 
     if (file.size > maxSize) {
-      throw new BadRequestException(`File size exceeds maximum limit of ${maxSize} bytes`);
+      throw new BadRequestException(
+        `File size exceeds maximum limit of ${maxSize} bytes`,
+      );
     }
 
-    if (fileType === 'logo' || fileType === 'favicon' || fileType === 'image') {
+    if (fileType === "logo" || fileType === "favicon" || fileType === "image") {
       if (!allowedMimeTypes.includes(file.mimetype)) {
-        throw new BadRequestException(`File type ${file.mimetype} is not allowed`);
+        throw new BadRequestException(
+          `File type ${file.mimetype} is not allowed`,
+        );
       }
     }
   }
 
   private isImageFile(mimeType: string): boolean {
-    return mimeType.startsWith('image/');
+    return mimeType.startsWith("image/");
   }
 
   private async processImage(
@@ -275,36 +281,36 @@ export class FileUploadService {
     try {
       let sharpInstance = sharp(buffer);
       const imageMetadata = await sharpInstance.metadata();
-      
+
       // Resize based on file type
       switch (fileType) {
-        case 'logo':
-          sharpInstance = sharpInstance.resize(400, 200, { 
-            fit: 'inside',
+        case "logo":
+          sharpInstance = sharpInstance.resize(400, 200, {
+            fit: "inside",
             withoutEnlargement: true,
           });
           break;
-        case 'favicon':
-          sharpInstance = sharpInstance.resize(32, 32, { 
-            fit: 'cover',
+        case "favicon":
+          sharpInstance = sharpInstance.resize(32, 32, {
+            fit: "cover",
           });
           break;
-        case 'image':
+        case "image":
           if (imageMetadata.width > 1200) {
-            sharpInstance = sharpInstance.resize(1200, null, { 
+            sharpInstance = sharpInstance.resize(1200, null, {
               withoutEnlargement: true,
             });
           }
           break;
       }
-      
+
       // Optimize image
       const processedBuffer = await sharpInstance
         .jpeg({ quality: 85, progressive: true })
         .png({ compressionLevel: 8 })
         .webp({ quality: 85 })
         .toBuffer();
-      
+
       return {
         buffer: processedBuffer,
         metadata: {
@@ -316,7 +322,7 @@ export class FileUploadService {
         },
       };
     } catch (error) {
-      this.logger.error('Image processing failed', error.stack);
+      this.logger.error("Image processing failed", error.stack);
       // Return original buffer if processing fails
       return { buffer, metadata: {} };
     }

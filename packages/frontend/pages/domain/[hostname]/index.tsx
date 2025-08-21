@@ -112,6 +112,12 @@ export const getServerSideProps: GetServerSideProps<CustomDomainHomeProps> = asy
   const { hostname } = context.params!;
   const hostnameStr = Array.isArray(hostname) ? hostname[0] : hostname;
 
+  if (!hostnameStr) {
+    return {
+      notFound: true,
+    };
+  }
+
   return {
     props: {
       hostname: hostnameStr,

@@ -23,7 +23,7 @@ import {
   Save as SaveIcon,
   Refresh as RefreshIcon,
 } from '@mui/icons-material';
-import { useBranding, useOrganization } from '../../context/OrganizationContext';
+import { useBranding, useOrganization, OrganizationBranding } from '../../context/OrganizationContext';
 import { ColorPicker } from './ColorPicker';
 
 const FONT_FAMILIES = [
@@ -72,13 +72,13 @@ export function BrandingConfigurator() {
     }));
   };
 
-  const handleTypographyChange = (field: string, subField: string, value: any) => {
+  const handleTypographyChange = (field: keyof OrganizationBranding['typography'], subField: string, value: any) => {
     setLocalBranding(prev => ({
       ...prev,
       typography: {
         ...prev.typography,
         [field]: {
-          ...prev.typography[field],
+          ...(prev.typography[field] as any),
           [subField]: value,
         },
       },
@@ -214,7 +214,7 @@ export function BrandingConfigurator() {
                     <ColorPicker
                       label={color.label}
                       description={color.description}
-                      value={localBranding.colorScheme[color.key]}
+                      value={localBranding.colorScheme[color.key as keyof typeof localBranding.colorScheme]}
                       onChange={(value) => handleColorChange(color.key, value)}
                     />
                   </Grid>
@@ -271,7 +271,7 @@ export function BrandingConfigurator() {
                     <TextField
                       label={config.label}
                       size="small"
-                      value={localBranding.typography.fontSize[size]}
+                      value={localBranding.typography.fontSize[size as keyof typeof localBranding.typography.fontSize]}
                       onChange={(e) => handleTypographyChange('fontSize', size, e.target.value)}
                       placeholder={config.default}
                       fullWidth

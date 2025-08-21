@@ -103,7 +103,7 @@ const About: NextPage = () => {
                   </div>
                   
                   <div className="grid md:grid-cols-2 gap-4">
-                    {t('about:sections.platformOverview.features.items', { returnObjects: true }).map((feature, index) => {
+                    {(t('about:sections.platformOverview.features.items', { returnObjects: true }) as any[]).map((feature: any, index) => {
                       const iconColors = ['text-blue-600', 'text-green-600', 'text-purple-600', 'text-orange-600', 'text-indigo-600'];
                       const bgColors = ['bg-blue-50', 'bg-green-50', 'bg-purple-50', 'bg-orange-50', 'bg-indigo-50'];
                       const borderColors = ['border-blue-200', 'border-green-200', 'border-purple-200', 'border-orange-200', 'border-indigo-200'];
@@ -140,7 +140,7 @@ const About: NextPage = () => {
                   {t('about:sections.healthcareApplications.description')}
                 </p>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {t('about:sections.healthcareApplications.useCases.items', { returnObjects: true }).map((useCase, index) => {
+                  {(t('about:sections.healthcareApplications.useCases.items', { returnObjects: true }) as any[]).map((useCase: any, index) => {
                     const iconData = [
                       { icon: 'hospital', color: 'text-red-600', bg: 'bg-red-50', border: 'border-red-200' },
                       { icon: 'research', color: 'text-amber-600', bg: 'bg-amber-50', border: 'border-amber-200' },
@@ -210,7 +210,7 @@ const About: NextPage = () => {
                       {t('about:sections.globalAccessibility.languages.description')}
                     </p>
                     <div className="flex flex-wrap gap-2">
-                      {t('about:sections.globalAccessibility.languages.items', { returnObjects: true }).map((language, index) => {
+                      {(t('about:sections.globalAccessibility.languages.items', { returnObjects: true }) as any[]).map((language: any, index) => {
                         const colors = ['text-blue-600 bg-blue-50 border-blue-200', 'text-red-600 bg-red-50 border-red-200', 'text-green-600 bg-green-50 border-green-200', 'text-amber-600 bg-amber-50 border-amber-200', 'text-purple-600 bg-purple-50 border-purple-200', 'text-cyan-600 bg-cyan-50 border-cyan-200'];
                         return (
                           <span
@@ -237,7 +237,7 @@ const About: NextPage = () => {
                       </h4>
                     </div>
                     <div className="space-y-3">
-                      {t('about:sections.globalAccessibility.accessibility.items', { returnObjects: true }).map((feature, index) => (
+                      {(t('about:sections.globalAccessibility.accessibility.items', { returnObjects: true }) as any[]).map((feature: any, index) => (
                         <div key={index} className="flex items-start">
                           <div className="bg-green-50 border border-green-200 rounded-lg p-1 mr-3 mt-0.5 flex-shrink-0">
                             <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -279,7 +279,7 @@ const About: NextPage = () => {
                       </h4>
                     </div>
                     <div className="space-y-3">
-                      {t('about:sections.whoPartnership.compliance.items', { returnObjects: true }).map((item, index) => (
+                      {(t('about:sections.whoPartnership.compliance.items', { returnObjects: true }) as any[]).map((item: any, index) => (
                         <div key={index} className="flex items-start">
                           <div className="bg-green-50 border border-green-200 rounded p-1 mr-3 mt-0.5 flex-shrink-0">
                             <svg className="w-4 h-4 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -345,7 +345,7 @@ const About: NextPage = () => {
                       </h4>
                     </div>
                     <div className="space-y-2">
-                      {t('about:sections.technicalExcellence.architecture.frontend.items', { returnObjects: true }).map((tech, index) => (
+                      {(t('about:sections.technicalExcellence.architecture.frontend.items', { returnObjects: true }) as any[]).map((tech: any, index) => (
                         <p key={index} className="text-sm font-medium text-gray-600">
                           {tech}
                         </p>
@@ -366,7 +366,7 @@ const About: NextPage = () => {
                       </h4>
                     </div>
                     <div className="space-y-2">
-                      {t('about:sections.technicalExcellence.architecture.backend.items', { returnObjects: true }).map((tech, index) => (
+                      {(t('about:sections.technicalExcellence.architecture.backend.items', { returnObjects: true }) as any[]).map((tech: any, index) => (
                         <p key={index} className="text-sm font-medium text-gray-600">
                           {tech}
                         </p>
@@ -387,7 +387,7 @@ const About: NextPage = () => {
                       </h4>
                     </div>
                     <div className="space-y-2">
-                      {t('about:sections.technicalExcellence.performance.items', { returnObjects: true }).map((feature, index) => (
+                      {(t('about:sections.technicalExcellence.performance.items', { returnObjects: true }) as any[]).map((feature: any, index) => (
                         <p key={index} className="text-sm font-medium text-gray-600">
                           {feature}
                         </p>

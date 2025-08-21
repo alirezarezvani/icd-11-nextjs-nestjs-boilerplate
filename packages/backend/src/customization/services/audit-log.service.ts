@@ -1,7 +1,7 @@
-import { Injectable, Logger } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { AuditLog } from '../../entities/audit-log.entity';
+import { Injectable, Logger } from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { AuditLog } from "../../entities/audit-log.entity";
 
 export interface AuditLogData {
   organizationId: string;
@@ -17,7 +17,7 @@ export interface AuditLogData {
   };
   ipAddress?: string;
   userAgent?: string;
-  status?: 'success' | 'failed' | 'warning';
+  status?: "success" | "failed" | "warning";
   errorMessage?: string;
   duration?: number;
 }
@@ -48,16 +48,18 @@ export class AuditLogService {
         changes: data.changes,
         ipAddress: data.ipAddress,
         userAgent: data.userAgent,
-        status: data.status || 'success',
+        status: data.status || "success",
         errorMessage: data.errorMessage,
         duration: data.duration,
       });
 
       await this.auditLogRepository.save(auditLog);
-      
-      this.logger.log(`Audit log created: ${data.action} on ${data.resource} by ${data.userEmail}`);
+
+      this.logger.log(
+        `Audit log created: ${data.action} on ${data.resource} by ${data.userEmail}`,
+      );
     } catch (error) {
-      this.logger.error('Failed to create audit log', error.stack);
+      this.logger.error("Failed to create audit log", error.stack);
       // Don't throw error to avoid disrupting the main operation
     }
   }
@@ -66,8 +68,8 @@ export class AuditLogService {
    * Log a successful action
    * @param data Audit log data
    */
-  async logSuccess(data: Omit<AuditLogData, 'status'>): Promise<void> {
-    await this.log({ ...data, status: 'success' });
+  async logSuccess(data: Omit<AuditLogData, "status">): Promise<void> {
+    await this.log({ ...data, status: "success" });
   }
 
   /**
@@ -75,15 +77,15 @@ export class AuditLogService {
    * @param data Audit log data with error message
    */
   async logFailure(data: AuditLogData): Promise<void> {
-    await this.log({ ...data, status: 'failed' });
+    await this.log({ ...data, status: "failed" });
   }
 
   /**
    * Log a warning action
    * @param data Audit log data
    */
-  async logWarning(data: Omit<AuditLogData, 'status'>): Promise<void> {
-    await this.log({ ...data, status: 'warning' });
+  async logWarning(data: Omit<AuditLogData, "status">): Promise<void> {
+    await this.log({ ...data, status: "warning" });
   }
 
   /**
@@ -101,46 +103,58 @@ export class AuditLogService {
       action?: string;
       resource?: string;
       userId?: string;
-      status?: 'success' | 'failed' | 'warning';
+      status?: "success" | "failed" | "warning";
       startDate?: Date;
       endDate?: Date;
     },
   ): Promise<{ logs: AuditLog[]; total: number }> {
     try {
       const queryBuilder = this.auditLogRepository
-        .createQueryBuilder('log')
-        .where('log.organizationId = :organizationId', { organizationId })
-        .orderBy('log.createdAt', 'DESC')
+        .createQueryBuilder("log")
+        .where("log.organizationId = :organizationId", { organizationId })
+        .orderBy("log.createdAt", "DESC")
         .skip(offset)
         .take(limit);
 
       if (filters) {
         if (filters.action) {
-          queryBuilder.andWhere('log.action = :action', { action: filters.action });
+          queryBuilder.andWhere("log.action = :action", {
+            action: filters.action,
+          });
         }
         if (filters.resource) {
-          queryBuilder.andWhere('log.resource = :resource', { resource: filters.resource });
+          queryBuilder.andWhere("log.resource = :resource", {
+            resource: filters.resource,
+          });
         }
         if (filters.userId) {
-          queryBuilder.andWhere('log.userId = :userId', { userId: filters.userId });
+          queryBuilder.andWhere("log.userId = :userId", {
+            userId: filters.userId,
+          });
         }
         if (filters.status) {
-          queryBuilder.andWhere('log.status = :status', { status: filters.status });
+          queryBuilder.andWhere("log.status = :status", {
+            status: filters.status,
+          });
         }
         if (filters.startDate) {
-          queryBuilder.andWhere('log.createdAt >= :startDate', { startDate: filters.startDate });
+          queryBuilder.andWhere("log.createdAt >= :startDate", {
+            startDate: filters.startDate,
+          });
         }
         if (filters.endDate) {
-          queryBuilder.andWhere('log.createdAt <= :endDate', { endDate: filters.endDate });
+          queryBuilder.andWhere("log.createdAt <= :endDate", {
+            endDate: filters.endDate,
+          });
         }
       }
 
       const [logs, total] = await queryBuilder.getManyAndCount();
-      
+
       return { logs, total };
     } catch (error) {
-      this.logger.error('Failed to retrieve audit logs', error.stack);
-      throw new Error('Failed to retrieve audit logs');
+      this.logger.error("Failed to retrieve audit logs", error.stack);
+      throw new Error("Failed to retrieve audit logs");
     }
   }
 
@@ -174,7 +188,7 @@ export class AuditLogService {
       const successfulActions = await this.auditLogRepository.count({
         where: {
           organizationId,
-          status: 'success',
+          status: "success",
           createdAt: { $gte: startDate } as any,
         },
       });
@@ -182,7 +196,7 @@ export class AuditLogService {
       const failedActions = await this.auditLogRepository.count({
         where: {
           organizationId,
-          status: 'failed',
+          status: "failed",
           createdAt: { $gte: startDate } as any,
         },
       });
@@ -190,20 +204,20 @@ export class AuditLogService {
       const warningActions = await this.auditLogRepository.count({
         where: {
           organizationId,
-          status: 'warning',
+          status: "warning",
           createdAt: { $gte: startDate } as any,
         },
       });
 
       // Get top actions
       const topActionsResult = await this.auditLogRepository
-        .createQueryBuilder('log')
-        .select('log.action', 'action')
-        .addSelect('COUNT(*)', 'count')
-        .where('log.organizationId = :organizationId', { organizationId })
-        .andWhere('log.createdAt >= :startDate', { startDate })
-        .groupBy('log.action')
-        .orderBy('count', 'DESC')
+        .createQueryBuilder("log")
+        .select("log.action", "action")
+        .addSelect("COUNT(*)", "count")
+        .where("log.organizationId = :organizationId", { organizationId })
+        .andWhere("log.createdAt >= :startDate", { startDate })
+        .groupBy("log.action")
+        .orderBy("count", "DESC")
         .limit(10)
         .getRawMany();
 
@@ -214,13 +228,13 @@ export class AuditLogService {
 
       // Get top resources
       const topResourcesResult = await this.auditLogRepository
-        .createQueryBuilder('log')
-        .select('log.resource', 'resource')
-        .addSelect('COUNT(*)', 'count')
-        .where('log.organizationId = :organizationId', { organizationId })
-        .andWhere('log.createdAt >= :startDate', { startDate })
-        .groupBy('log.resource')
-        .orderBy('count', 'DESC')
+        .createQueryBuilder("log")
+        .select("log.resource", "resource")
+        .addSelect("COUNT(*)", "count")
+        .where("log.organizationId = :organizationId", { organizationId })
+        .andWhere("log.createdAt >= :startDate", { startDate })
+        .groupBy("log.resource")
+        .orderBy("count", "DESC")
         .limit(10)
         .getRawMany();
 
@@ -238,8 +252,8 @@ export class AuditLogService {
         topResources,
       };
     } catch (error) {
-      this.logger.error('Failed to retrieve audit log statistics', error.stack);
-      throw new Error('Failed to retrieve audit log statistics');
+      this.logger.error("Failed to retrieve audit log statistics", error.stack);
+      throw new Error("Failed to retrieve audit log statistics");
     }
   }
 }

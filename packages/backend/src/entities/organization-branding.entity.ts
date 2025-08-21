@@ -6,24 +6,24 @@ import {
   UpdateDateColumn,
   ManyToOne,
   JoinColumn,
-} from 'typeorm';
-import { Organization } from './organization.entity';
+} from "typeorm";
+import { Organization } from "./organization.entity";
 
-@Entity('organization_branding')
+@Entity("organization_branding")
 export class OrganizationBranding {
-  @PrimaryGeneratedColumn('uuid')
+  @PrimaryGeneratedColumn("uuid")
   id: string;
 
-  @Column({ type: 'uuid' })
+  @Column({ type: "uuid" })
   organizationId: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: "varchar", length: 255, nullable: true })
   logoUrl: string;
 
-  @Column({ type: 'varchar', length: 255, nullable: true })
+  @Column({ type: "varchar", length: 255, nullable: true })
   faviconUrl: string;
 
-  @Column({ type: 'jsonb' })
+  @Column({ type: "jsonb" })
   colorScheme: {
     primary: string;
     secondary: string;
@@ -38,7 +38,7 @@ export class OrganizationBranding {
     success: string;
   };
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   typography: {
     fontFamily: string;
     fontSize: {
@@ -47,9 +47,9 @@ export class OrganizationBranding {
       base: string;
       lg: string;
       xl: string;
-      '2xl': string;
-      '3xl': string;
-      '4xl': string;
+      "2xl": string;
+      "3xl": string;
+      "4xl": string;
     };
     fontWeight: {
       light: number;
@@ -65,10 +65,10 @@ export class OrganizationBranding {
     };
   };
 
-  @Column({ type: 'text', nullable: true, comment: 'Encrypted custom CSS' })
+  @Column({ type: "text", nullable: true, comment: "Encrypted custom CSS" })
   customCss: string;
 
-  @Column({ type: 'jsonb', nullable: true })
+  @Column({ type: "jsonb", nullable: true })
   layout: {
     headerHeight: string;
     sidebarWidth: string;
@@ -88,19 +88,21 @@ export class OrganizationBranding {
     };
   };
 
-  @Column({ type: 'boolean', default: true })
+  @Column({ type: "boolean", default: true })
   isActive: boolean;
 
-  @Column({ type: 'varchar', length: 50, default: 'v1' })
+  @Column({ type: "varchar", length: 50, default: "v1" })
   version: string;
 
-  @CreateDateColumn({ type: 'timestamp with time zone' })
+  @CreateDateColumn({ type: "timestamp with time zone" })
   createdAt: Date;
 
-  @UpdateDateColumn({ type: 'timestamp with time zone' })
+  @UpdateDateColumn({ type: "timestamp with time zone" })
   updatedAt: Date;
 
-  @ManyToOne(() => Organization, (organization) => organization.branding, { onDelete: 'CASCADE' })
-  @JoinColumn({ name: 'organizationId' })
+  @ManyToOne(() => Organization, (organization) => organization.branding, {
+    onDelete: "CASCADE",
+  })
+  @JoinColumn({ name: "organizationId" })
   organization: Organization;
 }

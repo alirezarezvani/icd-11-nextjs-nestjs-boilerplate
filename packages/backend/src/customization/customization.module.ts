@@ -1,9 +1,8 @@
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { MulterModule } from '@nestjs/platform-express';
-import { ConfigService } from '@nestjs/config';
-import * as multer from 'multer';
-import * as path from 'path';
+import { Module } from "@nestjs/common";
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { MulterModule } from "@nestjs/platform-express";
+import { ConfigService } from "@nestjs/config";
+import * as multer from "multer";
 
 // Entities
 import {
@@ -12,18 +11,18 @@ import {
   OrganizationUser,
   AuditLog,
   FileUpload,
-} from '../entities';
+} from "../entities";
 
 // Services
-import { EncryptionService } from './services/encryption.service';
-import { AuditLogService } from './services/audit-log.service';
-import { FileUploadService } from './services/file-upload.service';
-import { OrganizationBrandingService } from './services/organization-branding.service';
-import { OrganizationService } from './services/organization.service';
+import { EncryptionService } from "./services/encryption.service";
+import { AuditLogService } from "./services/audit-log.service";
+import { FileUploadService } from "./services/file-upload.service";
+import { OrganizationBrandingService } from "./services/organization-branding.service";
+import { OrganizationService } from "./services/organization.service";
 
 // Controllers
-import { BrandingController } from './controllers/branding.controller';
-import { OrganizationController } from './controllers/organization.controller';
+import { BrandingController } from "./controllers/branding.controller";
+import { OrganizationController } from "./controllers/organization.controller";
 
 @Module({
   imports: [
@@ -35,12 +34,12 @@ import { OrganizationController } from './controllers/organization.controller';
       AuditLog,
       FileUpload,
     ]),
-    
+
     // Multer for file uploads
     MulterModule.registerAsync({
       useFactory: (configService: ConfigService) => {
-        const storageConfig = configService.get('storage');
-        
+        const storageConfig = configService.get("storage");
+
         return {
           storage: multer.memoryStorage(),
           limits: {
@@ -61,10 +60,7 @@ import { OrganizationController } from './controllers/organization.controller';
       inject: [ConfigService],
     }),
   ],
-  controllers: [
-    BrandingController,
-    OrganizationController,
-  ],
+  controllers: [BrandingController, OrganizationController],
   providers: [
     EncryptionService,
     AuditLogService,

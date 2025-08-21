@@ -193,11 +193,11 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   // Menu variant for mobile drawer
   if (variant === 'menu') {
     return (
-      <FormControl size={size} sx={{ minWidth: '100%' }}>
+      <FormControl size={size === 'large' ? 'medium' : size} sx={{ minWidth: '100%' }}>
         <Select
           value={currentLanguage}
           onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
-          size={size}
+          size={size === 'large' ? 'medium' : size}
           sx={{
             '& .MuiSelect-select': {
               display: 'flex',
@@ -251,7 +251,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
 
   // Fallback to original Material-UI Select for other variants
   return (
-    <FormControl size={size} sx={{ minWidth: 120 }}>
+    <FormControl size={size === 'large' ? 'medium' : size} sx={{ minWidth: 120 }}>
       {showLabel && (
         <Typography variant="caption" sx={{ mb: 1, color: 'text.secondary' }}>
           Language
@@ -260,7 +260,7 @@ export const LanguageSelector: React.FC<LanguageSelectorProps> = ({
       <Select
         value={currentLanguage}
         onChange={(e) => setLanguage(e.target.value as SupportedLanguage)}
-        size={size}
+        size={size === 'large' ? 'medium' : size}
         sx={{
           '& .MuiSelect-select': {
             display: 'flex',

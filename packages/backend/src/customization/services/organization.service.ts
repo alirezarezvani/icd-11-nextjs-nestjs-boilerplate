@@ -1,16 +1,21 @@
-import { Injectable, Logger, NotFoundException, ConflictException } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { Organization } from '../../entities/organization.entity';
-import { OrganizationUser } from '../../entities/organization-user.entity';
-import { AuditLogService } from './audit-log.service';
+import {
+  Injectable,
+  Logger,
+  NotFoundException,
+  ConflictException,
+} from "@nestjs/common";
+import { InjectRepository } from "@nestjs/typeorm";
+import { Repository } from "typeorm";
+import { Organization } from "../../entities/organization.entity";
+import { OrganizationUser } from "../../entities/organization-user.entity";
+import { AuditLogService } from "./audit-log.service";
 
 export interface CreateOrganizationDto {
   name: string;
   slug: string;
   domain?: string;
   description?: string;
-  plan?: 'basic' | 'professional' | 'enterprise';
+  plan?: "basic" | "professional" | "enterprise";
   contactEmail?: string;
   contactPhone?: string;
   address?: string;
@@ -26,14 +31,14 @@ export interface CreateOrganizationDto {
 }
 
 export interface UpdateOrganizationDto extends Partial<CreateOrganizationDto> {
-  status?: 'active' | 'inactive' | 'suspended';
+  status?: "active" | "inactive" | "suspended";
 }
 
 export interface CreateOrganizationUserDto {
   email: string;
   firstName: string;
   lastName: string;
-  role?: 'admin' | 'editor' | 'viewer';
+  role?: "admin" | "editor" | "viewer";
   permissions?: {
     manageUsers: boolean;
     manageBranding: boolean;
@@ -71,39 +76,44 @@ export class OrganizationService {
       const existingOrg = await this.organizationRepository.findOne({
         where: [
           { slug: organizationData.slug },
-          ...(organizationData.domain ? [{ domain: organizationData.domain }] : []),
+          ...(organizationData.domain
+            ? [{ domain: organizationData.domain }]
+            : []),
         ],
       });
 
       if (existingOrg) {
         if (existingOrg.slug === organizationData.slug) {
-          throw new ConflictException('Organization slug already exists');
+          throw new ConflictException("Organization slug already exists");
         }
         if (existingOrg.domain === organizationData.domain) {
-          throw new ConflictException('Organization domain already exists');
+          throw new ConflictException("Organization domain already exists");
         }
       }
 
       // Set default features based on plan
-      const defaultFeatures = this.getDefaultFeatures(organizationData.plan || 'basic');
+      const defaultFeatures = this.getDefaultFeatures(
+        organizationData.plan || "basic",
+      );
       const features = { ...defaultFeatures, ...organizationData.features };
 
       // Create organization
       const organization = this.organizationRepository.create({
         ...organizationData,
         features,
-        status: 'active',
+        status: "active",
       });
 
-      const savedOrganization = await this.organizationRepository.save(organization);
+      const savedOrganization =
+        await this.organizationRepository.save(organization);
 
       // Log the creation
       await this.auditLogService.logSuccess({
         organizationId: savedOrganization.id,
         userId: createdBy,
         userEmail,
-        action: 'create_organization',
-        resource: 'organization',
+        action: "create_organization",
+        resource: "organization",
         resourceId: savedOrganization.id,
         metadata: {
           name: savedOrganization.name,
@@ -115,7 +125,7 @@ export class OrganizationService {
 
       return savedOrganization;
     } catch (error) {
-      this.logger.error('Failed to create organization', error.stack);
+      this.logger.error("Failed to create organization", error.stack);
       throw error;
     }
   }
@@ -128,16 +138,16 @@ export class OrganizationService {
     try {
       const organization = await this.organizationRepository.findOne({
         where: { id: organizationId, deletedAt: null },
-        relations: ['branding', 'users'],
+        relations: ["branding", "users"],
       });
 
       if (!organization) {
-        throw new NotFoundException('Organization not found');
+        throw new NotFoundException("Organization not found");
       }
 
       return organization;
     } catch (error) {
-      this.logger.error('Failed to get organization by ID', error.stack);
+      this.logger.error("Failed to get organization by ID", error.stack);
       throw error;
     }
   }
@@ -149,17 +159,17 @@ export class OrganizationService {
   async getOrganizationBySlug(slug: string): Promise<Organization> {
     try {
       const organization = await this.organizationRepository.findOne({
-        where: { slug, status: 'active', deletedAt: null },
-        relations: ['branding'],
+        where: { slug, status: "active", deletedAt: null },
+        relations: ["branding"],
       });
 
       if (!organization) {
-        throw new NotFoundException('Organization not found');
+        throw new NotFoundException("Organization not found");
       }
 
       return organization;
     } catch (error) {
-      this.logger.error('Failed to get organization by slug', error.stack);
+      this.logger.error("Failed to get organization by slug", error.stack);
       throw error;
     }
   }
@@ -171,17 +181,17 @@ export class OrganizationService {
   async getOrganizationByDomain(domain: string): Promise<Organization> {
     try {
       const organization = await this.organizationRepository.findOne({
-        where: { domain, status: 'active', deletedAt: null },
-        relations: ['branding'],
+        where: { domain, status: "active", deletedAt: null },
+        relations: ["branding"],
       });
 
       if (!organization) {
-        throw new NotFoundException('Organization not found');
+        throw new NotFoundException("Organization not found");
       }
 
       return organization;
     } catch (error) {
-      this.logger.error('Failed to get organization by domain', error.stack);
+      this.logger.error("Failed to get organization by domain", error.stack);
       throw error;
     }
   }
@@ -214,25 +224,26 @@ export class OrganizationService {
 
         if (existingOrg && existingOrg.id !== organizationId) {
           if (existingOrg.slug === updateData.slug) {
-            throw new ConflictException('Organization slug already exists');
+            throw new ConflictException("Organization slug already exists");
           }
           if (existingOrg.domain === updateData.domain) {
-            throw new ConflictException('Organization domain already exists');
+            throw new ConflictException("Organization domain already exists");
           }
         }
       }
 
       // Update organization
       Object.assign(organization, updateData);
-      const savedOrganization = await this.organizationRepository.save(organization);
+      const savedOrganization =
+        await this.organizationRepository.save(organization);
 
       // Log the update
       await this.auditLogService.logSuccess({
         organizationId,
         userId: updatedBy,
         userEmail,
-        action: 'update_organization',
-        resource: 'organization',
+        action: "update_organization",
+        resource: "organization",
         resourceId: organizationId,
         changes: {
           before: {
@@ -256,7 +267,7 @@ export class OrganizationService {
 
       return savedOrganization;
     } catch (error) {
-      this.logger.error('Failed to update organization', error.stack);
+      this.logger.error("Failed to update organization", error.stack);
       throw error;
     }
   }
@@ -284,11 +295,13 @@ export class OrganizationService {
       });
 
       if (existingUser) {
-        throw new ConflictException('User already exists in organization');
+        throw new ConflictException("User already exists in organization");
       }
 
       // Set default permissions based on role
-      const defaultPermissions = this.getDefaultPermissions(userData.role || 'viewer');
+      const defaultPermissions = this.getDefaultPermissions(
+        userData.role || "viewer",
+      );
       const permissions = { ...defaultPermissions, ...userData.permissions };
 
       // Create user
@@ -298,18 +311,19 @@ export class OrganizationService {
         permissions,
         invitedBy,
         invitedAt: new Date(),
-        status: 'pending',
+        status: "pending",
       });
 
-      const savedUser = await this.organizationUserRepository.save(organizationUser);
+      const savedUser =
+        await this.organizationUserRepository.save(organizationUser);
 
       // Log the user addition
       await this.auditLogService.logSuccess({
         organizationId,
         userId: invitedBy,
         userEmail,
-        action: 'add_user',
-        resource: 'organization_user',
+        action: "add_user",
+        resource: "organization_user",
         resourceId: savedUser.id,
         metadata: {
           invitedUserEmail: userData.email,
@@ -320,7 +334,7 @@ export class OrganizationService {
 
       return savedUser;
     } catch (error) {
-      this.logger.error('Failed to add user to organization', error.stack);
+      this.logger.error("Failed to add user to organization", error.stack);
       throw error;
     }
   }
@@ -332,7 +346,7 @@ export class OrganizationService {
    */
   async getOrganizationUsers(
     organizationId: string,
-    status?: 'active' | 'inactive' | 'pending',
+    status?: "active" | "inactive" | "pending",
   ): Promise<OrganizationUser[]> {
     try {
       const where: any = { organizationId };
@@ -342,10 +356,10 @@ export class OrganizationService {
 
       return this.organizationUserRepository.find({
         where,
-        order: { createdAt: 'ASC' },
+        order: { createdAt: "ASC" },
       });
     } catch (error) {
-      this.logger.error('Failed to get organization users', error.stack);
+      this.logger.error("Failed to get organization users", error.stack);
       throw error;
     }
   }
@@ -359,7 +373,7 @@ export class OrganizationService {
    */
   async updatePlan(
     organizationId: string,
-    plan: 'basic' | 'professional' | 'enterprise',
+    plan: "basic" | "professional" | "enterprise",
     updatedBy: string,
     userEmail: string,
   ): Promise<Organization> {
@@ -370,17 +384,21 @@ export class OrganizationService {
 
       // Update plan and features
       organization.plan = plan;
-      organization.features = { ...organization.features, ...this.getDefaultFeatures(plan) };
+      organization.features = {
+        ...organization.features,
+        ...this.getDefaultFeatures(plan),
+      };
 
-      const savedOrganization = await this.organizationRepository.save(organization);
+      const savedOrganization =
+        await this.organizationRepository.save(organization);
 
       // Log the plan update
       await this.auditLogService.logSuccess({
         organizationId,
         userId: updatedBy,
         userEmail,
-        action: 'update_plan',
-        resource: 'organization',
+        action: "update_plan",
+        resource: "organization",
         resourceId: organizationId,
         changes: {
           before: { plan: oldPlan, features: oldFeatures },
@@ -390,7 +408,7 @@ export class OrganizationService {
 
       return savedOrganization;
     } catch (error) {
-      this.logger.error('Failed to update organization plan', error.stack);
+      this.logger.error("Failed to update organization plan", error.stack);
       throw error;
     }
   }
@@ -406,12 +424,12 @@ export class OrganizationService {
     };
 
     switch (plan) {
-      case 'professional':
+      case "professional":
         features.customBranding = true;
         features.apiAccess = true;
         features.auditLogs = true;
         break;
-      case 'enterprise':
+      case "enterprise":
         features.customBranding = true;
         features.whiteLabel = true;
         features.apiAccess = true;
@@ -434,14 +452,14 @@ export class OrganizationService {
     };
 
     switch (role) {
-      case 'admin':
+      case "admin":
         permissions.manageUsers = true;
         permissions.manageBranding = true;
         permissions.manageSettings = true;
         permissions.viewAuditLogs = true;
         permissions.exportData = true;
         break;
-      case 'editor':
+      case "editor":
         permissions.manageBranding = true;
         permissions.exportData = true;
         break;
