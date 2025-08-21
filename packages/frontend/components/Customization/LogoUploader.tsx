@@ -207,7 +207,7 @@ export function LogoUploader({ type = 'logo' }: LogoUploaderProps) {
       <Grid container spacing={3}>
         {/* Current Asset */}
         {currentUrl && (
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -273,7 +273,7 @@ export function LogoUploader({ type = 'logo' }: LogoUploaderProps) {
         )}
 
         {/* Upload Area */}
-        <Grid item xs={12} md={currentUrl ? 6 : 12}>
+        <Grid size={{ xs: 12, md: currentUrl ? 6 : 12 }}>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>

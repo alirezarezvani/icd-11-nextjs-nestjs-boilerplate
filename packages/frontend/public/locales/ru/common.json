@@ -1,0 +1,37 @@
+{
+  "nav": {
+    "search": "Search",
+    "about": "About",
+    "openMenu": "Open menu"
+  },
+  "footer": {
+    "copyright": "© {{year}} {{appName}}",
+    "aboutLink": "About",
+    "dataSource": "Data sourced from the WHO ICD-11 API"
+  },
+  "meta": {
+    "defaultDescription": "Search WHO ICD-11 medical codes",
+    "defaultTitle": "ICD-11 Medical Code Search"
+  },
+  "buttons": {
+    "submit": "Submit",
+    "cancel": "Cancel",
+    "clear": "Clear",
+    "search": "Search",
+    "reset": "Reset",
+    "save": "Save",
+    "load": "Load",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "close": "Close",
+    "open": "Open",
+    "expand": "Expand",
+    "collapse": "Collapse"
+  },
+  "loading": "Loading...",
+  "error": "An error occurred",
+  "success": "Success",
+  "warning": "Warning",
+  "info": "Information"
+}

@@ -210,7 +210,7 @@ export function BrandingConfigurator() {
               </Typography>
               <Grid container spacing={3}>
                 {section.colors.map((color) => (
-                  <Grid item xs={12} sm={6} md={4} key={color.key}>
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }} key={color.key}>
                     <ColorPicker
                       label={color.label}
                       description={color.description}
@@ -241,7 +241,7 @@ export function BrandingConfigurator() {
         <AccordionDetails>
           <Grid container spacing={3}>
             {/* Font Family */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <FormControl fullWidth>
                 <InputLabel>Font Family</InputLabel>
                 <Select
@@ -261,13 +261,13 @@ export function BrandingConfigurator() {
             </Grid>
 
             {/* Font Sizes */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'medium' }}>
                 Font Sizes
               </Typography>
               <Grid container spacing={2}>
                 {Object.entries(FONT_SIZES).map(([size, config]) => (
-                  <Grid item xs={6} sm={4} md={3} key={size}>
+                  <Grid size={{ xs: 6, sm: 4, md: 3 }} key={size}>
                     <TextField
                       label={config.label}
                       size="small"
@@ -282,13 +282,13 @@ export function BrandingConfigurator() {
             </Grid>
 
             {/* Font Weights */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'medium' }}>
                 Font Weights
               </Typography>
               <Grid container spacing={2}>
                 {Object.entries(localBranding.typography.fontWeight).map(([weight, value]) => (
-                  <Grid item xs={6} sm={4} md={2.4} key={weight}>
+                  <Grid size={{ xs: 6, sm: 4, md: 2.4 }} key={weight}>
                     <TextField
                       label={weight.charAt(0).toUpperCase() + weight.slice(1)}
                       size="small"
@@ -304,13 +304,13 @@ export function BrandingConfigurator() {
             </Grid>
 
             {/* Line Heights */}
-            <Grid item xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography variant="subtitle1" sx={{ mb: 2, fontWeight: 'medium' }}>
                 Line Heights
               </Typography>
               <Grid container spacing={2}>
                 {Object.entries(localBranding.typography.lineHeight).map(([height, value]) => (
-                  <Grid item xs={6} sm={4} key={height}>
+                  <Grid size={{ xs: 6, sm: 4 }} key={height}>
                     <TextField
                       label={height.charAt(0).toUpperCase() + height.slice(1)}
                       size="small"

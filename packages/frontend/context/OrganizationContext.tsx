@@ -60,6 +60,7 @@ export interface OrganizationBranding {
       xl: string;
     };
   };
+  customCss?: string;
   version: string;
   isActive: boolean;
 }

@@ -181,7 +181,7 @@ export function ColorPicker({ label, description, value, onChange, disabled = fa
             </Typography>
             <Grid container spacing={0.5}>
               {PRESET_COLORS.map((color, index) => (
-                <Grid item key={index}>
+                <Grid size={{ xs: 'auto' }} key={index}>
                   <Button
                     variant="outlined"
                     onClick={() => handlePresetClick(color)}

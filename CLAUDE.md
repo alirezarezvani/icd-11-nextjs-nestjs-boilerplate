@@ -5,10 +5,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Project Architecture
 
 This is a full-stack ICD-11 medical code search application with:
-- **Frontend**: Next.js 13 with TypeScript, Material UI, React Context for state management
+- **Frontend**: Next.js 13 with TypeScript, Material UI, React Context for state management, next-i18next for internationalization
 - **Backend**: NestJS with TypeScript, Redis caching, Swagger documentation
 - **External API**: WHO ICD-11 API integration with OAuth2 authentication
 - **Caching**: Redis for WHO API response caching with TTL strategies
+- **Internationalization**: Complete i18n support with RTL layout for Arabic language
 
 ### Key Modules
 - `frontend/`: Next.js application with pages, components, hooks, and services
@@ -102,6 +103,9 @@ npm run docker:down
 - **Custom hooks**: Business logic encapsulated in `/hooks` (useICD11Search, useSearch)
 - **API services**: Centralized API client in `/services/api/`
 - **Context for state**: React Context for global application state
+- **Internationalization**: next-i18next framework with 6 supported languages (en, es, fr, ar, zh, ru)
+- **RTL Support**: Comprehensive right-to-left layout for Arabic with Material-UI theming
+- **Translation Management**: Organized namespace structure (common, search, medical, errors, accessibility)
 
 ### API Integration
 - **WHO ICD-11 API**: OAuth2 authentication with client credentials flow
@@ -125,6 +129,56 @@ Required environment variables for WHO API integration:
 ### Frontend Environment (.env.local)
 - `NEXT_PUBLIC_API_URL`: Backend API URL (default: http://localhost:3003)
 
+## Internationalization (i18n)
+
+### Language Support
+The application supports 6 languages with complete interface translation:
+- **English (en)**: Primary language with full translations
+- **Spanish (es)**: Complete medical and UI translations
+- **French (fr)**: Basic translations (expandable)
+- **Arabic (ar)**: Full translations with RTL support
+- **Chinese (zh)**: Basic translations (expandable) 
+- **Russian (ru)**: Basic translations (expandable)
+
+### Technical Implementation
+
+#### next-i18next Framework
+- **Configuration**: `next-i18next.config.js` with SSR/SSG support
+- **Fallback Strategy**: English as fallback language for missing translations
+- **Namespace Organization**: 5 translation namespaces for modular content management
+- **Performance**: Bundle splitting and lazy loading for optimal performance
+
+#### Translation Structure
+```
+public/locales/
+├── en/ (English - Complete)
+├── es/ (Spanish - Complete) 
+├── fr/ (French - Partial)
+├── ar/ (Arabic - Complete with RTL)
+├── zh/ (Chinese - Partial)
+└── ru/ (Russian - Partial)
+    ├── common.json      # Navigation, buttons, general UI
+    ├── search.json      # Search interface and results
+    ├── medical.json     # Medical terminology and categories
+    ├── errors.json      # Error messages and validation
+    └── accessibility.json # Screen reader and accessibility content
+```
+
+#### RTL Language Support (Arabic)
+- **Document Direction**: Automatic `dir="rtl"` attribute setting
+- **Material-UI Theming**: RTL-aware component styling with emotion cache
+- **Typography**: Noto Sans Arabic font with optimized line-height
+- **Layout Mirroring**: Complete interface mirroring for Arabic reading patterns
+- **CSS Utilities**: Logical properties and RTL-specific utility classes
+- **Performance**: Arabic font preloading and FOUC prevention
+
+#### Language Switching
+- **Context Management**: Enhanced LanguageContext with i18n hooks integration
+- **Storage Persistence**: localStorage preference saving with fallback
+- **URL Integration**: Locale detection from browser preferences
+- **Real-time Updates**: Immediate interface language switching (300ms transition)
+- **Component Integration**: useTranslation hook in all translated components
+
 ## Development Workflow
 
 1. **Setup**: Run `npm run install:all` to install all dependencies
@@ -147,6 +201,9 @@ When backend is running, Swagger documentation is available at:
 - ✅ **UI/UX Enhancement**: Complete redesign with improved search interface and responsive layout
 - ✅ **Entity Routing**: Fixed 404 issues with URL-safe base64 encoding for entity IDs
 - ✅ **Integration Testing**: All pages loading correctly with proper error handling
+- ✅ **Complete Internationalization**: Full i18n implementation with next-i18next framework
+- ✅ **RTL Language Support**: Comprehensive Arabic RTL layout with proper typography and theming
+- ✅ **Professional Navigation**: Glass-morphism design with flag-based language selector
 
 ### Performance Optimizations
 - **Search Debouncing**: Implemented 500ms debounce in `useICD11Search` hook

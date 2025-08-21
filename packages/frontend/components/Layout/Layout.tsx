@@ -75,38 +75,95 @@ export const Layout: React.FC<LayoutProps> = ({
   };
 
   const drawerContent = (
-    <Box sx={{ width: 250, pt: 2 }}>
-      <List>
-        {navItems.map((item) => (
-          <ListItem key={item.href} disablePadding>
-            <ListItemButton 
-              onClick={() => handleNavigation(item.href)}
-              selected={isCurrentPath(item.href)}
-              sx={{
-                borderRadius: 1,
-                mx: 1,
-                '&.Mui-selected': {
-                  backgroundColor: 'primary.light',
-                  color: 'primary.contrastText',
-                  '&:hover': {
-                    backgroundColor: 'primary.main',
+    <Box sx={{ width: 280, pt: 3, pb: 2 }}>
+      {/* Drawer Header */}
+      <Box sx={{ px: 3, pb: 3, borderBottom: '1px solid rgba(0, 0, 0, 0.08)' }}>
+        <Typography 
+          variant="h6" 
+          sx={{ 
+            fontWeight: 700,
+            color: '#0f4c75',
+            fontSize: '1.1rem',
+            letterSpacing: '-0.025em',
+          }}
+        >
+          {config.app.name}
+        </Typography>
+        <Typography 
+          variant="caption" 
+          sx={{ 
+            color: '#64748b',
+            fontSize: '0.75rem',
+            fontWeight: 500,
+          }}
+        >
+          Healthcare Code Search
+        </Typography>
+      </Box>
+
+      {/* Navigation Menu */}
+      <Box sx={{ pt: 2 }}>
+        <List sx={{ px: 2 }}>
+          {navItems.map((item) => (
+            <ListItem key={item.href} disablePadding sx={{ mb: 0.5 }}>
+              <ListItemButton 
+                onClick={() => handleNavigation(item.href)}
+                selected={isCurrentPath(item.href)}
+                sx={{
+                  borderRadius: '12px',
+                  py: 1.5,
+                  px: 2,
+                  transition: 'all 0.2s ease-in-out',
+                  '&.Mui-selected': {
+                    backgroundColor: 'rgba(15, 76, 117, 0.1)',
+                    color: '#0f4c75',
+                    fontWeight: 600,
+                    '&:hover': {
+                      backgroundColor: 'rgba(15, 76, 117, 0.15)',
+                    },
                   },
-                },
-              }}
-            >
-              <ListItemIcon 
-                sx={{ 
-                  color: isCurrentPath(item.href) ? 'inherit' : 'text.primary',
-                  minWidth: 40,
+                  '&:hover': {
+                    backgroundColor: 'rgba(45, 55, 72, 0.06)',
+                    transform: 'translateX(4px)',
+                  },
                 }}
               >
-                {item.icon}
-              </ListItemIcon>
-              <ListItemText primary={item.title} />
-            </ListItemButton>
-          </ListItem>
-        ))}
-      </List>
+                <ListItemIcon 
+                  sx={{ 
+                    color: isCurrentPath(item.href) ? '#0f4c75' : '#64748b',
+                    minWidth: 36,
+                    fontSize: '20px',
+                  }}
+                >
+                  {item.icon}
+                </ListItemIcon>
+                <ListItemText 
+                  primary={item.title}
+                  primaryTypographyProps={{
+                    sx: {
+                      fontWeight: isCurrentPath(item.href) ? 600 : 500,
+                      fontSize: '0.9rem',
+                      letterSpacing: '0.025em',
+                    }
+                  }}
+                />
+              </ListItemButton>
+            </ListItem>
+          ))}
+        </List>
+      </Box>
+
+      {/* Language Selector in Drawer */}
+      <Box sx={{ px: 3, pt: 2, mt: 'auto', borderTop: '1px solid rgba(0, 0, 0, 0.08)' }}>
+        <Typography variant="caption" sx={{ color: '#64748b', mb: 2, display: 'block' }}>
+          Language
+        </Typography>
+        <LanguageSelector 
+          variant="menu"
+          size="small"
+          showLabel={false}
+        />
+      </Box>
     </Box>
   );
 
@@ -122,16 +179,31 @@ export const Layout: React.FC<LayoutProps> = ({
       
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
         {/* App Bar */}
-        <AppBar position="static" elevation={1}>
+        <AppBar 
+          position="static" 
+          elevation={0}
+          sx={{
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(20px)',
+            borderBottom: '1px solid rgba(0, 0, 0, 0.08)',
+            color: '#2d3748',
+            boxShadow: '0 2px 12px rgba(0, 0, 0, 0.04)',
+          }}
+        >
           <Toolbar>
             {/* Mobile menu button */}
             {isMobile && (
               <IconButton
                 edge="start"
-                color="inherit"
                 aria-label="menu"
                 onClick={handleDrawerToggle}
-                sx={{ mr: 2 }}
+                sx={{ 
+                  mr: 2,
+                  color: '#2d3748',
+                  '&:hover': {
+                    backgroundColor: 'rgba(45, 55, 72, 0.08)',
+                  },
+                }}
               >
                 <MenuIcon />
               </IconButton>
@@ -144,8 +216,14 @@ export const Layout: React.FC<LayoutProps> = ({
               sx={{ 
                 flexGrow: 1,
                 cursor: 'pointer',
+                fontWeight: 700,
+                fontSize: '1.25rem',
+                color: '#0f4c75',
+                letterSpacing: '-0.025em',
+                transition: 'all 0.2s ease-in-out',
                 '&:hover': {
-                  opacity: 0.8,
+                  color: '#3282b8',
+                  transform: 'translateY(-1px)',
                 },
               }}
               onClick={() => handleNavigation('/')}
@@ -155,23 +233,50 @@ export const Layout: React.FC<LayoutProps> = ({
 
             {/* Desktop Navigation */}
             {!isMobile && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mr: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mr: 3 }}>
                 {navItems.map((item) => (
                   <IconButton
                     key={item.href}
-                    color="inherit"
                     onClick={() => handleNavigation(item.href)}
                     sx={{
-                      borderRadius: 1,
+                      borderRadius: '10px',
                       px: 2,
-                      backgroundColor: isCurrentPath(item.href) ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+                      py: 1,
+                      color: isCurrentPath(item.href) ? '#0f4c75' : '#64748b',
+                      backgroundColor: isCurrentPath(item.href) 
+                        ? 'rgba(15, 76, 117, 0.1)' 
+                        : 'transparent',
+                      fontWeight: isCurrentPath(item.href) ? 600 : 500,
+                      transition: 'all 0.2s ease-in-out',
                       '&:hover': {
-                        backgroundColor: 'rgba(255, 255, 255, 0.2)',
+                        backgroundColor: isCurrentPath(item.href)
+                          ? 'rgba(15, 76, 117, 0.15)'
+                          : 'rgba(45, 55, 72, 0.08)',
+                        color: isCurrentPath(item.href) ? '#0f4c75' : '#2d3748',
+                        transform: 'translateY(-1px)',
+                        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
+                      },
+                      '&:active': {
+                        transform: 'translateY(0px)',
                       },
                     }}
                   >
-                    {item.icon}
-                    <Typography variant="body2" sx={{ ml: 1 }}>
+                    <Box sx={{ 
+                      fontSize: '18px', 
+                      display: 'flex', 
+                      alignItems: 'center',
+                      mr: 1,
+                    }}>
+                      {item.icon}
+                    </Box>
+                    <Typography 
+                      variant="body2" 
+                      sx={{ 
+                        fontSize: '0.875rem',
+                        fontWeight: 'inherit',
+                        letterSpacing: '0.025em',
+                      }}
+                    >
                       {item.title}
                     </Typography>
                   </IconButton>
@@ -182,10 +287,10 @@ export const Layout: React.FC<LayoutProps> = ({
             {/* Language Selector */}
             <Box sx={{ ml: 1 }}>
               <LanguageSelector 
-                variant="standard" 
-                size="small" 
+                variant="compact" 
+                size={isMobile ? 'small' : 'medium'} 
                 showLabel={false} 
-                showIcon={!isMobile}
+                showLanguageName={!isMobile}
               />
             </Box>
           </Toolbar>
@@ -213,24 +318,41 @@ export const Layout: React.FC<LayoutProps> = ({
           component="footer" 
           sx={{ 
             mt: 'auto',
-            py: 3,
-            bgcolor: 'background.paper',
-            borderTop: 1,
-            borderColor: 'divider',
+            py: 4,
+            bgcolor: '#fafbfc',
+            borderTop: '1px solid rgba(0, 0, 0, 0.08)',
           }}
         >
           <Container maxWidth="lg">
             <Box sx={{ textAlign: 'center' }}>
-              <Typography variant="body2" color="text.secondary" gutterBottom>
-                © {new Date().getFullYear()} {config.app.name} |
+              <Typography 
+                variant="body2" 
+                sx={{ 
+                  color: '#64748b',
+                  fontSize: '0.875rem',
+                  fontWeight: 500,
+                  mb: 0.5,
+                }}
+              >
+                © {new Date().getFullYear()} {config.app.name} 
                 <Typography 
                   component="span" 
-                  variant="body2" 
-                  color="primary"
                   sx={{ 
-                    ml: 1,
+                    mx: 1,
+                    color: '#cbd5e0',
+                    fontWeight: 300,
+                  }}
+                >
+                  •
+                </Typography>
+                <Typography 
+                  component="span" 
+                  sx={{ 
+                    color: '#0f4c75',
                     cursor: 'pointer',
+                    fontWeight: 600,
                     '&:hover': {
+                      color: '#3282b8',
                       textDecoration: 'underline',
                     },
                   }}
@@ -239,7 +361,14 @@ export const Layout: React.FC<LayoutProps> = ({
                   About
                 </Typography>
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography 
+                variant="caption" 
+                sx={{ 
+                  color: '#a0aec0',
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                }}
+              >
                 Data sourced from the WHO ICD-11 API
               </Typography>
             </Box>

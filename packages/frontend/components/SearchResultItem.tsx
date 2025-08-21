@@ -7,9 +7,10 @@ import { Badge } from '@/components/ui/badge';
 interface SearchResultItemProps {
   result: ICD11SearchResult;
   onSelectResult?: (result: ICD11SearchResult) => void;
+  isRTL?: boolean;
 }
 
-export function SearchResultItem({ result, onSelectResult }: SearchResultItemProps) {
+export function SearchResultItem({ result, onSelectResult, isRTL = false }: SearchResultItemProps) {
   const handleResultClick = () => {
     if (onSelectResult) {
       onSelectResult(result);
@@ -20,9 +21,10 @@ export function SearchResultItem({ result, onSelectResult }: SearchResultItemPro
     <div 
       className="p-6 cursor-pointer group"
       onClick={handleResultClick}
+      dir={isRTL ? 'rtl' : 'ltr'}
     >
       <Link href={`${ROUTES.ENTITY}/${Buffer.from(result.id).toString('base64').replace(/[+/=]/g, (m) => ({ '+': '-', '/': '_', '=': '' }[m]!))}`} className="block">
-        <div className="flex items-start space-x-4">
+        <div className={`flex items-start ${isRTL ? 'space-x-reverse space-x-4' : 'space-x-4'}`}>
           {/* Medical Icon */}
           <div className="flex-shrink-0 mt-1">
             <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center group-hover:bg-blue-200 transition-colors duration-200">
@@ -35,11 +37,11 @@ export function SearchResultItem({ result, onSelectResult }: SearchResultItemPro
           {/* Content */}
           <div className="flex-1 min-w-0">
             {/* Header with code and category */}
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center space-x-2">
+            <div className={`flex items-center mb-2 ${isRTL ? 'justify-between' : 'justify-between'}`}>
+              <div className={`flex items-center ${isRTL ? 'space-x-reverse space-x-2' : 'space-x-2'}`}>
                 {result.code && (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors duration-200">
-                    <svg className="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-700 group-hover:bg-blue-100 group-hover:text-blue-700 transition-colors duration-200 medical-code ${isRTL ? 'flex-row-reverse' : ''}`}>
+                    <svg className={`w-3 h-3 ${isRTL ? 'ml-1' : 'mr-1'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
                     </svg>
                     {result.code}
@@ -54,15 +56,15 @@ export function SearchResultItem({ result, onSelectResult }: SearchResultItemPro
                     } transition-colors duration-200`}
                   >
                     {result.isLeaf ? (
-                      <div className="flex items-center">
-                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <svg className={`w-3 h-3 ${isRTL ? 'ml-1' : 'mr-1'}`} fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
                         Final Code
                       </div>
                     ) : (
-                      <div className="flex items-center">
-                        <svg className="w-3 h-3 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                      <div className={`flex items-center ${isRTL ? 'flex-row-reverse' : ''}`}>
+                        <svg className={`w-3 h-3 ${isRTL ? 'ml-1' : 'mr-1'}`} fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                         </svg>
                         Category
@@ -73,23 +75,23 @@ export function SearchResultItem({ result, onSelectResult }: SearchResultItemPro
               </div>
               
               {/* Arrow indicator */}
-              <svg className="w-5 h-5 text-gray-400 group-hover:text-blue-500 group-hover:translate-x-1 transition-all duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className={`w-5 h-5 text-gray-400 group-hover:text-blue-500 transition-all duration-200 ${isRTL ? 'group-hover:-translate-x-1 rotate-180' : 'group-hover:translate-x-1'}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
               </svg>
             </div>
 
             {/* Title */}
-            <h3 className="text-lg font-semibold text-gray-900 group-hover:text-blue-900 transition-colors duration-200 mb-2 leading-snug">
+            <h3 className={`text-lg font-semibold text-gray-900 group-hover:text-blue-900 transition-colors duration-200 mb-2 leading-snug ${isRTL ? 'text-right arabic-text' : 'text-left'}`}>
               {result.title}
             </h3>
 
             {/* Matching phrases */}
             {result.matchingPhrases && result.matchingPhrases.length > 0 && (
               <div className="mt-2">
-                <p className="text-sm text-gray-600 mb-1">
+                <p className={`text-sm text-gray-600 mb-1 ${isRTL ? 'text-right arabic-text' : 'text-left'}`}>
                   <span className="font-medium text-gray-700">Related terms:</span>
                 </p>
-                <div className="flex flex-wrap gap-1">
+                <div className={`flex flex-wrap gap-1 ${isRTL ? 'justify-end' : 'justify-start'}`}>
                   {result.matchingPhrases.slice(0, 3).map((phrase, index) => (
                     <span 
                       key={index}
@@ -109,8 +111,8 @@ export function SearchResultItem({ result, onSelectResult }: SearchResultItemPro
 
             {/* Hover instruction */}
             <div className="mt-3 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-              <p className="text-xs text-blue-600 font-medium">
-                Click to view detailed information →
+              <p className={`text-xs text-blue-600 font-medium ${isRTL ? 'text-right arabic-text' : 'text-left'}`}>
+                {isRTL ? '← اضغط لعرض المعلومات التفصيلية' : 'Click to view detailed information →'}
               </p>
             </div>
           </div>

@@ -1,5 +1,7 @@
-import type { NextPage } from 'next';
+import type { NextPage, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import { Layout } from '../components/Layout/Layout';
 import { SearchForm } from '../components/SearchForm';
 import { SearchResults } from '../components/SearchResults';
@@ -8,6 +10,7 @@ import { ICD11SearchResult } from '@shared/types/icd11';
 
 const Home: NextPage = () => {
   const router = useRouter();
+  const { t } = useTranslation(['common', 'search']);
   const { searchParams } = useICD11Context();
 
   const handleSelectResult = (result: ICD11SearchResult) => {
@@ -158,6 +161,20 @@ const Home: NextPage = () => {
       </div>
     </Layout>
   );
+};
+
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || 'en', [
+        'common',
+        'search',
+        'medical',
+        'errors',
+        'accessibility'
+      ])),
+    },
+  };
 };
 
 export default Home;

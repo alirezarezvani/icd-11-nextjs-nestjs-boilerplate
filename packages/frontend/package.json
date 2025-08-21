@@ -12,6 +12,7 @@
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
+    "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^7.3.1",
@@ -26,11 +27,16 @@
     "axios": "^1.4.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "i18next": "^25.4.0",
     "lucide-react": "^0.263.1",
     "next": "13.4.13",
+    "next-i18next": "^15.4.2",
     "react": "18.2.0",
     "react-dom": "18.2.0",
+    "react-i18next": "^15.7.1",
     "react-query": "^3.39.3",
+    "stylis": "^4.3.0",
+    "stylis-plugin-rtl": "^2.1.1",
     "swr": "^2.2.1",
     "tailwind-merge": "^3.3.1",
     "tailwindcss-animate": "^1.0.7"

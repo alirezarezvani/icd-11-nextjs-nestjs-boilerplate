@@ -1,0 +1,49 @@
+{
+  "labels": {
+    "mainContent": "Main content",
+    "navigation": "Navigation",
+    "search": "Search",
+    "results": "Search results",
+    "pagination": "Pagination",
+    "languageSelector": "Language selector",
+    "menu": "Menu",
+    "close": "Close",
+    "open": "Open",
+    "expand": "Expand",
+    "collapse": "Collapse",
+    "loading": "Loading",
+    "error": "Error message"
+  },
+  "descriptions": {
+    "searchForm": "Search form for WHO ICD-11 medical codes",
+    "searchInput": "Enter medical terms or ICD codes to search",
+    "languageSelect": "Select language for search results",
+    "flexibleSearch": "Enable flexible search to include synonyms and related terms",
+    "searchButton": "Submit search query",
+    "resultsList": "List of search results from WHO ICD-11 database",
+    "resultItem": "Search result item",
+    "loadMore": "Load more search results",
+    "pagination": "Navigate between result pages"
+  },
+  "announcements": {
+    "searchStarted": "Search started for {{term}}",
+    "searchCompleted": "Search completed. {{count}} results found",
+    "searchFailed": "Search failed. Please try again",
+    "noResults": "No results found for your search",
+    "pageChanged": "Moved to page {{page}} of {{total}}",
+    "languageChanged": "Language changed to {{language}}",
+    "flexibleSearchEnabled": "Flexible search enabled",
+    "flexibleSearchDisabled": "Flexible search disabled"
+  },
+  "instructions": {
+    "searchTips": "Search tips: Use medical terminology, check spelling, or try more general terms",
+    "navigation": "Use arrow keys to navigate, Enter to select",
+    "keyboard": "Use Tab to navigate, Space to select, Escape to close"
+  },
+  "errors": {
+    "required": "This field is required",
+    "invalid": "Invalid input",
+    "searchFailed": "Search failed to complete",
+    "networkError": "Network connection error"
+  }
+}

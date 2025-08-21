@@ -1,12 +1,18 @@
 import React, { createContext, useContext, useEffect, ReactNode, useMemo } from 'react';
 import { ThemeProvider, createTheme, Theme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
+import { prefixer } from 'stylis';
+import rtlPlugin from 'stylis-plugin-rtl';
+import { CacheProvider } from '@emotion/react';
+import createCache from '@emotion/cache';
 import { useBranding } from './OrganizationContext';
+import { useLanguage } from './LanguageContext';
 
 interface CustomThemeContextType {
   theme: Theme;
   cssVariables: string;
   updateThemeFromBranding: () => void;
+  emotionCache: any;
 }
 
 const CustomThemeContext = createContext<CustomThemeContextType | undefined>(undefined);
@@ -17,10 +23,21 @@ interface CustomThemeProviderProps {
 
 export function CustomThemeProvider({ children }: CustomThemeProviderProps) {
   const { branding } = useBranding();
+  const { isRTL } = useLanguage();
   
-  // Create Material-UI theme from branding
+  // Create emotion cache for RTL support
+  const emotionCache = useMemo(() => {
+    const cacheRtl = createCache({
+      key: isRTL ? 'muirtl' : 'muiltr',
+      stylisPlugins: isRTL ? [prefixer, rtlPlugin] : [prefixer],
+    });
+    return cacheRtl;
+  }, [isRTL]);
+  
+  // Create Material-UI theme from branding with RTL support
   const createCustomTheme = () => {
     const theme = createTheme({
+      direction: isRTL ? 'rtl' : 'ltr',
       palette: {
         mode: 'light',
         primary: {
@@ -132,6 +149,13 @@ export function CustomThemeProvider({ children }: CustomThemeProviderProps) {
         branding.layout.shadows.xl,
       ],
       components: {
+        MuiCssBaseline: {
+          styleOverrides: {
+            body: {
+              direction: isRTL ? 'rtl' : 'ltr',
+            },
+          },
+        },
         MuiAppBar: {
           styleOverrides: {
             root: {
@@ -177,6 +201,38 @@ export function CustomThemeProvider({ children }: CustomThemeProviderProps) {
               '& .MuiOutlinedInput-root': {
                 borderRadius: branding.layout.borderRadius,
               },
+              // RTL-specific input handling
+              '& .MuiInputBase-input': {
+                textAlign: isRTL ? 'right' : 'left',
+              },
+            },
+          },
+        },
+        // RTL-aware component styles
+        MuiFormLabel: {
+          styleOverrides: {
+            root: {
+              transformOrigin: isRTL ? 'top right' : 'top left',
+              '&.Mui-focused, &.MuiFormLabel-filled': {
+                transform: isRTL 
+                  ? 'translate(-14px, -9px) scale(0.75)' 
+                  : 'translate(14px, -9px) scale(0.75)',
+              },
+            },
+          },
+        },
+        MuiSelect: {
+          styleOverrides: {
+            icon: {
+              left: isRTL ? '7px' : 'auto',
+              right: isRTL ? 'auto' : '7px',
+            },
+          },
+        },
+        MuiMenuItem: {
+          styleOverrides: {
+            root: {
+              textAlign: isRTL ? 'right' : 'left',
             },
           },
         },
@@ -262,14 +318,17 @@ export function CustomThemeProvider({ children }: CustomThemeProviderProps) {
     theme,
     cssVariables,
     updateThemeFromBranding,
+    emotionCache,
   };
 
   return (
     <CustomThemeContext.Provider value={contextValue}>
-      <ThemeProvider theme={theme}>
-        <CssBaseline />
-        {children}
-      </ThemeProvider>
+      <CacheProvider value={emotionCache}>
+        <ThemeProvider theme={theme}>
+          <CssBaseline />
+          {children}
+        </ThemeProvider>
+      </CacheProvider>
     </CustomThemeContext.Provider>
   );
 }

@@ -176,7 +176,7 @@ export default function EntityDetail() {
         
         {/* Main Content Grid */}
         <Grid container spacing={3}>
-          <Grid item {...{ xs: 12, md: 8 } as any}>
+          <Grid size={{ xs: 12, md: 8 }}>
             {/* Description Card */}
             <Card sx={{ mb: 3 }}>
               <CardContent>
@@ -250,7 +250,7 @@ export default function EntityDetail() {
           </Grid>
           
           {/* Sidebar */}
-          <Grid item {...{ xs: 12, md: 4 } as any}>
+          <Grid size={{ xs: 12, md: 4 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>

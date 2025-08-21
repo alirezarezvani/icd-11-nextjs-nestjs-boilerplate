@@ -185,7 +185,7 @@ export default function IntegrationTest() {
         {/* Test Results */}
         <Grid container spacing={3} sx={{ mb: 4 }}>
           {integrationTests.map((test, index) => (
-            <Grid item xs={12} md={6} key={index}>
+            <Grid size={{ xs: 12, md: 6 }} key={index}>
               <Card sx={{ height: '100%' }}>
                 <CardContent>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
@@ -214,7 +214,7 @@ export default function IntegrationTest() {
           </Typography>
           
           <Grid container spacing={3}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="h6" gutterBottom>
                 {getTestText('languageInfo')}
               </Typography>
@@ -229,7 +229,7 @@ export default function IntegrationTest() {
               </Button>
             </Grid>
 
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="h6" gutterBottom>
                 {getTestText('accessibilityInfo')}
               </Typography>
@@ -259,7 +259,7 @@ export default function IntegrationTest() {
 
         {/* System Information */}
         <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -295,7 +295,7 @@ export default function IntegrationTest() {
             </Card>
           </Grid>
 
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>

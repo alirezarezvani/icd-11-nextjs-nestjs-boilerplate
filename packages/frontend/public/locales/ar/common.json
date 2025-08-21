@@ -1,0 +1,38 @@
+{
+  "nav": {
+    "search": "البحث",
+    "about": "حول التطبيق",
+    "openMenu": "فتح القائمة",
+    "language": "اللغة"
+  },
+  "footer": {
+    "copyright": "© {{year}} {{appName}} - جميع الحقوق محفوظة",
+    "aboutLink": "حول التطبيق",
+    "dataSource": "البيانات مُستمدة من واجهة برمجة التطبيقات لمنظمة الصحة العالمية ICD-11"
+  },
+  "meta": {
+    "defaultDescription": "البحث في الرموز الطبية لمنظمة الصحة العالمية ICD-11",
+    "defaultTitle": "البحث في الرموز الطبية ICD-11"
+  },
+  "buttons": {
+    "submit": "إرسال",
+    "cancel": "إلغاء",
+    "clear": "مسح",
+    "search": "بحث",
+    "reset": "إعادة تعيين",
+    "save": "حفظ",
+    "load": "تحميل",
+    "delete": "حذف",
+    "edit": "تحرير",
+    "view": "عرض",
+    "close": "إغلاق",
+    "open": "فتح",
+    "expand": "توسيع",
+    "collapse": "طي"
+  },
+  "loading": "جاري التحميل...",
+  "error": "حدث خطأ",
+  "success": "نجح العمل",
+  "warning": "تحذير",
+  "info": "معلومات"
+}

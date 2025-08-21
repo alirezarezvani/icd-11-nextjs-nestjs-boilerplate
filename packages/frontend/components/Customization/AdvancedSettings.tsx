@@ -46,8 +46,8 @@ export function AdvancedSettings({ type }: AdvancedSettingsProps) {
       ...prev,
       layout: {
         ...prev.layout,
-        [section]: typeof prev.layout[section] === 'object' 
-          ? { ...prev.layout[section], [key]: value }
+        [section]: typeof (prev.layout as any)[section] === 'object' 
+          ? { ...(prev.layout as any)[section], [key]: value }
           : value,
       },
     }));
@@ -127,7 +127,7 @@ export function AdvancedSettings({ type }: AdvancedSettingsProps) {
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={3}>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Header Height"
                   value={localBranding.layout.headerHeight}
@@ -137,7 +137,7 @@ export function AdvancedSettings({ type }: AdvancedSettingsProps) {
                   helperText="Height of the main navigation header"
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Sidebar Width"
                   value={localBranding.layout.sidebarWidth}
@@ -147,7 +147,7 @@ export function AdvancedSettings({ type }: AdvancedSettingsProps) {
                   helperText="Width of the navigation sidebar"
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid size={{ xs: 12, sm: 6 }}>
                 <TextField
                   label="Border Radius"
                   value={localBranding.layout.borderRadius}
@@ -169,7 +169,7 @@ export function AdvancedSettings({ type }: AdvancedSettingsProps) {
           <AccordionDetails>
             <Grid container spacing={2}>
               {Object.entries(localBranding.layout.spacing).map(([size, value]) => (
-                <Grid item xs={6} sm={4} md={2.4} key={size}>
+                <Grid size={{ xs: 6, sm: 4, md: 2.4 }} key={size}>
                   <TextField
                     label={size.toUpperCase()}
                     value={value}
@@ -191,7 +191,7 @@ export function AdvancedSettings({ type }: AdvancedSettingsProps) {
           <AccordionDetails>
             <Grid container spacing={2}>
               {Object.entries(localBranding.layout.shadows).map(([size, value]) => (
-                <Grid item xs={12} sm={6} key={size}>
+                <Grid size={{ xs: 12, sm: 6 }} key={size}>
                   <TextField
                     label={`${size.toUpperCase()} Shadow`}
                     value={value}
@@ -326,7 +326,7 @@ export function AdvancedSettings({ type }: AdvancedSettingsProps) {
         </AccordionSummary>
         <AccordionDetails>
           <Grid container spacing={2}>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="subtitle2" gutterBottom>
                 Colors:
               </Typography>
@@ -344,7 +344,7 @@ export function AdvancedSettings({ type }: AdvancedSettingsProps) {
 --color-success: ${branding.colorScheme.success}`}
               </Box>
             </Grid>
-            <Grid item xs={12} md={6}>
+            <Grid size={{ xs: 12, md: 6 }}>
               <Typography variant="subtitle2" gutterBottom>
                 Layout & Typography:
               </Typography>

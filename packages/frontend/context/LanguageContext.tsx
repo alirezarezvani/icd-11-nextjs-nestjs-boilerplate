@@ -1,5 +1,13 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { useRouter } from 'next/router';
 import { SupportedLanguage } from '@shared/types/icd11';
+import { 
+  updateDocumentDirection, 
+  saveLanguagePreference, 
+  loadLanguagePreference,
+  getBrowserPreferredLanguage,
+  isSupportedLocale
+} from '@/utils/i18n';
 
 // Language configuration
 export const SUPPORTED_LANGUAGES = {
@@ -29,9 +37,6 @@ interface LanguageProviderProps {
   defaultLanguage?: SupportedLanguage;
 }
 
-// Language storage key
-const LANGUAGE_STORAGE_KEY = 'icd11-preferred-language';
-
 // RTL languages
 const RTL_LANGUAGES: SupportedLanguage[] = ['ar'];
 
@@ -40,42 +45,45 @@ export function LanguageProvider({
   children, 
   defaultLanguage = 'en' 
 }: LanguageProviderProps) {
-  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>(defaultLanguage);
+  const router = useRouter();
+  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>(
+    (router.locale as SupportedLanguage) || defaultLanguage
+  );
 
-  // Load language preference from localStorage on mount
+  // Initialize language from router or saved preference
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedLanguage = localStorage.getItem(LANGUAGE_STORAGE_KEY) as SupportedLanguage;
-      if (savedLanguage && savedLanguage in SUPPORTED_LANGUAGES) {
-        setCurrentLanguage(savedLanguage);
-      } else {
-        // Try to detect browser language
-        const browserLanguage = navigator.language.split('-')[0] as SupportedLanguage;
-        if (browserLanguage in SUPPORTED_LANGUAGES) {
-          setCurrentLanguage(browserLanguage);
-        }
-      }
+    const routerLocale = router.locale as SupportedLanguage;
+    const savedLanguage = loadLanguagePreference();
+    const browserLanguage = getBrowserPreferredLanguage();
+    
+    let initialLanguage: SupportedLanguage = defaultLanguage;
+    
+    if (routerLocale && isSupportedLocale(routerLocale)) {
+      initialLanguage = routerLocale;
+    } else if (savedLanguage) {
+      initialLanguage = savedLanguage;
+    } else if (browserLanguage) {
+      initialLanguage = browserLanguage;
     }
-  }, []);
+    
+    if (initialLanguage !== currentLanguage) {
+      setCurrentLanguage(initialLanguage);
+    }
+  }, [router.locale, defaultLanguage, currentLanguage]);
 
-  // Save language preference to localStorage when it changes
+  // Update document direction and save preference when language changes
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      localStorage.setItem(LANGUAGE_STORAGE_KEY, currentLanguage);
-    }
+    updateDocumentDirection(currentLanguage);
+    saveLanguagePreference(currentLanguage);
   }, [currentLanguage]);
 
-  // Update document direction for RTL languages
-  useEffect(() => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.dir = RTL_LANGUAGES.includes(currentLanguage) ? 'rtl' : 'ltr';
-      document.documentElement.lang = currentLanguage;
-    }
-  }, [currentLanguage]);
-
-  const setLanguage = (language: SupportedLanguage) => {
+  // Enhanced setLanguage function with router navigation
+  const setLanguage = async (language: SupportedLanguage) => {
     if (language in SUPPORTED_LANGUAGES) {
       setCurrentLanguage(language);
+      
+      // Navigate to new locale route
+      await router.push(router.asPath, router.asPath, { locale: language });
     } else {
       console.warn(`Unsupported language: ${language}`);
     }
