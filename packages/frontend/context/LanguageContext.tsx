@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import { SupportedLanguage } from '@shared/types/icd11';
 import { 
   updateDocumentDirection, 
@@ -46,41 +47,67 @@ export function LanguageProvider({
   defaultLanguage = 'en' 
 }: LanguageProviderProps) {
   const router = useRouter();
+  const { i18n } = useTranslation();
+  const [isHydrated, setIsHydrated] = useState(false);
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>(
     (router.locale as SupportedLanguage) || defaultLanguage
   );
 
-  // Initialize language from router or saved preference
+  // Track hydration status
   useEffect(() => {
-    const routerLocale = router.locale as SupportedLanguage;
-    const savedLanguage = loadLanguagePreference();
-    const browserLanguage = getBrowserPreferredLanguage();
+    setIsHydrated(true);
+  }, []);
+
+  // Initialize language from router or saved preference - only after hydration
+  useEffect(() => {
+    // Only run after hydration to avoid SSR/CSR mismatches
+    if (!isHydrated) return;
     
+    const routerLocale = router.locale as SupportedLanguage;
     let initialLanguage: SupportedLanguage = defaultLanguage;
     
+    // Prioritize router locale for SSR consistency
     if (routerLocale && isSupportedLocale(routerLocale)) {
       initialLanguage = routerLocale;
-    } else if (savedLanguage) {
-      initialLanguage = savedLanguage;
-    } else if (browserLanguage) {
-      initialLanguage = browserLanguage;
+    } else {
+      // Only use saved preferences after first hydration
+      const savedLanguage = loadLanguagePreference();
+      const browserLanguage = getBrowserPreferredLanguage();
+      
+      if (savedLanguage) {
+        initialLanguage = savedLanguage;
+      } else if (browserLanguage) {
+        initialLanguage = browserLanguage;
+      }
     }
     
     if (initialLanguage !== currentLanguage) {
       setCurrentLanguage(initialLanguage);
+      // Sync with next-i18next
+      if (i18n && i18n.language !== initialLanguage) {
+        i18n.changeLanguage(initialLanguage);
+      }
     }
-  }, [router.locale, defaultLanguage, currentLanguage]);
+  }, [isHydrated, router.locale, defaultLanguage, i18n]); // Include isHydrated in deps
 
-  // Update document direction and save preference when language changes
+  // Update document direction and save preference when language changes - only after hydration
   useEffect(() => {
+    // Only update DOM after hydration to avoid hydration mismatches
+    if (!isHydrated) return;
+    
     updateDocumentDirection(currentLanguage);
     saveLanguagePreference(currentLanguage);
-  }, [currentLanguage]);
+  }, [isHydrated, currentLanguage]);
 
   // Enhanced setLanguage function with router navigation
   const setLanguage = async (language: SupportedLanguage) => {
     if (language in SUPPORTED_LANGUAGES) {
       setCurrentLanguage(language);
+      
+      // Sync with next-i18next
+      if (i18n && i18n.language !== language) {
+        await i18n.changeLanguage(language);
+      }
       
       // Navigate to new locale route
       await router.push(router.asPath, router.asPath, { locale: language });
@@ -93,10 +120,12 @@ export function LanguageProvider({
     return SUPPORTED_LANGUAGES[code] || code;
   };
 
-  const isRTL = RTL_LANGUAGES.includes(currentLanguage);
+  // Use router locale for initial SSR consistency, then currentLanguage after hydration
+  const displayLanguage = isHydrated ? currentLanguage : (router.locale as SupportedLanguage || defaultLanguage);
+  const isRTL = RTL_LANGUAGES.includes(displayLanguage);
 
   const contextValue: LanguageContextType = {
-    currentLanguage,
+    currentLanguage: displayLanguage,
     setLanguage,
     availableLanguages: SUPPORTED_LANGUAGES,
     getLanguageName,

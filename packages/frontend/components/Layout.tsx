@@ -38,7 +38,6 @@ export default function Layout({
       <Head>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
         {/* RTL-specific meta tags */}
         <meta name="dir" content={isRTL ? 'rtl' : 'ltr'} />

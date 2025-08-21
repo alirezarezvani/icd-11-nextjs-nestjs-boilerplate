@@ -1,4 +1,4 @@
-import { Html, Head, Main, NextScript } from 'next/document'
+import { Html, Head, Main, NextScript, DocumentContext } from 'next/document'
 
 export default function Document() {
   return (
@@ -20,8 +20,6 @@ export default function Document() {
           crossOrigin="anonymous"
         />
         
-        {/* Viewport meta for proper RTL mobile support */}
-        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
         
         {/* RTL support for different browsers */}
         <meta name="format-detection" content="telephone=no" />
@@ -67,34 +65,6 @@ export default function Document() {
         <Main />
         <NextScript />
         
-        {/* Script to set initial direction before React hydrates */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                // Set initial direction based on localStorage or browser preference
-                try {
-                  var savedLanguage = localStorage.getItem('icd11-preferred-language');
-                  var browserLang = navigator.language.split('-')[0];
-                  var isRTL = savedLanguage === 'ar' || (!savedLanguage && browserLang === 'ar');
-                  
-                  if (isRTL) {
-                    document.documentElement.setAttribute('dir', 'rtl');
-                    document.documentElement.setAttribute('lang', 'ar');
-                    document.body.classList.add('loading-rtl');
-                  } else {
-                    document.documentElement.setAttribute('dir', 'ltr');
-                    document.documentElement.setAttribute('lang', savedLanguage || browserLang || 'en');
-                  }
-                } catch (e) {
-                  // Fallback to LTR if there's any error
-                  document.documentElement.setAttribute('dir', 'ltr');
-                  document.documentElement.setAttribute('lang', 'en');
-                }
-              })();
-            `
-          }}
-        />
       </body>
     </Html>
   )

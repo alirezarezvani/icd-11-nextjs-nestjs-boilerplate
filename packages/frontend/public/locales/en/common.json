@@ -1,8 +1,13 @@
 {
   "nav": {
+    "home": "Home",
     "search": "Search",
     "about": "About",
-    "openMenu": "Open menu"
+    "customization": "Customization",
+    "integrationTest": "Integration Test",
+    "openMenu": "Open menu",
+    "language": "Language",
+    "subtitle": "Healthcare Code Search"
   },
   "footer": {
     "copyright": "© {{year}} {{appName}}",
@@ -12,6 +17,37 @@
   "meta": {
     "defaultDescription": "Search WHO ICD-11 medical codes",
     "defaultTitle": "ICD-11 Medical Code Search"
+  },
+  "homepage": {
+    "hero": {
+      "title": "ICD-11 Healthcare",
+      "subtitle": "Code Search",
+      "description": "Official WHO International Classification of Diseases (ICD-11) database search. Find accurate medical codes and classifications for healthcare documentation.",
+      "features": {
+        "whoDatabase": "WHO Official Database",
+        "languages": "6 Languages Supported", 
+        "realtime": "Real-time Search"
+      }
+    },
+    "search": {
+      "title": "Search Medical Codes & Classifications",
+      "description": "Enter medical terms, conditions, or symptoms to find corresponding ICD-11 codes"
+    },
+    "guide": {
+      "title": "How to Search Effectively",
+      "medicalTerms": {
+        "title": "Use Medical Terms",
+        "description": "Search using proper medical terminology like 'hypertension' instead of 'high blood pressure'"
+      },
+      "chooseLanguage": {
+        "title": "Choose Language", 
+        "description": "Select from English, Spanish, French, Arabic, Chinese, or Russian for localized results"
+      },
+      "flexibleSearch": {
+        "title": "Use Flexible Search",
+        "description": "Enable flexible search to include synonyms, alternative spellings, and related terms"
+      }
+    }
   },
   "buttons": {
     "submit": "Submit",

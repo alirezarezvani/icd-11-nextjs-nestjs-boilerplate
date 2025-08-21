@@ -152,14 +152,8 @@ export function updateDocumentDirection(locale: SupportedLocale): void {
     document.body.classList.remove('rtl-body');
   }
   
-  // Update viewport meta tag for better mobile RTL support
-  let viewport = document.querySelector('meta[name="viewport"]') as HTMLMetaElement;
-  if (!viewport) {
-    viewport = document.createElement('meta');
-    viewport.name = 'viewport';
-    document.head.appendChild(viewport);
-  }
-  viewport.content = 'width=device-width, initial-scale=1, shrink-to-fit=no';
+  // Note: Viewport meta tag should be handled in _document.tsx or Layout components
+  // to avoid Next.js warnings about viewport meta tags in dynamic locations
   
   // Dispatch event for components that need to know about direction changes
   const directionChangeEvent = new CustomEvent('directionchange', {

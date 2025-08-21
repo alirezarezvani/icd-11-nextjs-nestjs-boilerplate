@@ -1,37 +1,73 @@
 {
   "nav": {
-    "search": "Search",
-    "about": "About",
-    "openMenu": "Open menu"
+    "home": "主页",
+    "search": "搜索",
+    "about": "关于",
+    "customization": "自定义",
+    "integrationTest": "集成测试",
+    "openMenu": "打开菜单",
+    "language": "语言",
+    "subtitle": "健康代码搜索"
   },
   "footer": {
     "copyright": "© {{year}} {{appName}}",
-    "aboutLink": "About",
-    "dataSource": "Data sourced from the WHO ICD-11 API"
+    "aboutLink": "关于",
+    "dataSource": "数据来源于 WHO ICD-11 API"
   },
   "meta": {
-    "defaultDescription": "Search WHO ICD-11 medical codes",
-    "defaultTitle": "ICD-11 Medical Code Search"
+    "defaultDescription": "搜索 WHO ICD-11 医学代码",
+    "defaultTitle": "ICD-11 医学代码搜索"
+  },
+  "homepage": {
+    "hero": {
+      "title": "ICD-11 健康",
+      "subtitle": "代码搜索",
+      "description": "世界卫生组织官方国际疾病分类 (ICD-11) 数据库搜索。为健康文档找到准确的医学代码和分类。",
+      "features": {
+        "whoDatabase": "WHO 官方数据库",
+        "languages": "支持 6 种语言",
+        "realtime": "实时搜索"
+      }
+    },
+    "search": {
+      "title": "搜索医学代码和分类",
+      "description": "输入医学术语、病情或症状来找到相应的 ICD-11 代码"
+    },
+    "guide": {
+      "title": "如何有效搜索",
+      "medicalTerms": {
+        "title": "使用医学术语",
+        "description": "使用正确的医学术语进行搜索，如使用'高血压'而不是'血压高'"
+      },
+      "chooseLanguage": {
+        "title": "选择语言",
+        "description": "从英语、西班牙语、法语、阿拉伯语、中文或俄语中选择，获取本地化结果"
+      },
+      "flexibleSearch": {
+        "title": "使用灵活搜索",
+        "description": "启用灵活搜索以包括同义词、备选拼写和相关术语"
+      }
+    }
   },
   "buttons": {
-    "submit": "Submit",
-    "cancel": "Cancel",
-    "clear": "Clear",
-    "search": "Search",
-    "reset": "Reset",
-    "save": "Save",
-    "load": "Load",
-    "delete": "Delete",
-    "edit": "Edit",
-    "view": "View",
-    "close": "Close",
-    "open": "Open",
-    "expand": "Expand",
-    "collapse": "Collapse"
+    "submit": "提交",
+    "cancel": "取消",
+    "clear": "清除",
+    "search": "搜索",
+    "reset": "重置",
+    "save": "保存",
+    "load": "加载",
+    "delete": "删除",
+    "edit": "编辑",
+    "view": "查看",
+    "close": "关闭",
+    "open": "打开",
+    "expand": "展开",
+    "collapse": "折叠"
   },
-  "loading": "Loading...",
-  "error": "An error occurred",
-  "success": "Success",
-  "warning": "Warning",
-  "info": "Information"
+  "loading": "加载中...",
+  "error": "发生错误",
+  "success": "成功",
+  "warning": "警告",
+  "info": "信息"
 }

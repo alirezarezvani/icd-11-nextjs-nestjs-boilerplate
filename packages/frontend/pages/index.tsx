@@ -1,5 +1,6 @@
 import type { NextPage, GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useTranslation } from 'next-i18next';
 import { Layout } from '../components/Layout/Layout';
@@ -18,8 +19,12 @@ const Home: NextPage = () => {
   };
 
   return (
-    <Layout title="ICD-11 Search | WHO Healthcare Code Explorer">
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <>
+      <Head>
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+      </Head>
+      <Layout title="ICD-11 Search | WHO Healthcare Code Explorer">
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
         {/* Hero Section */}
         <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700">
           <div className="absolute inset-0 bg-black opacity-10"></div>
@@ -33,31 +38,30 @@ const Home: NextPage = () => {
                 </div>
               </div>
               <h1 className="text-4xl lg:text-6xl font-bold text-white mb-6 leading-tight">
-                ICD-11 Healthcare
-                <span className="block text-blue-200">Code Search</span>
+                {t('common:homepage.hero.title')}
+                <span className="block text-blue-200">{t('common:homepage.hero.subtitle')}</span>
               </h1>
               <p className="text-xl lg:text-2xl text-blue-100 max-w-4xl mx-auto mb-8 leading-relaxed">
-                Official WHO International Classification of Diseases (ICD-11) database search. 
-                Find accurate medical codes and classifications for healthcare documentation.
+                {t('common:homepage.hero.description')}
               </p>
               <div className="flex flex-wrap justify-center gap-4 text-sm text-blue-200">
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                   </svg>
-                  WHO Official Database
+                  {t('common:homepage.hero.features.whoDatabase')}
                 </div>
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                   </svg>
-                  6 Languages Supported
+                  {t('common:homepage.hero.features.languages')}
                 </div>
                 <div className="flex items-center">
                   <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                   </svg>
-                  Real-time Search
+                  {t('common:homepage.hero.features.realtime')}
                 </div>
               </div>
             </div>
@@ -77,10 +81,10 @@ const Home: NextPage = () => {
             <div className="bg-white rounded-2xl shadow-xl p-6 lg:p-10 max-w-4xl mx-auto">
               <div className="text-center mb-6">
                 <h2 className="text-2xl lg:text-3xl font-bold text-gray-900 mb-2">
-                  Search Medical Codes & Classifications
+                  {t('common:homepage.search.title')}
                 </h2>
                 <p className="text-lg text-gray-600">
-                  Enter medical terms, conditions, or symptoms to find corresponding ICD-11 codes
+                  {t('common:homepage.search.description')}
                 </p>
               </div>
               <SearchForm 
@@ -97,7 +101,7 @@ const Home: NextPage = () => {
             <div className="mb-8">
               <div className="max-w-4xl mx-auto">
                 <h3 className="text-xl font-semibold text-gray-900 mb-6 text-center">
-                  How to Search Effectively
+                  {t('common:homepage.guide.title')}
                 </h3>
                 <div className="grid md:grid-cols-3 gap-6">
                   {[
@@ -107,8 +111,8 @@ const Home: NextPage = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                         </svg>
                       ),
-                      title: "Use Medical Terms",
-                      description: "Search using proper medical terminology like 'hypertension' instead of 'high blood pressure'"
+                      title: t('common:homepage.guide.medicalTerms.title'),
+                      description: t('common:homepage.guide.medicalTerms.description')
                     },
                     {
                       icon: (
@@ -116,8 +120,8 @@ const Home: NextPage = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                         </svg>
                       ),
-                      title: "Choose Language",
-                      description: "Select from English, Spanish, French, Arabic, Chinese, or Russian for localized results"
+                      title: t('common:homepage.guide.chooseLanguage.title'),
+                      description: t('common:homepage.guide.chooseLanguage.description')
                     },
                     {
                       icon: (
@@ -126,8 +130,8 @@ const Home: NextPage = () => {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                       ),
-                      title: "Use Flexible Search",
-                      description: "Enable flexible search to include synonyms, alternative spellings, and related terms"
+                      title: t('common:homepage.guide.flexibleSearch.title'),
+                      description: t('common:homepage.guide.flexibleSearch.description')
                     }
                   ].map((item, index) => (
                     <div key={index} className="bg-white rounded-xl shadow-lg p-6 text-center hover:shadow-xl transition-shadow duration-300">
@@ -158,8 +162,9 @@ const Home: NextPage = () => {
             </div>
           )}
         </div>
-      </div>
-    </Layout>
+        </div>
+      </Layout>
+    </>
   );
 };
 

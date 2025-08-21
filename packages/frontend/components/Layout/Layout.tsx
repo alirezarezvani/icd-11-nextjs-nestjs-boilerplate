@@ -1,6 +1,7 @@
 import React, { ReactNode, useState } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
+import { useTranslation } from 'next-i18next';
 import {
   AppBar,
   Toolbar,
@@ -49,16 +50,17 @@ export const Layout: React.FC<LayoutProps> = ({
   const router = useRouter();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
+  const { t } = useTranslation('common');
   const { isRTL } = useLanguage();
   
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const navItems: NavItem[] = [
-    { title: 'Home', href: '/', icon: <HomeIcon /> },
-    { title: 'Search', href: '/search', icon: <SearchIcon /> },
-    { title: 'Customization', href: '/customization', icon: <SettingsIcon /> },
-    { title: 'Integration Test', href: '/integration-test', icon: <TestIcon /> },
-    { title: 'About', href: '/about', icon: <InfoIcon /> },
+    { title: t('nav.home'), href: '/', icon: <HomeIcon /> },
+    { title: t('nav.search'), href: '/search', icon: <SearchIcon /> },
+    { title: t('nav.customization'), href: '/customization', icon: <SettingsIcon /> },
+    { title: t('nav.integrationTest'), href: '/integration-test', icon: <TestIcon /> },
+    { title: t('nav.about'), href: '/about', icon: <InfoIcon /> },
   ];
 
   const handleDrawerToggle = () => {
@@ -97,7 +99,7 @@ export const Layout: React.FC<LayoutProps> = ({
             fontWeight: 500,
           }}
         >
-          Healthcare Code Search
+          {t('nav.subtitle')}
         </Typography>
       </Box>
 
@@ -156,7 +158,7 @@ export const Layout: React.FC<LayoutProps> = ({
       {/* Language Selector in Drawer */}
       <Box sx={{ px: 3, pt: 2, mt: 'auto', borderTop: '1px solid rgba(0, 0, 0, 0.08)' }}>
         <Typography variant="caption" sx={{ color: '#64748b', mb: 2, display: 'block' }}>
-          Language
+          {t('nav.language')}
         </Typography>
         <LanguageSelector 
           variant="menu"
@@ -172,9 +174,7 @@ export const Layout: React.FC<LayoutProps> = ({
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
-        <html dir={isRTL ? 'rtl' : 'ltr'} />
       </Head>
       
       <Box sx={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -195,7 +195,7 @@ export const Layout: React.FC<LayoutProps> = ({
             {isMobile && (
               <IconButton
                 edge="start"
-                aria-label="menu"
+                aria-label={t('nav.openMenu')}
                 onClick={handleDrawerToggle}
                 sx={{ 
                   mr: 2,
@@ -358,7 +358,7 @@ export const Layout: React.FC<LayoutProps> = ({
                   }}
                   onClick={() => handleNavigation('/about')}
                 >
-                  About
+                  {t('nav.about')}
                 </Typography>
               </Typography>
               <Typography 
@@ -369,7 +369,7 @@ export const Layout: React.FC<LayoutProps> = ({
                   fontWeight: 500,
                 }}
               >
-                Data sourced from the WHO ICD-11 API
+                {t('footer.dataSource')}
               </Typography>
             </Box>
           </Container>

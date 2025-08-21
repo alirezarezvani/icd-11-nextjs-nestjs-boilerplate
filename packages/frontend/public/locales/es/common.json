@@ -1,8 +1,13 @@
 {
   "nav": {
+    "home": "Inicio",
     "search": "Buscar",
     "about": "Acerca de",
-    "openMenu": "Abrir menú"
+    "customization": "Personalización",
+    "integrationTest": "Prueba de Integración",
+    "openMenu": "Abrir menú",
+    "language": "Idioma",
+    "subtitle": "Búsqueda de Códigos de Salud"
   },
   "footer": {
     "copyright": "© {{year}} {{appName}}",
@@ -12,6 +17,37 @@
   "meta": {
     "defaultDescription": "Buscar códigos médicos WHO ICD-11",
     "defaultTitle": "Búsqueda de Códigos Médicos ICD-11"
+  },
+  "homepage": {
+    "hero": {
+      "title": "ICD-11 Salud",
+      "subtitle": "Búsqueda de Códigos",
+      "description": "Búsqueda oficial de la base de datos de la Clasificación Internacional de Enfermedades (CIE-11) de la OMS. Encuentra códigos y clasificaciones médicas precisas para la documentación sanitaria.",
+      "features": {
+        "whoDatabase": "Base de Datos Oficial OMS",
+        "languages": "6 Idiomas Soportados",
+        "realtime": "Búsqueda en Tiempo Real"
+      }
+    },
+    "search": {
+      "title": "Buscar Códigos y Clasificaciones Médicas",
+      "description": "Introduce términos médicos, condiciones o síntomas para encontrar los códigos ICD-11 correspondientes"
+    },
+    "guide": {
+      "title": "Cómo Buscar Efectivamente",
+      "medicalTerms": {
+        "title": "Usar Términos Médicos",
+        "description": "Busca usando terminología médica apropiada como 'hipertensión' en lugar de 'presión arterial alta'"
+      },
+      "chooseLanguage": {
+        "title": "Elegir Idioma",
+        "description": "Selecciona entre inglés, español, francés, árabe, chino o ruso para resultados localizados"
+      },
+      "flexibleSearch": {
+        "title": "Usar Búsqueda Flexible",
+        "description": "Habilita la búsqueda flexible para incluir sinónimos, ortografías alternativas y términos relacionados"
+      }
+    }
   },
   "buttons": {
     "submit": "Enviar",

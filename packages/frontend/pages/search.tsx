@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
+import type { GetStaticProps } from 'next';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
+import { useTranslation } from 'next-i18next';
 import { Layout } from '../components/Layout/Layout';
 import { SearchForm, SearchResults } from '@/components';
 import { useICD11Context } from '@/context';
@@ -9,6 +12,7 @@ import { ICD11SearchResult, SupportedLanguage } from '@shared/types/icd11';
 
 export default function SearchPage() {
   const router = useRouter();
+  const { t } = useTranslation(['common', 'search', 'medical']);
   const { search, searchParams, setSearchParams } = useICD11Context();
   const [selectedResult, setSelectedResult] = useState<ICD11SearchResult | null>(null);
 
@@ -42,8 +46,8 @@ export default function SearchPage() {
 
   return (
     <Layout 
-      title={searchParams.term ? `Search: ${searchParams.term} | ICD-11` : 'Advanced Search | ICD-11'} 
-      description="Advanced search for WHO ICD-11 medical codes and classifications"
+      title={searchParams.term ? `${t('common:nav.search')}: ${searchParams.term} | ${t('common:meta.defaultTitle')}` : `${t('common:nav.search')} | ${t('common:meta.defaultTitle')}`} 
+      description={t('common:meta.defaultDescription')}
     >
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-50">
         <div className="container mx-auto px-4 lg:px-8 py-8">
@@ -51,12 +55,11 @@ export default function SearchPage() {
           <div className="mb-8">
             <h1 className="text-3xl lg:text-4xl font-bold text-gray-900 mb-2">
               {searchParams.term
-                ? `Search Results for "${searchParams.term}"`
-                : 'ICD-11 Medical Code Search'}
+                ? t('search:results.title') + ` for "${searchParams.term}"`
+                : t('common:meta.defaultTitle')}
             </h1>
             <p className="text-lg text-gray-600 max-w-3xl">
-              Search the World Health Organization's International Classification of Diseases (ICD-11) 
-              database to find accurate medical codes and classifications.
+              {t('common:meta.defaultDescription')} {t('common:homepage.hero.description')}
             </p>
           </div>
 
@@ -77,7 +80,7 @@ export default function SearchPage() {
                     <svg className="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129" />
                     </svg>
-                    Language Selection
+{t('search:form.labels.searchLanguage')}
                   </h2>
                   <div className="grid grid-cols-2 gap-3">
                     {ICD11_CONFIG.AVAILABLE_LANGUAGES.map((lang) => (
@@ -109,16 +112,16 @@ export default function SearchPage() {
                     <svg className="w-5 h-5 mr-2 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                     </svg>
-                    Search Tips
+{t('medical:search.suggestions.title')}
                   </h2>
                   <ul className="space-y-3">
                     {[
-                      'Use medical terminology for best results',
-                      'Try both common and scientific names',
-                      'Search by ICD-11 codes if known',
-                      'Enable flexible search for broader results',
-                      'Too many results? Use more specific terms',
-                      'Too few results? Try related terms'
+                      t('medical:search.suggestions.terminology'),
+                      t('medical:search.suggestions.commonNames'),
+                      t('medical:search.suggestions.codes'),
+                      t('medical:search.suggestions.flexible'),
+                      t('medical:search.suggestions.specific'),
+                      t('medical:search.suggestions.broad')
                     ].map((tip, index) => (
                       <li key={index} className="flex items-start text-sm text-gray-700">
                         <svg className="w-4 h-4 mr-2 mt-0.5 text-green-500 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -147,4 +150,18 @@ export default function SearchPage() {
       </div>
     </Layout>
   );
-} 
+}
+
+export const getStaticProps: GetStaticProps = async ({ locale }) => {
+  return {
+    props: {
+      ...(await serverSideTranslations(locale || 'en', [
+        'common',
+        'search',
+        'medical',
+        'errors',
+        'accessibility'
+      ])),
+    },
+  };
+}; 

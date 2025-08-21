@@ -25,7 +25,7 @@ export function CustomThemeProvider({ children }: CustomThemeProviderProps) {
   const { branding } = useBranding();
   const { isRTL } = useLanguage();
   
-  // Create emotion cache for RTL support
+  // Create emotion cache for RTL support - with SSR safety
   const emotionCache = useMemo(() => {
     const cacheRtl = createCache({
       key: isRTL ? 'muirtl' : 'muiltr',
@@ -285,8 +285,11 @@ export function CustomThemeProvider({ children }: CustomThemeProviderProps) {
   const theme = useMemo(() => createCustomTheme(), [branding]);
   const cssVariables = useMemo(() => generateCssVariables(), [branding]);
 
-  // Apply CSS variables to document
+  // Apply CSS variables to document - only on client side
   useEffect(() => {
+    // Only run on client side to avoid SSR issues
+    if (typeof window === 'undefined') return;
+    
     const styleElement = document.getElementById('custom-theme-css');
     if (styleElement) {
       styleElement.textContent = cssVariables;
