@@ -1,0 +1,126 @@
+{
+  "meta": {
+    "title": "关于 - ICD-11 医疗平台",
+    "description": "了解 ICD-11 医疗平台 - 您用于世卫组织医疗代码搜索和分类的综合解决方案。"
+  },
+  "hero": {
+    "title": "关于 ICD-11",
+    "subtitle": "医疗平台",
+    "description": "为全球医疗专业人员提供即时访问世卫组织综合医疗分类系统的权能。"
+  },
+  "sections": {
+    "platformOverview": {
+      "title": "平台概述",
+      "description": "ICD-11 医疗平台为医疗专业人员提供对世界卫生组织国际疾病分类第十一次修订版的无缝访问。",
+      "features": {
+        "title": "主要功能",
+        "items": [
+          "全面的医疗代码搜索，实时结果",
+          "多语言支持，全球无障碍访问",
+          "高级过滤和灵活搜索选项",
+          "医疗级缓存，优化性能",
+          "为临床工作流设计的专业界面"
+        ]
+      }
+    },
+    "healthcareApplications": {
+      "title": "医疗应用",
+      "description": "专为需要准确 ICD-11 分类的医疗专业人员、研究人员和医疗机构设计。",
+      "useCases": {
+        "title": "使用案例",
+        "items": [
+          "临床文档和患者记录管理",
+          "医学研究和流行病学研究",
+          "保险理赔处理和医疗计费",
+          "公共卫生报告和统计分析",
+          "国际医疗数据标准化"
+        ]
+      }
+    },
+    "globalAccessibility": {
+      "title": "全球无障碍",
+      "description": "支持全球医疗专业人员，提供全面的国际化和无障碍功能。",
+      "languages": {
+        "title": "支持的语言",
+        "description": "提供6种语言版本，服务全球医疗社区：",
+        "items": [
+          "英语 - 主要国际语言",
+          "西班牙语 - 服务拉丁美洲和西班牙",
+          "法语 - 支持法语区域",
+          "阿拉伯语 - 中东和北非",
+          "中文 - 东亚和中文使用地区",
+          "俄语 - 东欧和中亚"
+        ]
+      },
+      "accessibility": {
+        "title": "无障碍功能",
+        "items": [
+          "阿拉伯语从右到左（RTL）语言支持",
+          "高对比度和专业医疗色彩调色板",
+          "桌面、平板和移动设备响应式设计",
+          "键盘导航和屏幕阅读器兼容性"
+        ]
+      }
+    },
+    "whoPartnership": {
+      "title": "世卫组织合作",
+      "description": "与世界卫生组织标准合作构建，使用官方 WHO ICD-11 API。",
+      "compliance": {
+        "title": "世卫组织合规性",
+        "items": [
+          "直接集成官方 WHO ICD-11 API",
+          "与世卫组织数据库更新实时同步",
+          "遵守世卫组织数据分类标准",
+          "尊重世卫组织知识产权和使用准则"
+        ]
+      },
+      "dataSource": {
+        "title": "官方数据源",
+        "description": "所有医疗代码和分类都直接来源于世界卫生组织 ICD-11 API，确保准确性和最新信息。",
+        "copyright": "ICD-11 内容版权归世界卫生组织所有。保留所有权利。"
+      }
+    },
+    "technicalExcellence": {
+      "title": "技术卓越",
+      "description": "采用现代网络技术和最佳实践构建，确保可靠性、性能和可扩展性。",
+      "architecture": {
+        "title": "技术栈",
+        "frontend": {
+          "title": "前端技术",
+          "items": [
+            "Next.js 13 - 具有服务器端渲染的 React 框架",
+            "TypeScript - 类型安全开发环境",
+            "Material-UI - 专业医疗界面组件",
+            "React Context - 高效状态管理"
+          ]
+        },
+        "backend": {
+          "title": "后端技术",
+          "items": [
+            "NestJS - 可扩展的 Node.js 服务器框架",
+            "TypeScript - 全栈类型安全",
+            "Redis - 高性能缓存系统",
+            "OAuth2 - 安全的 WHO API 认证"
+          ]
+        }
+      },
+      "performance": {
+        "title": "性能特性",
+        "items": [
+          "Redis 缓存，亚秒级响应时间",
+          "优化的 API 调用与智能速率限制",
+          "渐进式网络应用能力",
+          "医疗级可靠性和正常运行时间"
+        ]
+      }
+    }
+  },
+  "cta": {
+    "title": "准备开始了吗？",
+    "description": "加入数千名使用 ICD-11 医疗平台进行精确医疗分类的医疗专业人员。",
+    "buttons": {
+      "startSearching": "开始搜索",
+      "learnMore": "了解更多"
+    }
+  }
+}

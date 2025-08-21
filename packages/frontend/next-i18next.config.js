@@ -21,7 +21,7 @@ module.exports = {
     useSuspense: false,
   },
   // Namespace configuration
-  ns: ['common', 'search', 'medical', 'errors', 'accessibility'],
+  ns: ['common', 'search', 'medical', 'errors', 'accessibility', 'about'],
   defaultNS: 'common',
   fallbackNS: 'common',
   // Return keys for missing translations instead of empty strings

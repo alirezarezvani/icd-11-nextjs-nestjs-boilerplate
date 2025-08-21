@@ -1,0 +1,126 @@
+{
+  "meta": {
+    "title": "À propos - Plateforme de Santé ICD-11",
+    "description": "Découvrez la Plateforme de Santé ICD-11 - votre solution complète pour la recherche et la classification des codes médicaux de l'OMS."
+  },
+  "hero": {
+    "title": "À propos d'ICD-11",
+    "subtitle": "Plateforme de Santé",
+    "description": "Autonomiser les professionnels de santé mondialement avec un accès instantané au système complet de classification médicale de l'OMS."
+  },
+  "sections": {
+    "platformOverview": {
+      "title": "Aperçu de la Plateforme",
+      "description": "La Plateforme de Santé ICD-11 fournit aux professionnels de santé un accès fluide à la Classification Internationale des Maladies, 11ème Révision de l'Organisation Mondiale de la Santé.",
+      "features": {
+        "title": "Fonctionnalités Clés",
+        "items": [
+          "Recherche complète de codes médicaux avec résultats en temps réel",
+          "Support multilingue pour l'accessibilité mondiale",
+          "Options avancées de filtrage et recherche flexible",
+          "Mise en cache de qualité médicale pour des performances optimales",
+          "Interface professionnelle conçue pour les flux de travail cliniques"
+        ]
+      }
+    },
+    "healthcareApplications": {
+      "title": "Applications de Santé",
+      "description": "Conçu pour les professionnels médicaux, chercheurs et institutions de santé nécessitant une classification précise ICD-11.",
+      "useCases": {
+        "title": "Cas d'Usage",
+        "items": [
+          "Documentation clinique et gestion des dossiers patients",
+          "Recherche médicale et études épidémiologiques",
+          "Traitement des réclamations d'assurance et facturation médicale",
+          "Rapports de santé publique et analyse statistique",
+          "Standardisation internationale des données de santé"
+        ]
+      }
+    },
+    "globalAccessibility": {
+      "title": "Accessibilité Mondiale",
+      "description": "Soutenir les professionnels de santé mondialement avec des fonctionnalités complètes d'internationalisation et d'accessibilité.",
+      "languages": {
+        "title": "Langues Supportées",
+        "description": "Disponible en 6 langues pour servir la communauté mondiale de la santé :",
+        "items": [
+          "Anglais - Langue internationale principale",
+          "Espagnol - Servant l'Amérique Latine et l'Espagne",
+          "Français - Soutenant les régions francophones",
+          "Arabe - Moyen-Orient et Afrique du Nord",
+          "Chinois - Asie de l'Est et régions sinophones",
+          "Russe - Europe de l'Est et Asie Centrale"
+        ]
+      },
+      "accessibility": {
+        "title": "Fonctionnalités d'Accessibilité",
+        "items": [
+          "Support des langues de droite à gauche (RTL) pour l'arabe",
+          "Contraste élevé et palette de couleurs médicale professionnelle",
+          "Design adaptatif pour ordinateur de bureau, tablette et appareils mobiles",
+          "Navigation au clavier et compatibilité avec les lecteurs d'écran"
+        ]
+      }
+    },
+    "whoPartnership": {
+      "title": "Partenariat OMS",
+      "description": "Construit en collaboration avec les standards de l'Organisation Mondiale de la Santé et utilisant les APIs officielles OMS ICD-11.",
+      "compliance": {
+        "title": "Conformité OMS",
+        "items": [
+          "Intégration directe avec l'API officielle OMS ICD-11",
+          "Synchronisation en temps réel avec les mises à jour de la base de données OMS",
+          "Adhérence aux standards de classification de données OMS",
+          "Respect de la propriété intellectuelle et directives d'usage OMS"
+        ]
+      },
+      "dataSource": {
+        "title": "Source de Données Officielle",
+        "description": "Tous les codes médicaux et classifications proviennent directement de l'API ICD-11 de l'Organisation Mondiale de la Santé, assurant précision et informations à jour.",
+        "copyright": "Le contenu ICD-11 est © Organisation Mondiale de la Santé. Tous droits réservés."
+      }
+    },
+    "technicalExcellence": {
+      "title": "Excellence Technique",
+      "description": "Construit avec des technologies web modernes et meilleures pratiques pour assurer fiabilité, performance et évolutivité.",
+      "architecture": {
+        "title": "Stack Technologique",
+        "frontend": {
+          "title": "Technologies Frontend",
+          "items": [
+            "Next.js 13 - Framework React avec rendu côté serveur",
+            "TypeScript - Environnement de développement avec typage sécurisé",
+            "Material-UI - Composants d'interface médicale professionnelle",
+            "React Context - Gestion efficace de l'état"
+          ]
+        },
+        "backend": {
+          "title": "Technologies Backend",
+          "items": [
+            "NestJS - Framework serveur Node.js évolutif",
+            "TypeScript - Sécurité des types full-stack",
+            "Redis - Système de mise en cache haute performance",
+            "OAuth2 - Authentification API OMS sécurisée"
+          ]
+        }
+      },
+      "performance": {
+        "title": "Fonctionnalités de Performance",
+        "items": [
+          "Mise en cache Redis pour des temps de réponse inférieurs à la seconde",
+          "Appels API optimisés avec limitation de débit intelligente",
+          "Capacités d'application web progressive",
+          "Fiabilité et disponibilité de qualité médicale"
+        ]
+      }
+    }
+  },
+  "cta": {
+    "title": "Prêt à Commencer ?",
+    "description": "Rejoignez des milliers de professionnels de santé utilisant la Plateforme de Santé ICD-11 pour une classification médicale précise.",
+    "buttons": {
+      "startSearching": "Commencer la Recherche",
+      "learnMore": "En Savoir Plus"
+    }
+  }
+}
