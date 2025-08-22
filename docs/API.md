@@ -20,32 +20,81 @@ This comprehensive API reference covers all endpoints, data structures, and inte
 The ICD-11 Healthcare API is a RESTful service that provides access to the World Health Organization's ICD-11 medical classification system. Built on NestJS with TypeScript, it offers:
 
 - **Complete ICD-11 Access**: Full integration with WHO ICD-11 API
+- **Enterprise Authentication**: JWT-based authentication with role-based access control
 - **High Performance**: Redis-based caching with intelligent TTL strategies
 - **Type Safety**: Full TypeScript definitions for all data structures
 - **Enterprise Ready**: Comprehensive error handling, logging, and monitoring
-- **Healthcare Compliant**: Designed for healthcare application requirements
+- **Healthcare Compliant**: HIPAA-compliant audit trails and security features
 
 ### API Features
 
 - 🔍 **Advanced Search**: Flexible search with filters, pagination, and sorting
 - 🌳 **Hierarchical Navigation**: Browse ICD-11 structure and relationships
 - 📋 **Entity Details**: Complete entity information with definitions and metadata
+- 🔐 **Authentication**: JWT-based authentication with role-based access control
+- 👥 **User Management**: Complete user registration, login, and profile management
 - ⚡ **Performance Optimized**: Sub-200ms response times with caching
-- 🔒 **Secure**: Input validation, rate limiting, and security headers
+- 🔒 **Secure**: Input validation, rate limiting, account security, and audit logging
 - 📊 **Observable**: Health checks, metrics, and comprehensive logging
 
 ## Authentication
 
-### Development Environment
-No authentication required for local development and testing.
+The ICD-11 Healthcare API includes a comprehensive JWT-based authentication system with role-based access control. While ICD-11 search endpoints remain publicly accessible, administrative features require authentication.
 
-### Production Environment
-Future versions will support multiple authentication methods:
+### Authentication Methods
 
+#### JWT Bearer Token
 ```http
-Authorization: Bearer <jwt_token>
-API-Key: <api_key>
+Authorization: Bearer <access_token>
 ```
+
+#### Authentication Flow
+1. **Register/Login**: Obtain access and refresh tokens
+2. **API Requests**: Include access token in Authorization header
+3. **Token Refresh**: Use refresh token when access token expires
+4. **Logout**: Invalidate tokens server-side
+
+### Public vs Protected Endpoints
+
+#### Public Endpoints (No Authentication Required)
+- All ICD-11 search and entity endpoints
+- Health check and API information
+- WHO ICD-11 data access
+
+#### Protected Endpoints (Authentication Required)
+- User profile and management
+- Administrative functions
+- Audit logs and metrics
+- Organization management
+
+### Role-Based Access Control
+
+#### User Roles
+```typescript
+enum UserRole {
+  USER = 'USER',                           // Basic user access
+  HEALTHCARE_PROVIDER = 'HEALTHCARE_PROVIDER', // Healthcare professional
+  ORG_ADMIN = 'ORG_ADMIN',                // Organization administrator  
+  SUPER_ADMIN = 'SUPER_ADMIN'             // Platform administrator
+}
+```
+
+#### Permission Matrix
+| Endpoint Type | USER | HEALTHCARE_PROVIDER | ORG_ADMIN | SUPER_ADMIN |
+|---------------|------|-------------------|-----------|-------------|
+| ICD-11 Search | ✅ | ✅ | ✅ | ✅ |
+| User Profile | ✅ | ✅ | ✅ | ✅ |
+| User Management | ❌ | ❌ | ✅ | ✅ |
+| Audit Logs | ❌ | ❌ | ✅ | ✅ |
+| System Metrics | ❌ | ❌ | ❌ | ✅ |
+
+### Security Features
+
+- **Password Security**: bcrypt hashing with configurable rounds
+- **Token Expiration**: Access tokens (15 minutes), refresh tokens (7 days)
+- **Account Lockout**: 5 failed attempts = 30-minute lockout
+- **Audit Logging**: HIPAA-compliant trails for all authentication events
+- **Session Management**: Single device logout or logout from all devices
 
 ## Base URLs and Versioning
 
@@ -68,6 +117,196 @@ Production:   https://yourdomain.com/api/docs
 ```
 
 ## Core Endpoints
+
+### Authentication Endpoints
+
+#### Register User
+
+Register a new user account with role assignment.
+
+```http
+POST /api/auth/register
+```
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123",
+  "firstName": "John",
+  "lastName": "Doe",
+  "role": "USER"
+}
+```
+
+**Response:**
+```json
+{
+  "message": "User registered successfully",
+  "user": {
+    "id": "uuid-here",
+    "email": "user@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "role": "USER",
+    "isActive": true,
+    "createdAt": "2024-01-15T10:30:00Z"
+  }
+}
+```
+
+#### Login User
+
+Authenticate user and receive access/refresh tokens.
+
+```http
+POST /api/auth/login
+```
+
+**Request Body:**
+```json
+{
+  "email": "user@example.com",
+  "password": "securePassword123",
+  "rememberMe": true
+}
+```
+
+**Response:**
+```json
+{
+  "message": "Login successful",
+  "user": {
+    "id": "uuid-here",
+    "email": "user@example.com",
+    "firstName": "John",
+    "lastName": "Doe",
+    "role": "USER"
+  },
+  "tokens": {
+    "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+    "expiresIn": 900
+  }
+}
+```
+
+#### Refresh Token
+
+Get new access token using refresh token.
+
+```http
+POST /api/auth/refresh
+```
+
+**Request Body:**
+```json
+{
+  "refreshToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
+```
+
+**Response:**
+```json
+{
+  "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 900
+}
+```
+
+#### Logout User
+
+Logout from current device.
+
+```http
+POST /api/auth/logout
+```
+
+**Headers:**
+```http
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+#### Logout All Devices
+
+Logout from all devices by invalidating all refresh tokens.
+
+```http
+POST /api/auth/logout-all
+```
+
+**Headers:**
+```http
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+  "message": "Logged out from all devices successfully"
+}
+```
+
+#### Get User Profile
+
+Get current user profile and permissions.
+
+```http
+GET /api/auth/profile
+```
+
+**Headers:**
+```http
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+  "id": "uuid-here",
+  "email": "user@example.com",
+  "firstName": "John",
+  "lastName": "Doe",
+  "role": "USER",
+  "isActive": true,
+  "lastLoginAt": "2024-01-15T10:30:00Z",
+  "createdAt": "2024-01-15T09:00:00Z",
+  "permissions": ["read:profile", "update:profile"]
+}
+```
+
+#### Validate Token
+
+Validate current access token.
+
+```http
+POST /api/auth/validate
+```
+
+**Headers:**
+```http
+Authorization: Bearer <access_token>
+```
+
+**Response:**
+```json
+{
+  "valid": true,
+  "user": {
+    "id": "uuid-here",
+    "email": "user@example.com",
+    "role": "USER"
+  },
+  "expiresIn": 750
+}
+```
 
 ### Search Endpoints
 
@@ -716,7 +955,127 @@ interface EntityMetadata {
 }
 ```
 
+### Authentication Types
+
+#### User
+```typescript
+interface User {
+  /** Unique user identifier */
+  id: string;
+  
+  /** User email address */
+  email: string;
+  
+  /** User's first name */
+  firstName: string;
+  
+  /** User's last name */
+  lastName: string;
+  
+  /** User role */
+  role: UserRole;
+  
+  /** Account status */
+  isActive: boolean;
+  
+  /** Failed login attempts */
+  failedLoginAttempts: number;
+  
+  /** Account locked until */
+  lockedUntil?: string;
+  
+  /** Last login timestamp */
+  lastLoginAt?: string;
+  
+  /** Account creation timestamp */
+  createdAt: string;
+  
+  /** Last update timestamp */
+  updatedAt: string;
+}
+```
+
+#### AuthTokens
+```typescript
+interface AuthTokens {
+  /** JWT access token */
+  accessToken: string;
+  
+  /** JWT refresh token */
+  refreshToken: string;
+  
+  /** Access token expiration in seconds */
+  expiresIn: number;
+}
+```
+
+#### LoginResponse
+```typescript
+interface LoginResponse {
+  /** Success message */
+  message: string;
+  
+  /** User information */
+  user: Omit<User, 'failedLoginAttempts' | 'lockedUntil'>;
+  
+  /** Authentication tokens */
+  tokens: AuthTokens;
+}
+```
+
+#### UserRole
+```typescript
+enum UserRole {
+  USER = 'USER',
+  HEALTHCARE_PROVIDER = 'HEALTHCARE_PROVIDER',
+  ORG_ADMIN = 'ORG_ADMIN',
+  SUPER_ADMIN = 'SUPER_ADMIN'
+}
+```
+
 ### Request/Response DTOs
+
+#### RegisterRequestDto
+```typescript
+interface RegisterRequestDto {
+  /** Email address (valid email format) */
+  email: string;
+  
+  /** Password (minimum 8 characters) */
+  password: string;
+  
+  /** First name (2-50 characters) */
+  firstName: string;
+  
+  /** Last name (2-50 characters) */
+  lastName: string;
+  
+  /** User role */
+  role?: UserRole;
+}
+```
+
+#### LoginRequestDto
+```typescript
+interface LoginRequestDto {
+  /** Email address */
+  email: string;
+  
+  /** Password */
+  password: string;
+  
+  /** Remember me option for extended refresh token */
+  rememberMe?: boolean;
+}
+```
+
+#### RefreshTokenRequestDto
+```typescript
+interface RefreshTokenRequestDto {
+  /** Refresh token */
+  refreshToken: string;
+}
+```
 
 #### SearchRequestDto
 ```typescript

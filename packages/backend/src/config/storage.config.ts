@@ -20,7 +20,7 @@ export default registerAs("storage", () => ({
     connectionString: process.env.AZURE_STORAGE_CONNECTION_STRING,
     containerName: process.env.AZURE_CONTAINER_NAME,
   },
-  maxFileSize: parseInt(process.env.MAX_FILE_SIZE, 10) || 5 * 1024 * 1024, // 5MB default
+  maxFileSize: parseInt(process.env.MAX_FILE_SIZE || "5242880", 10), // 5MB default
   allowedMimeTypes: [
     "image/jpeg",
     "image/png",

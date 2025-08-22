@@ -8,6 +8,7 @@ import * as sharp from "sharp";
 import { v4 as uuidv4 } from "uuid";
 import { FileUpload } from "../../entities/file-upload.entity";
 import { AuditLogService } from "./audit-log.service";
+import { AuditAction } from "../../entities/audit-log.entity";
 
 export interface UploadedFile {
   fieldname: string;
@@ -118,7 +119,7 @@ export class FileUploadService {
         organizationId,
         userId: uploadedBy,
         userEmail: "system", // This should be passed from the request context
-        action: "upload_file",
+        action: AuditAction.FILE_UPLOAD,
         resource: "file",
         resourceId: savedFile.id,
         metadata: {
@@ -139,21 +140,22 @@ export class FileUploadService {
         metadata: savedFile.metadata,
       };
     } catch (error) {
-      this.logger.error("File upload failed", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("File upload failed", errorMessage);
 
       // Log the failure
       await this.auditLogService.logFailure({
         organizationId,
         userId: uploadedBy,
         userEmail: "system",
-        action: "upload_file",
+        action: AuditAction.FILE_UPLOAD,
         resource: "file",
         metadata: {
           fileName: file.originalname,
           fileType,
-          error: error.message,
+          error: error instanceof Error ? error.message : 'Unknown error',
         },
-        errorMessage: error.message,
+        errorMessage: error instanceof Error ? error.message : 'Unknown error',
       });
 
       throw error;
@@ -194,7 +196,7 @@ export class FileUploadService {
         organizationId,
         userId: deletedBy,
         userEmail: "system",
-        action: "delete_file",
+        action: AuditAction.FILE_DELETE,
         resource: "file",
         resourceId: fileId,
         metadata: {
@@ -203,7 +205,8 @@ export class FileUploadService {
         },
       });
     } catch (error) {
-      this.logger.error("File deletion failed", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("File deletion failed", errorMessage);
       throw error;
     }
   }
@@ -296,8 +299,8 @@ export class FileUploadService {
           });
           break;
         case "image":
-          if (imageMetadata.width > 1200) {
-            sharpInstance = sharpInstance.resize(1200, null, {
+          if (imageMetadata.width && imageMetadata.width > 1200) {
+            sharpInstance = sharpInstance.resize(1200, undefined, {
               withoutEnlargement: true,
             });
           }
@@ -322,7 +325,8 @@ export class FileUploadService {
         },
       };
     } catch (error) {
-      this.logger.error("Image processing failed", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Image processing failed", errorMessage);
       // Return original buffer if processing fails
       return { buffer, metadata: {} };
     }

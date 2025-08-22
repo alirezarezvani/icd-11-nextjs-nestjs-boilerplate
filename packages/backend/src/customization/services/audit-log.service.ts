@@ -1,14 +1,14 @@
 import { Injectable, Logger } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
-import { AuditLog } from "../../entities/audit-log.entity";
+import { Repository, MoreThanOrEqual } from "typeorm";
+import { AuditLog, AuditAction } from "../../entities/audit-log.entity";
 
 export interface AuditLogData {
-  organizationId: string;
+  organizationId?: string;
   userId?: string;
-  userEmail: string;
-  action: string;
-  resource: string;
+  userEmail?: string;
+  action: AuditAction;
+  resource?: string;
   resourceId?: string;
   metadata?: Record<string, any>;
   changes?: {
@@ -59,7 +59,8 @@ export class AuditLogService {
         `Audit log created: ${data.action} on ${data.resource} by ${data.userEmail}`,
       );
     } catch (error) {
-      this.logger.error("Failed to create audit log", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Failed to create audit log", errorMessage);
       // Don't throw error to avoid disrupting the main operation
     }
   }
@@ -153,7 +154,8 @@ export class AuditLogService {
 
       return { logs, total };
     } catch (error) {
-      this.logger.error("Failed to retrieve audit logs", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Failed to retrieve audit logs", errorMessage);
       throw new Error("Failed to retrieve audit logs");
     }
   }
@@ -181,7 +183,7 @@ export class AuditLogService {
       const totalActions = await this.auditLogRepository.count({
         where: {
           organizationId,
-          createdAt: { $gte: startDate } as any,
+          createdAt: MoreThanOrEqual(startDate),
         },
       });
 
@@ -189,7 +191,7 @@ export class AuditLogService {
         where: {
           organizationId,
           status: "success",
-          createdAt: { $gte: startDate } as any,
+          createdAt: MoreThanOrEqual(startDate),
         },
       });
 
@@ -197,7 +199,7 @@ export class AuditLogService {
         where: {
           organizationId,
           status: "failed",
-          createdAt: { $gte: startDate } as any,
+          createdAt: MoreThanOrEqual(startDate),
         },
       });
 
@@ -205,7 +207,7 @@ export class AuditLogService {
         where: {
           organizationId,
           status: "warning",
-          createdAt: { $gte: startDate } as any,
+          createdAt: MoreThanOrEqual(startDate),
         },
       });
 
@@ -252,7 +254,8 @@ export class AuditLogService {
         topResources,
       };
     } catch (error) {
-      this.logger.error("Failed to retrieve audit log statistics", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Failed to retrieve audit log statistics", errorMessage);
       throw new Error("Failed to retrieve audit log statistics");
     }
   }

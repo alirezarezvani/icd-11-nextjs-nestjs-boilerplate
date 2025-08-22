@@ -25,9 +25,15 @@ import {
   Home as HomeIcon,
   Settings as SettingsIcon,
   BugReport as TestIcon,
+  Dashboard as DashboardIcon,
+  Person as PersonIcon,
+  SupervisorAccount as AdminIcon,
 } from '@mui/icons-material';
 import { LanguageSelector } from '../LanguageSelector';
+import { AuthButtons } from '../Auth';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../hooks/useAuth';
+import { UserRole } from '../../services/auth/auth.types';
 import config from '../../config';
 
 interface LayoutProps {
@@ -52,6 +58,7 @@ export const Layout: React.FC<LayoutProps> = ({
   const isMobile = useMediaQuery(theme.breakpoints.down('md'));
   const { t } = useTranslation('common');
   const { isRTL } = useLanguage();
+  const { user, isAuthenticated, hasRole } = useAuth();
   
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
@@ -61,23 +68,80 @@ export const Layout: React.FC<LayoutProps> = ({
     setIsMounted(true);
   }, []);
 
-  // Fallback navigation items for SSR to prevent hydration mismatches
-  const fallbackNavItems: NavItem[] = [
+  // Base navigation items available to all users
+  const baseNavItems: NavItem[] = [
     { title: 'Home', href: '/', icon: <HomeIcon /> },
     { title: 'Search', href: '/search', icon: <SearchIcon /> },
-    { title: 'Customization', href: '/customization', icon: <SettingsIcon /> },
-    { title: 'Integration Test', href: '/integration-test', icon: <TestIcon /> },
     { title: 'About', href: '/about', icon: <InfoIcon /> },
   ];
 
+  // Authenticated user navigation items
+  const authNavItems: NavItem[] = [
+    { title: 'Dashboard', href: '/dashboard', icon: <DashboardIcon /> },
+    { title: 'Profile', href: '/profile', icon: <PersonIcon /> },
+  ];
+
+  // Admin navigation items
+  const adminNavItems: NavItem[] = [
+    { title: 'Admin', href: '/admin', icon: <AdminIcon /> },
+  ];
+
+  // Development/testing items
+  const devNavItems: NavItem[] = [
+    { title: 'Customization', href: '/customization', icon: <SettingsIcon /> },
+    { title: 'Integration Test', href: '/integration-test', icon: <TestIcon /> },
+  ];
+
+  // Build navigation items based on authentication status
+  const buildNavItems = () => {
+    let items = [...baseNavItems];
+    
+    if (isAuthenticated) {
+      items = [authNavItems[0], ...items, ...authNavItems.slice(1)]; // Dashboard first
+      
+      if (hasRole(UserRole.ORG_ADMIN) || hasRole(UserRole.SUPER_ADMIN)) {
+        items.push(...adminNavItems);
+      }
+    }
+    
+    // Add dev items (you might want to conditionally include these based on environment)
+    items.push(...devNavItems);
+    
+    return items;
+  };
+
+  // Fallback navigation items for SSR to prevent hydration mismatches
+  const fallbackNavItems: NavItem[] = buildNavItems();
+
   // Use translated navigation items after hydration, fallback during SSR
-  const navItems: NavItem[] = isMounted ? [
-    { title: t('nav.home'), href: '/', icon: <HomeIcon /> },
-    { title: t('nav.search'), href: '/search', icon: <SearchIcon /> },
-    { title: t('nav.customization'), href: '/customization', icon: <SettingsIcon /> },
-    { title: t('nav.integrationTest'), href: '/integration-test', icon: <TestIcon /> },
-    { title: t('nav.about'), href: '/about', icon: <InfoIcon /> },
-  ] : fallbackNavItems;
+  const navItems: NavItem[] = isMounted ? buildNavItems().map(item => ({
+    ...item,
+    title: getTranslatedTitle(item.href, item.title),
+  })) : fallbackNavItems;
+
+  // Helper function to get translated navigation titles
+  function getTranslatedTitle(href: string, fallback: string): string {
+    switch (href) {
+      case '/':
+        return t('nav.home');
+      case '/search':
+        return t('nav.search');
+      case '/dashboard':
+        return t('common:navigation.dashboard', 'Dashboard');
+      case '/profile':
+        return t('common:navigation.profile', 'Profile');
+      case '/admin':
+        return t('common:navigation.admin', 'Admin');
+      case '/customization':
+        return t('nav.customization');
+      case '/integration-test':
+        return t('nav.integrationTest');
+      case '/about':
+        return t('nav.about');
+      default:
+        return fallback;
+    }
+  }
 
   const handleDrawerToggle = () => {
     setDrawerOpen(!drawerOpen);
@@ -171,6 +235,11 @@ export const Layout: React.FC<LayoutProps> = ({
         </List>
       </Box>
 
+      {/* Authentication Buttons - Mobile */}
+      <Box sx={{ px: 3, pt: 2, borderTop: '1px solid rgba(0, 0, 0, 0.08)' }}>
+        <AuthButtons variant="mobile" />
+      </Box>
+
       {/* Language Selector in Drawer */}
       <Box sx={{ px: 3, pt: 2, mt: 'auto', borderTop: '1px solid rgba(0, 0, 0, 0.08)' }}>
         <Typography variant="caption" sx={{ color: '#64748b', mb: 2, display: 'block' }}>
@@ -249,7 +318,7 @@ export const Layout: React.FC<LayoutProps> = ({
 
             {/* Desktop Navigation */}
             {!isMobile && (
-              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mr: 3 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mr: 2 }}>
                 {navItems.map((item) => (
                   <IconButton
                     key={item.href}
@@ -297,6 +366,13 @@ export const Layout: React.FC<LayoutProps> = ({
                     </Typography>
                   </IconButton>
                 ))}
+              </Box>
+            )}
+
+            {/* Authentication Buttons - Desktop */}
+            {!isMobile && (
+              <Box sx={{ mr: 2 }}>
+                <AuthButtons variant="desktop" />
               </Box>
             )}
             

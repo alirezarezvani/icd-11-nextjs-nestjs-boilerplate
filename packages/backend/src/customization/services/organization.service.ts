@@ -5,10 +5,11 @@ import {
   ConflictException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Repository, IsNull } from "typeorm";
 import { Organization } from "../../entities/organization.entity";
 import { OrganizationUser } from "../../entities/organization-user.entity";
 import { AuditLogService } from "./audit-log.service";
+import { AuditAction } from "../../entities/audit-log.entity";
 
 export interface CreateOrganizationDto {
   name: string;
@@ -112,7 +113,7 @@ export class OrganizationService {
         organizationId: savedOrganization.id,
         userId: createdBy,
         userEmail,
-        action: "create_organization",
+        action: AuditAction.SETTINGS_CHANGE,
         resource: "organization",
         resourceId: savedOrganization.id,
         metadata: {
@@ -125,7 +126,8 @@ export class OrganizationService {
 
       return savedOrganization;
     } catch (error) {
-      this.logger.error("Failed to create organization", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Failed to create organization", errorMessage);
       throw error;
     }
   }
@@ -137,7 +139,7 @@ export class OrganizationService {
   async getOrganizationById(organizationId: string): Promise<Organization> {
     try {
       const organization = await this.organizationRepository.findOne({
-        where: { id: organizationId, deletedAt: null },
+        where: { id: organizationId, deletedAt: IsNull() },
         relations: ["branding", "users"],
       });
 
@@ -147,7 +149,8 @@ export class OrganizationService {
 
       return organization;
     } catch (error) {
-      this.logger.error("Failed to get organization by ID", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Failed to get organization by ID", errorMessage);
       throw error;
     }
   }
@@ -159,7 +162,7 @@ export class OrganizationService {
   async getOrganizationBySlug(slug: string): Promise<Organization> {
     try {
       const organization = await this.organizationRepository.findOne({
-        where: { slug, status: "active", deletedAt: null },
+        where: { slug, status: "active", deletedAt: IsNull() },
         relations: ["branding"],
       });
 
@@ -169,7 +172,8 @@ export class OrganizationService {
 
       return organization;
     } catch (error) {
-      this.logger.error("Failed to get organization by slug", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Failed to get organization by slug", errorMessage);
       throw error;
     }
   }
@@ -181,7 +185,7 @@ export class OrganizationService {
   async getOrganizationByDomain(domain: string): Promise<Organization> {
     try {
       const organization = await this.organizationRepository.findOne({
-        where: { domain, status: "active", deletedAt: null },
+        where: { domain, status: "active", deletedAt: IsNull() },
         relations: ["branding"],
       });
 
@@ -191,7 +195,8 @@ export class OrganizationService {
 
       return organization;
     } catch (error) {
-      this.logger.error("Failed to get organization by domain", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Failed to get organization by domain", errorMessage);
       throw error;
     }
   }
@@ -242,7 +247,7 @@ export class OrganizationService {
         organizationId,
         userId: updatedBy,
         userEmail,
-        action: "update_organization",
+        action: AuditAction.SETTINGS_CHANGE,
         resource: "organization",
         resourceId: organizationId,
         changes: {
@@ -267,7 +272,8 @@ export class OrganizationService {
 
       return savedOrganization;
     } catch (error) {
-      this.logger.error("Failed to update organization", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Failed to update organization", errorMessage);
       throw error;
     }
   }
@@ -322,7 +328,7 @@ export class OrganizationService {
         organizationId,
         userId: invitedBy,
         userEmail,
-        action: "add_user",
+        action: AuditAction.ORGANIZATION_JOIN,
         resource: "organization_user",
         resourceId: savedUser.id,
         metadata: {
@@ -334,7 +340,8 @@ export class OrganizationService {
 
       return savedUser;
     } catch (error) {
-      this.logger.error("Failed to add user to organization", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Failed to add user to organization", errorMessage);
       throw error;
     }
   }
@@ -359,7 +366,8 @@ export class OrganizationService {
         order: { createdAt: "ASC" },
       });
     } catch (error) {
-      this.logger.error("Failed to get organization users", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Failed to get organization users", errorMessage);
       throw error;
     }
   }
@@ -397,7 +405,7 @@ export class OrganizationService {
         organizationId,
         userId: updatedBy,
         userEmail,
-        action: "update_plan",
+        action: AuditAction.SETTINGS_CHANGE,
         resource: "organization",
         resourceId: organizationId,
         changes: {
@@ -408,7 +416,8 @@ export class OrganizationService {
 
       return savedOrganization;
     } catch (error) {
-      this.logger.error("Failed to update organization plan", error.stack);
+      const errorMessage = error instanceof Error ? error.stack : 'Unknown error';
+      this.logger.error("Failed to update organization plan", errorMessage);
       throw error;
     }
   }

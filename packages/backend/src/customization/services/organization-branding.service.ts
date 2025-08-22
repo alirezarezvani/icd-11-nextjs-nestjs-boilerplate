@@ -11,6 +11,7 @@ import { OrganizationBranding } from "../../entities/organization-branding.entit
 import { EncryptionService } from "./encryption.service";
 import { AuditLogService } from "./audit-log.service";
 import { FileUploadService } from "./file-upload.service";
+import { AuditAction } from "../../entities/audit-log.entity";
 
 export interface BrandingTheme {
   colorScheme: {
@@ -123,13 +124,13 @@ export class OrganizationBrandingService {
           this.logger.warn(
             `Failed to decrypt custom CSS for organization ${organizationId}`,
           );
-          branding.customCss = null;
+          branding.customCss = null as any;
         }
       }
 
       return branding;
     } catch (error) {
-      this.logger.error("Failed to get organization branding", error.stack);
+      this.logger.error("Failed to get organization branding", error instanceof Error ? error.stack : 'Unknown error');
       throw error;
     }
   }
@@ -174,7 +175,7 @@ export class OrganizationBrandingService {
         organizationId,
         userId: updatedBy,
         userEmail,
-        action: existingBranding ? "update_branding" : "create_branding",
+        action: existingBranding ? AuditAction.BRANDING_UPDATE : AuditAction.BRANDING_CREATE,
         resource: "organization_branding",
         resourceId: existingBranding?.id,
       };
@@ -312,7 +313,7 @@ export class OrganizationBrandingService {
         return savedBranding;
       }
     } catch (error) {
-      this.logger.error("Failed to upsert organization branding", error.stack);
+      this.logger.error("Failed to upsert organization branding", error instanceof Error ? error.stack : 'Unknown error');
       throw error;
     }
   }
@@ -369,7 +370,7 @@ export class OrganizationBrandingService {
    * @param branding Organization branding
    */
   generateMuiThemeConfig(branding: OrganizationBranding): any {
-    const config = {
+    const config: any = {
       palette: {
         mode: "light",
         primary: {
@@ -402,7 +403,7 @@ export class OrganizationBrandingService {
     };
 
     if (branding.typography) {
-      config["typography"] = {
+      config.typography = {
         fontFamily: branding.typography.fontFamily,
         fontSize: parseFloat(branding.typography.fontSize.base) * 16,
         fontWeightLight: branding.typography.fontWeight.light,
@@ -413,11 +414,11 @@ export class OrganizationBrandingService {
     }
 
     if (branding.layout) {
-      config["shape"] = {
+      config.shape = {
         borderRadius: parseFloat(branding.layout.borderRadius),
       };
 
-      config["spacing"] = parseFloat(branding.layout.spacing.md) * 16;
+      config.spacing = parseFloat(branding.layout.spacing.md) * 16;
     }
 
     return config;
@@ -448,7 +449,7 @@ export class OrganizationBrandingService {
           organizationId,
           userId: resetBy,
           userEmail,
-          action: "reset_branding",
+          action: AuditAction.BRANDING_RESET,
           resource: "organization_branding",
           resourceId: existingBranding.id,
           metadata: {
@@ -457,7 +458,7 @@ export class OrganizationBrandingService {
         });
       }
     } catch (error) {
-      this.logger.error("Failed to reset organization branding", error.stack);
+      this.logger.error("Failed to reset organization branding", error instanceof Error ? error.stack : 'Unknown error');
       throw error;
     }
   }
