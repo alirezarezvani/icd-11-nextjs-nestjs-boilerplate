@@ -65,6 +65,11 @@ export function SearchResults({
           </div>
           <h3 className={`text-lg font-semibold text-red-800 mb-2 ${isRTL ? 'arabic-text' : ''}`}>{t('errors:search.title')}</h3>
           <p className={`text-red-700 mb-4 ${isRTL ? 'arabic-text' : ''}`}>{error.message}</p>
+          {process.env.NODE_ENV === 'development' && (
+            <p className={`text-xs text-red-500 mb-2 ${isRTL ? 'arabic-text' : ''} font-mono`}>
+              Debug: HTTP {(error as any)?.response?.status || 'Unknown'} - {(error as any)?.response?.statusText || 'No Response'}
+            </p>
+          )}
           <p className={`text-sm text-red-600 ${isRTL ? 'arabic-text' : ''}`}>
             {t('errors:search.tryAgain')}
           </p>

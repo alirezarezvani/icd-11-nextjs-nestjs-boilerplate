@@ -3,7 +3,10 @@
     "labels": {
       "searchTerm": "Search Medical Terms or Codes",
       "searchLanguage": "Search Language",
-      "flexibleSearch": "Flexible Search"
+      "flexibleSearch": "Flexible Search",
+      "searchScope": "Search Scope",
+      "includeDeprecated": "Include deprecated codes",
+      "leafNodesOnly": "Leaf nodes only"
     },
     "placeholders": {
       "searchInput": "Enter medical term, condition, or ICD-11 code..."
@@ -53,5 +56,39 @@
     "category": "Category",
     "chapter": "Chapter",
     "codeType": "Code Type"
+  },
+  "suggestions": {
+    "title": "Search Suggestions",
+    "history": {
+      "title": "Recent Searches",
+      "empty": "No recent searches"
+    },
+    "popular": {
+      "title": "Popular Searches",
+      "empty": "No popular searches available"
+    },
+    "medical": {
+      "title": "Medical Terms",
+      "empty": "No medical terms found"
+    },
+    "loading": "Loading suggestions...",
+    "noSuggestions": "No suggestions found",
+    "selectSuggestion": "Select suggestion",
+    "keyboardHint": "Use ↑↓ to navigate, Enter to select, Esc to close"
+  },
+  "tracking": {
+    "searchTracked": "Search saved",
+    "trackingEnabled": "History enabled",
+    "trackingDisabled": "History disabled",
+    "tooltips": {
+      "enabled": "Your searches are being saved to your search history for quick access later",
+      "disabled": "Search history tracking is disabled. Log in to save your searches"
+    }
+  },
+  "scopes": {
+    "all": "All fields",
+    "title": "Title only",
+    "definition": "Definition only",
+    "synonym": "Synonyms only"
   }
 }

@@ -11,6 +11,9 @@ interface ICD11ContextType {
   error: Error | null;
   searchParams: ICD11SearchParams;
   setSearchParams: React.Dispatch<React.SetStateAction<ICD11SearchParams>>;
+  // Search history tracking status (informational)
+  isTrackingEnabled: boolean;
+  lastSearchTracked: boolean;
 }
 
 // Create context with initial empty values

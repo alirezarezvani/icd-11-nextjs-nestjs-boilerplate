@@ -39,6 +39,7 @@
     "react-hook-form": "^7.62.0",
     "react-i18next": "^15.7.1",
     "react-query": "^3.39.3",
+    "recharts": "^2.8.0",
     "stylis": "^4.3.0",
     "stylis-plugin-rtl": "^2.1.1",
     "swr": "^2.2.1",

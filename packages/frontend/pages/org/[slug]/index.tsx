@@ -1,6 +1,7 @@
 import React from 'react';
 import { GetServerSideProps } from 'next';
 import Head from 'next/head';
+import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useOrganization } from '../../../context/OrganizationContext';
 import { Container, Typography, Alert, Skeleton } from '@mui/material';
@@ -70,7 +71,7 @@ export default function OrganizationHome({ organizationSlug, domain }: Organizat
         {organization.features.customBranding && (
           <Alert severity="info" sx={{ mt: 3 }}>
             This organization has custom branding enabled. 
-            <strong> <a href="/customization">Customize your branding →</a></strong>
+            <strong> <Link href="/customization">Customize your branding →</Link></strong>
           </Alert>
         )}
       </Container>

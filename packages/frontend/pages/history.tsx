@@ -21,75 +21,59 @@ import {
   Divider,
   Card,
   CardContent,
+  Pagination,
+  CircularProgress,
+  Skeleton,
+  MenuItem,
+  Select,
+  FormControl,
+  InputLabel,
+  ButtonGroup,
 } from '@mui/material';
 import {
   History as HistoryIcon,
   Search as SearchIcon,
   Delete as DeleteIcon,
   Bookmark as BookmarkIcon,
+  BookmarkBorder as BookmarkBorderIcon,
   AccessTime as TimeIcon,
   Clear as ClearIcon,
+  Refresh as RefreshIcon,
+  GetApp as ExportIcon,
+  Replay as ReplayIcon,
 } from '@mui/icons-material';
 import { useAuth } from '../hooks/useAuth';
+import { useSearchHistory } from '../hooks/useSearchHistory';
+import { useBookmarkStatus } from '../hooks/useBookmarks';
 import { withRequiredAuth } from '../components/Auth/withAuth';
 import { Layout } from '../components/Layout';
+import { CreateSearchBookmarkDto } from '../services/api/bookmark.service';
 
-// Mock data for demonstration
-const mockSearchHistory = [
-  {
-    id: '1',
-    query: 'diabetes',
-    timestamp: '2025-08-22T10:30:00Z',
-    resultsCount: 45,
-    language: 'en',
-  },
-  {
-    id: '2',
-    query: 'hypertension',
-    timestamp: '2025-08-22T09:15:00Z',
-    resultsCount: 32,
-    language: 'en',
-  },
-  {
-    id: '3',
-    query: 'cardiac arrest',
-    timestamp: '2025-08-21T16:45:00Z',
-    resultsCount: 18,
-    language: 'en',
-  },
-  {
-    id: '4',
-    query: 'pneumonia',
-    timestamp: '2025-08-21T14:20:00Z',
-    resultsCount: 28,
-    language: 'en',
-  },
-  {
-    id: '5',
-    query: 'fracture',
-    timestamp: '2025-08-21T11:10:00Z',
-    resultsCount: 56,
-    language: 'en',
-  },
-];
+// Search History Item Component
+interface SearchHistoryItemProps {
+  item: {
+    id: string;
+    searchTerm: string;
+    language: string;
+    resultsCount: number;
+    isBookmarked: boolean;
+    createdAt: string;
+  };
+  onDelete: (id: string) => void;
+  onBookmark: (item: any) => void;
+  onReplay: (searchTerm: string, language: string) => void;
+}
 
-const HistoryPage: NextPage = () => {
-  const { t } = useTranslation(['common', 'search']);
-  const { user } = useAuth();
-  const [searchFilter, setSearchFilter] = useState('');
-  const [history, setHistory] = useState(mockSearchHistory);
-
-  const filteredHistory = history.filter(item =>
-    item.query.toLowerCase().includes(searchFilter.toLowerCase())
+const SearchHistoryItem: React.FC<SearchHistoryItemProps> = ({ 
+  item, 
+  onDelete, 
+  onBookmark, 
+  onReplay 
+}) => {
+  const { toggleBookmark, isLoading: isBookmarkLoading } = useBookmarkStatus(
+    undefined, 
+    item.searchTerm
   );
-
-  const handleDeleteItem = (id: string) => {
-    setHistory(prev => prev.filter(item => item.id !== id));
-  };
-
-  const handleClearAll = () => {
-    setHistory([]);
-  };
 
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
@@ -107,26 +91,240 @@ const HistoryPage: NextPage = () => {
     return `${diffInDays} day${diffInDays > 1 ? 's' : ''} ago`;
   };
 
+  const handleBookmarkToggle = async () => {
+    const bookmarkData: CreateSearchBookmarkDto = {
+      searchTerm: item.searchTerm,
+      searchLanguage: item.language,
+      searchResultsCount: item.resultsCount,
+    };
+    
+    try {
+      await toggleBookmark(bookmarkData);
+      onBookmark(item);
+    } catch (error) {
+      console.error('Failed to toggle bookmark:', error);
+    }
+  };
+
+  return (
+    <ListItem
+      sx={{
+        py: 2,
+        '&:hover': {
+          backgroundColor: 'action.hover',
+        },
+      }}
+    >
+      <ListItemText
+        primary={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Typography variant="h6" component="span">
+              &ldquo;{item.searchTerm}&rdquo;
+            </Typography>
+            <Chip
+              label={`${item.resultsCount} results`}
+              size="small"
+              variant="outlined"
+            />
+            <Chip
+              label={item.language.toUpperCase()}
+              size="small"
+              color="primary"
+            />
+            {item.isBookmarked && (
+              <Chip
+                label="Bookmarked"
+                size="small"
+                color="secondary"
+                icon={<BookmarkIcon />}
+              />
+            )}
+          </Box>
+        }
+        secondary={
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
+            <TimeIcon sx={{ fontSize: 16 }} />
+            <Typography variant="body2" color="text.secondary">
+              {getTimeAgo(item.createdAt)} • {formatTimestamp(item.createdAt)}
+            </Typography>
+          </Box>
+        }
+      />
+      <ListItemSecondaryAction>
+        <ButtonGroup size="small">
+          <IconButton
+            aria-label="replay search"
+            onClick={() => onReplay(item.searchTerm, item.language)}
+            title="Run this search again"
+          >
+            <ReplayIcon />
+          </IconButton>
+          <IconButton
+            aria-label="bookmark"
+            onClick={handleBookmarkToggle}
+            disabled={isBookmarkLoading}
+            title={item.isBookmarked ? "Remove bookmark" : "Add bookmark"}
+          >
+            {isBookmarkLoading ? (
+              <CircularProgress size={20} />
+            ) : item.isBookmarked ? (
+              <BookmarkIcon />
+            ) : (
+              <BookmarkBorderIcon />
+            )}
+          </IconButton>
+          <IconButton
+            aria-label="delete"
+            onClick={() => onDelete(item.id)}
+            color="error"
+            title="Delete from history"
+          >
+            <DeleteIcon />
+          </IconButton>
+        </ButtonGroup>
+      </ListItemSecondaryAction>
+    </ListItem>
+  );
+};
+
+const HistoryPage: NextPage = () => {
+  const { t } = useTranslation(['common', 'search']);
+  const { user } = useAuth();
+  const [searchFilter, setSearchFilter] = useState('');
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+
+  // Use the real search history hook
+  const {
+    searchHistory,
+    topTerms,
+    pagination,
+    isLoading,
+    error,
+    deleteHistoryItem,
+    clearHistory,
+    refreshHistory,
+    goToPage,
+    setLimit,
+    setSearchFilter: setApiSearchFilter,
+    hasNextPage,
+    hasPreviousPage,
+    isDeleting,
+    isClearing,
+  } = useSearchHistory({
+    limit: itemsPerPage,
+  });
+
+  // Debounce search filter updates
+  React.useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      setApiSearchFilter(searchFilter);
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchFilter, setApiSearchFilter]);
+
+  const handleDeleteItem = async (id: string) => {
+    try {
+      await deleteHistoryItem(id);
+    } catch (error) {
+      console.error('Failed to delete history item:', error);
+    }
+  };
+
+  const handleClearAll = async () => {
+    try {
+      await clearHistory();
+    } catch (error) {
+      console.error('Failed to clear history:', error);
+    }
+  };
+
+  const handleBookmarkItem = (item: any) => {
+    // Refresh to update bookmark status
+    refreshHistory();
+  };
+
+  const handleReplaySearch = (searchTerm: string, language: string) => {
+    // Navigate to search page with the term
+    window.location.href = `/search?q=${encodeURIComponent(searchTerm)}&language=${language}`;
+  };
+
+  const handleExportHistory = () => {
+    // Export search history as JSON
+    const dataStr = JSON.stringify(searchHistory, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    const url = URL.createObjectURL(dataBlob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `search-history-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleItemsPerPageChange = (newLimit: number) => {
+    setItemsPerPage(newLimit);
+    setLimit(newLimit);
+  };
+
   return (
     <Layout>
       <Container maxWidth="lg" sx={{ py: 4 }}>
         {/* Page Header */}
         <Box sx={{ mb: 4 }}>
-          <Typography variant="h4" component="h1" gutterBottom>
-            <HistoryIcon sx={{ mr: 2, verticalAlign: 'middle' }} />
-            {t('common:navigation.history', 'Search History')}
-          </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
+            <Typography variant="h4" component="h1">
+              <HistoryIcon sx={{ mr: 2, verticalAlign: 'middle' }} />
+              {t('common:navigation.history', 'Search History')}
+            </Typography>
+            <ButtonGroup>
+              <Button
+                startIcon={<RefreshIcon />}
+                onClick={refreshHistory}
+                disabled={isLoading}
+              >
+                Refresh
+              </Button>
+              <Button
+                startIcon={<ExportIcon />}
+                onClick={handleExportHistory}
+                disabled={searchHistory.length === 0}
+              >
+                Export
+              </Button>
+            </ButtonGroup>
+          </Box>
           <Typography variant="body1" color="text.secondary">
-            Review and manage your previous ICD-11 searches
+            Review and manage your previous ICD-11 searches ({pagination.total} total searches)
           </Typography>
         </Box>
 
-        {/* Search Filter */}
+        {/* Top Search Terms */}
+        {topTerms.length > 0 && (
+          <Card sx={{ mb: 3 }}>
+            <CardContent>
+              <Typography variant="h6" gutterBottom>
+                Most Searched Terms
+              </Typography>
+              <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
+                {topTerms.slice(0, 10).map((term) => (
+                  <Chip
+                    key={term.term}
+                    label={`${term.term} (${term.count})`}
+                    onClick={() => handleReplaySearch(term.term, 'en')}
+                    clickable
+                    variant="outlined"
+                  />
+                ))}
+              </Box>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Controls */}
         <Card sx={{ mb: 3 }}>
           <CardContent>
-            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', gap: 2, alignItems: 'center', flexWrap: 'wrap' }}>
               <TextField
-                fullWidth
                 placeholder="Filter search history..."
                 value={searchFilter}
                 onChange={(e) => setSearchFilter(e.target.value)}
@@ -149,13 +347,29 @@ const HistoryPage: NextPage = () => {
                 }}
                 variant="outlined"
                 size="small"
+                sx={{ minWidth: 300, flexGrow: 1 }}
               />
+              
+              <FormControl size="small" sx={{ minWidth: 120 }}>
+                <InputLabel>Per Page</InputLabel>
+                <Select
+                  value={itemsPerPage}
+                  label="Per Page"
+                  onChange={(e) => handleItemsPerPageChange(Number(e.target.value))}
+                >
+                  <MenuItem value={10}>10</MenuItem>
+                  <MenuItem value={20}>20</MenuItem>
+                  <MenuItem value={50}>50</MenuItem>
+                  <MenuItem value={100}>100</MenuItem>
+                </Select>
+              </FormControl>
+
               <Button
                 variant="outlined"
                 color="error"
-                startIcon={<DeleteIcon />}
+                startIcon={isClearing ? <CircularProgress size={16} /> : <DeleteIcon />}
                 onClick={handleClearAll}
-                disabled={history.length === 0}
+                disabled={searchHistory.length === 0 || isClearing}
               >
                 Clear All
               </Button>
@@ -163,100 +377,113 @@ const HistoryPage: NextPage = () => {
           </CardContent>
         </Card>
 
-        {/* History List */}
-        <Paper>
-          {filteredHistory.length === 0 ? (
-            <Box sx={{ p: 4, textAlign: 'center' }}>
-              {history.length === 0 ? (
-                <Alert severity="info">
-                  <Typography variant="body1">
-                    No search history found. Start searching to see your history here.
-                  </Typography>
-                </Alert>
-              ) : (
-                <Alert severity="info">
-                  <Typography variant="body1">
-                    No search history matches your filter "{searchFilter}".
-                  </Typography>
-                </Alert>
-              )}
-            </Box>
-          ) : (
-            <List>
-              {filteredHistory.map((item, index) => (
-                <React.Fragment key={item.id}>
-                  <ListItem
-                    sx={{
-                      py: 2,
-                      '&:hover': {
-                        backgroundColor: 'action.hover',
-                      },
-                    }}
-                  >
-                    <ListItemText
-                      primary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <Typography variant="h6" component="span">
-                            "{item.query}"
-                          </Typography>
-                          <Chip
-                            label={`${item.resultsCount} results`}
-                            size="small"
-                            variant="outlined"
-                          />
-                          <Chip
-                            label={item.language.toUpperCase()}
-                            size="small"
-                            color="primary"
-                          />
-                        </Box>
-                      }
-                      secondary={
-                        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 1 }}>
-                          <TimeIcon sx={{ fontSize: 16 }} />
-                          <Typography variant="body2" color="text.secondary">
-                            {getTimeAgo(item.timestamp)} • {formatTimestamp(item.timestamp)}
-                          </Typography>
-                        </Box>
-                      }
-                    />
-                    <ListItemSecondaryAction>
-                      <Box sx={{ display: 'flex', gap: 1 }}>
-                        <IconButton
-                          edge="end"
-                          aria-label="bookmark"
-                          size="small"
-                        >
-                          <BookmarkIcon />
-                        </IconButton>
-                        <IconButton
-                          edge="end"
-                          aria-label="delete"
-                          onClick={() => handleDeleteItem(item.id)}
-                          size="small"
-                          color="error"
-                        >
-                          <DeleteIcon />
-                        </IconButton>
-                      </Box>
-                    </ListItemSecondaryAction>
-                  </ListItem>
-                  {index < filteredHistory.length - 1 && <Divider />}
-                </React.Fragment>
-              ))}
-            </List>
-          )}
-        </Paper>
-
-        {/* Coming Soon Notice */}
-        <Box sx={{ mt: 4 }}>
-          <Alert severity="info">
-            <Typography variant="body2">
-              <strong>Note:</strong> This history page shows mock data for demonstration. 
-              Full search history tracking and management features will be available in future updates.
+        {/* Error State */}
+        {error && (
+          <Alert severity="error" sx={{ mb: 3 }}>
+            <Typography variant="body1">
+              Failed to load search history: {error.message}
             </Typography>
           </Alert>
-        </Box>
+        )}
+
+        {/* Loading State */}
+        {isLoading ? (
+          <Paper>
+            <Box sx={{ p: 3 }}>
+              {[...Array(5)].map((_, index) => (
+                <Box key={index} sx={{ mb: 2 }}>
+                  <Skeleton variant="text" width="60%" height={32} />
+                  <Skeleton variant="text" width="40%" height={20} />
+                </Box>
+              ))}
+            </Box>
+          </Paper>
+        ) : (
+          /* History List */
+          <Paper>
+            {searchHistory.length === 0 ? (
+              <Box sx={{ p: 4, textAlign: 'center' }}>
+                <Alert severity="info">
+                  <Typography variant="body1">
+                    {searchFilter ? 
+                      `No search history matches your filter "${searchFilter}".` :
+                      'No search history found. Start searching to see your history here.'
+                    }
+                  </Typography>
+                </Alert>
+              </Box>
+            ) : (
+              <>
+                <List>
+                  {searchHistory.map((item, index) => (
+                    <React.Fragment key={item.id}>
+                      <SearchHistoryItem
+                        item={item}
+                        onDelete={handleDeleteItem}
+                        onBookmark={handleBookmarkItem}
+                        onReplay={handleReplaySearch}
+                      />
+                      {index < searchHistory.length - 1 && <Divider />}
+                    </React.Fragment>
+                  ))}
+                </List>
+
+                {/* Pagination */}
+                {pagination.totalPages > 1 && (
+                  <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
+                    <Pagination
+                      count={pagination.totalPages}
+                      page={pagination.page}
+                      onChange={(_, page) => goToPage(page)}
+                      color="primary"
+                      showFirstButton
+                      showLastButton
+                    />
+                  </Box>
+                )}
+              </>
+            )}
+          </Paper>
+        )}
+
+        {/* Statistics */}
+        {searchHistory.length > 0 && (
+          <Box sx={{ mt: 4 }}>
+            <Card>
+              <CardContent>
+                <Typography variant="h6" gutterBottom>
+                  Search Statistics
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                  <Box>
+                    <Typography variant="h4" color="primary">
+                      {pagination.total}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Total Searches
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="h4" color="secondary">
+                      {searchHistory.filter(item => item.isBookmarked).length}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Bookmarked
+                    </Typography>
+                  </Box>
+                  <Box>
+                    <Typography variant="h4" color="success.main">
+                      {Math.round(searchHistory.reduce((sum, item) => sum + item.resultsCount, 0) / searchHistory.length)}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      Avg Results
+                    </Typography>
+                  </Box>
+                </Box>
+              </CardContent>
+            </Card>
+          </Box>
+        )}
       </Container>
     </Layout>
   );

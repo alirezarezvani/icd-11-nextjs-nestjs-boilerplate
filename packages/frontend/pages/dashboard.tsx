@@ -3,7 +3,7 @@
  * Protected route requiring authentication
  */
 
-import React from 'react';
+import React, { useState } from 'react';
 import { GetStaticProps } from 'next';
 import Head from 'next/head';
 import { 
@@ -18,6 +18,12 @@ import {
   Avatar,
   Chip,
   Alert,
+  Paper,
+  ToggleButton,
+  ToggleButtonGroup,
+  Divider,
+  IconButton,
+  Collapse,
 } from '@mui/material';
 import { 
   Search, 
@@ -28,19 +34,66 @@ import {
   Analytics,
   People,
   Security,
+  TrendingUp,
+  Language,
+  Search as SearchIcon,
+  Timeline,
+  ExpandMore,
+  ExpandLess,
+  Refresh,
 } from '@mui/icons-material';
 import { useTranslation } from 'next-i18next';
 import { serverSideTranslations } from 'next-i18next/serverSideTranslations';
 import { useRouter } from 'next/router';
 import { useAuth } from '../hooks/useAuth';
+import { useAnalytics } from '../hooks/useAnalytics';
 import { withRequiredAuth } from '../components/Auth/withAuth';
 import { MainLayout } from '../components/Layout/MainLayout';
 import { UserRole } from '../services/auth/auth.types';
+import { 
+  MetricCard, 
+  LanguageChart, 
+  TopTermsChart, 
+  ActivityChart 
+} from '../components/Analytics';
 
 const Dashboard: React.FC = () => {
   const { t } = useTranslation(['common', 'auth', 'search']);
   const router = useRouter();
   const { user, hasRole } = useAuth();
+  
+  // Analytics state
+  const [analyticsPeriod, setAnalyticsPeriod] = useState<7 | 30 | 90>(30);
+  const [analyticsExpanded, setAnalyticsExpanded] = useState(true);
+  
+  // Analytics data hook
+  const {
+    data: analyticsData,
+    loading: analyticsLoading,
+    error: analyticsError,
+    refetch: refetchAnalytics,
+  } = useAnalytics({
+    days: analyticsPeriod,
+    autoRefresh: true,
+  });
+
+  // Analytics handlers
+  const handleAnalyticsPeriodChange = (
+    event: React.MouseEvent<HTMLElement>,
+    newPeriod: 7 | 30 | 90,
+  ) => {
+    if (newPeriod !== null) {
+      setAnalyticsPeriod(newPeriod);
+    }
+  };
+
+  const handleAnalyticsRefresh = () => {
+    refetchAnalytics();
+  };
+
+  const toggleAnalyticsExpanded = () => {
+    setAnalyticsExpanded(prev => !prev);
+  };
 
   const quickActions = [
     {
@@ -235,6 +288,227 @@ const Dashboard: React.FC = () => {
                 </Grid>
               ))}
             </Grid>
+
+            {/* Analytics Section */}
+            <Paper
+              elevation={1}
+              sx={{
+                my: 4,
+                borderRadius: 2,
+                overflow: 'hidden',
+              }}
+            >
+              <Box
+                sx={{
+                  p: 3,
+                  borderBottom: 1,
+                  borderColor: 'divider',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                  <Avatar
+                    sx={{
+                      bgcolor: 'primary.main',
+                      width: 40,
+                      height: 40,
+                    }}
+                  >
+                    <TrendingUp />
+                  </Avatar>
+                  <Box>
+                    <Typography variant="h5" component="h2">
+                      {t('auth:analytics.title', 'Search Analytics')}
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {t('auth:analytics.subtitle', 'Your search activity and insights')}
+                    </Typography>
+                  </Box>
+                </Box>
+                
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap' }}>
+                  {/* Mobile period selector */}
+                  <Box sx={{ display: { xs: 'flex', sm: 'none' }, width: '100%', mb: 1 }}>
+                    <ToggleButtonGroup
+                      value={analyticsPeriod}
+                      exclusive
+                      onChange={handleAnalyticsPeriodChange}
+                      size="small"
+                      sx={{ width: '100%' }}
+                    >
+                      <ToggleButton value={7} sx={{ flex: 1 }}>
+                        7d
+                      </ToggleButton>
+                      <ToggleButton value={30} sx={{ flex: 1 }}>
+                        30d
+                      </ToggleButton>
+                      <ToggleButton value={90} sx={{ flex: 1 }}>
+                        90d
+                      </ToggleButton>
+                    </ToggleButtonGroup>
+                  </Box>
+                  
+                  {/* Desktop period selector */}
+                  <ToggleButtonGroup
+                    value={analyticsPeriod}
+                    exclusive
+                    onChange={handleAnalyticsPeriodChange}
+                    size="small"
+                    sx={{ display: { xs: 'none', sm: 'flex' } }}
+                  >
+                    <ToggleButton value={7}>
+                      {t('auth:analytics.period.last7days', 'Last 7 days')}
+                    </ToggleButton>
+                    <ToggleButton value={30}>
+                      {t('auth:analytics.period.last30days', 'Last 30 days')}
+                    </ToggleButton>
+                    <ToggleButton value={90}>
+                      {t('auth:analytics.period.last90days', 'Last 90 days')}
+                    </ToggleButton>
+                  </ToggleButtonGroup>
+                  
+                  <IconButton
+                    onClick={handleAnalyticsRefresh}
+                    disabled={analyticsLoading}
+                    size="small"
+                    sx={{ ml: 1 }}
+                  >
+                    <Refresh />
+                  </IconButton>
+                  
+                  <IconButton
+                    onClick={toggleAnalyticsExpanded}
+                    size="small"
+                  >
+                    {analyticsExpanded ? <ExpandLess /> : <ExpandMore />}
+                  </IconButton>
+                </Box>
+              </Box>
+
+              <Collapse in={analyticsExpanded}>
+                <Box sx={{ p: 3 }}>
+                  {analyticsError && (
+                    <Alert 
+                      severity="error" 
+                      sx={{ mb: 3 }}
+                      action={
+                        <Button
+                          color="inherit"
+                          size="small"
+                          onClick={handleAnalyticsRefresh}
+                        >
+                          {t('auth:analytics.retry', 'Retry')}
+                        </Button>
+                      }
+                    >
+                      {analyticsError}
+                    </Alert>
+                  )}
+
+                  {/* Analytics Metrics Cards */}
+                  <Grid container spacing={3} sx={{ mb: 4 }}>
+                    <Grid item xs={12} sm={6} md={3}>
+                      <MetricCard
+                        title={t('auth:analytics.metrics.totalSearches', 'Total Searches')}
+                        value={analyticsData?.totalSearches || 0}
+                        subtitle={t('auth:analytics.metrics.totalSearchesDesc', 'Number of searches performed')}
+                        icon={<SearchIcon />}
+                        color="primary"
+                        loading={analyticsLoading}
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} sm={6} md={3}>
+                      <MetricCard
+                        title={t('auth:analytics.metrics.uniqueTerms', 'Unique Terms')}
+                        value={analyticsData?.uniqueSearchTerms || 0}
+                        subtitle={t('auth:analytics.metrics.uniqueTermsDesc', 'Different search terms used')}
+                        icon={<Language />}
+                        color="secondary"
+                        loading={analyticsLoading}
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} sm={6} md={3}>
+                      <MetricCard
+                        title={t('auth:analytics.metrics.recentActivity', 'Recent Activity')}
+                        value={analyticsData?.recentSearches || 0}
+                        subtitle={t('auth:analytics.metrics.recentActivityDesc', 'Searches in the last 7 days')}
+                        icon={<Timeline />}
+                        color="success"
+                        loading={analyticsLoading}
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} sm={6} md={3}>
+                      <MetricCard
+                        title={t('auth:analytics.metrics.totalBookmarks', 'Total Bookmarks')}
+                        value={analyticsData?.totalBookmarks || 0}
+                        subtitle={t('auth:analytics.metrics.totalBookmarksDesc', 'Medical codes and searches saved')}
+                        icon={<Bookmark />}
+                        color="info"
+                        loading={analyticsLoading}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  {/* Analytics Charts */}
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={6}>
+                      <LanguageChart
+                        data={analyticsData?.searchesByLanguage || []}
+                        loading={analyticsLoading}
+                        title={t('auth:analytics.charts.languageDistribution', 'Search Languages')}
+                      />
+                    </Grid>
+                    
+                    <Grid item xs={12} md={6}>
+                      <TopTermsChart
+                        data={analyticsData?.topSearchTerms || []}
+                        loading={analyticsLoading}
+                        title={t('auth:analytics.charts.topSearchTerms', 'Top Search Terms')}
+                        maxTerms={5}
+                      />
+                    </Grid>
+                  </Grid>
+
+                  {/* Activity chart - if we have daily data */}
+                  {analyticsData && (
+                    <Box sx={{ mt: 3 }}>
+                      <Typography variant="h6" gutterBottom sx={{ mb: 2 }}>
+                        {t('auth:analytics.charts.searchActivity', 'Search Activity Trends')}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                        Detailed activity trends available in full analytics dashboard
+                      </Typography>
+                    </Box>
+                  )}
+
+                  {!analyticsData && !analyticsLoading && !analyticsError && (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        py: 6,
+                        color: 'text.secondary',
+                      }}
+                    >
+                      <TrendingUp sx={{ fontSize: 64, mb: 2, opacity: 0.5 }} />
+                      <Typography variant="h6" gutterBottom>
+                        {t('auth:analytics.noData', 'No data available for the selected period')}
+                      </Typography>
+                      <Typography variant="body2" sx={{ textAlign: 'center', maxWidth: 400 }}>
+                        Start searching for ICD-11 codes to see your analytics data here.
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
+              </Collapse>
+            </Paper>
 
             {/* Admin Actions */}
             {hasRole(UserRole.ORG_ADMIN) && (

@@ -1,43 +1,48 @@
 {
   "search": {
-    "title": "Search Error",
-    "message": "Search failed",
-    "description": "Please try again or contact support if the problem persists",
-    "noResults": "No results found",
-    "noResultsDescription": "No medical codes found for \"{{term}}\"",
-    "noResultsSubtext": "Try using different keywords or check your spelling",
-    "tryAgain": "Please try again with different search terms or check your internet connection"
+    "title": "Error de Búsqueda",
+    "message": "La búsqueda falló",
+    "description": "Por favor, inténtelo de nuevo o contacte al soporte si el problema persiste",
+    "noResults": "No se encontraron resultados",
+    "noResultsDescription": "No se encontraron códigos médicos para \"{{term}}\"",
+    "noResultsSubtext": "Intente usar palabras clave diferentes o verifique la ortografía",
+    "tryAgain": "Por favor, inténtelo de nuevo con términos de búsqueda diferentes o verifique su conexión a internet"
   },
   "network": {
-    "title": "Network Error",
-    "message": "Unable to connect to the server",
-    "description": "Please check your internet connection and try again",
-    "timeout": "Request timed out",
-    "offline": "You appear to be offline"
+    "title": "Error de Red",
+    "message": "No se puede conectar al servidor",
+    "description": "Por favor, verifique su conexión a internet e inténtelo de nuevo",
+    "timeout": "La solicitud expiró",
+    "offline": "Parece que está desconectado"
   },
   "api": {
-    "title": "API Error",
-    "message": "Service temporarily unavailable",
-    "description": "The WHO ICD-11 service is currently unavailable. Please try again later",
-    "rateLimit": "Too many requests. Please wait a moment and try again",
-    "invalidRequest": "Invalid request format",
-    "notFound": "Resource not found",
-    "serverError": "Internal server error"
+    "title": "Error de API",
+    "message": "Servicio temporalmente no disponible",
+    "description": "El servicio WHO ICD-11 no está disponible actualmente. Por favor, inténtelo más tarde",
+    "rateLimit": "Demasiadas solicitudes. Por favor, espere un momento e inténtelo de nuevo",
+    "invalidRequest": "Formato de solicitud inválido",
+    "notFound": "Recurso no encontrado",
+    "serverError": "Error interno del servidor",
+    "whoApiUnavailable": "El servicio de búsqueda ICD-11 no está disponible temporalmente debido a un problema de configuración. Por favor, contacte a su administrador del sistema.",
+    "whoApiCredentials": "Error de configuración del servicio ICD-11. Por favor, contacte a su administrador del sistema para verificar las credenciales de la API.",
+    "whoApiRateLimit": "Límite de velocidad de búsqueda excedido. Por favor, espere un momento e inténtelo de nuevo.",
+    "whoApiTimeout": "El servicio de búsqueda está tardando más de lo esperado. Por favor, inténtelo de nuevo.",
+    "whoApiNetwork": "No se puede conectar al servicio de búsqueda ICD-11. Por favor, verifique su conexión a internet."
   },
   "validation": {
-    "required": "This field is required",
-    "minLength": "Must be at least {{min}} characters",
-    "maxLength": "Must be no more than {{max}} characters",
-    "invalidFormat": "Invalid format",
-    "invalidLanguage": "Unsupported language",
-    "emptySearch": "Please enter a search term"
+    "required": "Este campo es obligatorio",
+    "minLength": "Debe tener al menos {{min}} caracteres",
+    "maxLength": "No debe tener más de {{max}} caracteres",
+    "invalidFormat": "Formato inválido",
+    "invalidLanguage": "Idioma no soportado",
+    "emptySearch": "Por favor, ingrese un término de búsqueda"
   },
   "general": {
     "title": "Error",
-    "message": "An unexpected error occurred",
-    "description": "Please try again later",
-    "retry": "Try Again",
-    "contact": "Contact Support",
-    "goHome": "Go Home"
+    "message": "Ocurrió un error inesperado",
+    "description": "Por favor, inténtelo más tarde",
+    "retry": "Intentar de Nuevo",
+    "contact": "Contactar Soporte",
+    "goHome": "Ir al Inicio"
   }
 }

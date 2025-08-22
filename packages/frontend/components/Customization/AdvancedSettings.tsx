@@ -262,7 +262,7 @@ export function AdvancedSettings({ type }: AdvancedSettingsProps) {
             Custom CSS Editor
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Add custom CSS to override default styles. Changes will be applied to your organization's interface.
+            Add custom CSS to override default styles. Changes will be applied to your organization&apos;s interface.
           </Typography>
         </Box>
         
