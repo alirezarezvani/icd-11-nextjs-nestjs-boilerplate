@@ -53,7 +53,7 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { useBookmarks } from '../hooks/useBookmarks';
 import { withRequiredAuth } from '../components/Auth/withAuth';
-import { Layout } from '../components/Layout';
+import Layout from '../components/Layout';
 import { BookmarkType, BookmarkItem } from '../services/api/bookmark.service';
 
 // Bookmark Edit Dialog Component
@@ -457,7 +457,7 @@ const BookmarksPage: NextPage = () => {
         {isLoading ? (
           <Grid container spacing={3}>
             {[...Array(6)].map((_, index) => (
-              <Grid item xs={12} sm={6} md={4} key={index}>
+              <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                 <Card>
                   <CardContent>
                     <Skeleton variant="text" width="60%" height={32} />
@@ -491,7 +491,7 @@ const BookmarksPage: NextPage = () => {
               <>
                 <Grid container spacing={3}>
                   {bookmarks.map((bookmark) => (
-                    <Grid item xs={12} sm={6} md={4} key={bookmark.id}>
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={bookmark.id}>
                       <BookmarkCard
                         bookmark={bookmark}
                         onDelete={handleDeleteBookmark}

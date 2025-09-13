@@ -8,7 +8,6 @@ import {
   Typography,
   Paper,
   Box,
-  Grid,
   Card,
   CardContent,
   CardActions,
@@ -28,7 +27,7 @@ import {
   Analytics as AnalyticsIcon,
   Security as SecurityIcon,
   Settings as SettingsIcon,
-  Database as DatabaseIcon,
+  Dataset as DatabaseIcon,
   Notifications as NotificationsIcon,
   TrendingUp as TrendingUpIcon,
   Warning as WarningIcon,
@@ -36,7 +35,7 @@ import {
 } from '@mui/icons-material';
 import { useAuth } from '../hooks/useAuth';
 import { withAdminAuth } from '../components/Auth/withAuth';
-import { Layout } from '../components/Layout';
+import Layout from '../components/Layout';
 import { UserRole } from '../services/auth/auth.types';
 
 // Mock data for demonstration
@@ -79,170 +78,171 @@ const AdminPage: NextPage = () => {
         </Box>
 
         {/* Quick Stats */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <UsersIcon color="primary" />
-                  <Typography variant="h6" sx={{ ml: 1 }}>
-                    {mockStats.totalUsers.toLocaleString()}
-                  </Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  Total Users
+        <Box sx={{ 
+          display: 'grid',
+          gridTemplateColumns: { 
+            xs: '1fr',
+            sm: 'repeat(2, 1fr)', 
+            md: 'repeat(4, 1fr)' 
+          },
+          gap: 3,
+          mb: 4 
+        }}>
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <UsersIcon color="primary" />
+                <Typography variant="h6" sx={{ ml: 1 }}>
+                  {mockStats.totalUsers.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" color="success.main">
-                  +12% this month
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Box>
+              <Typography variant="body2" color="text.secondary">
+                Total Users
+              </Typography>
+              <Typography variant="caption" color="success.main">
+                +12% this month
+              </Typography>
+            </CardContent>
+          </Card>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <TrendingUpIcon color="success" />
-                  <Typography variant="h6" sx={{ ml: 1 }}>
-                    {mockStats.activeUsers.toLocaleString()}
-                  </Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  Active Users
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <TrendingUpIcon color="success" />
+                <Typography variant="h6" sx={{ ml: 1 }}>
+                  {mockStats.activeUsers.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" color="success.main">
-                  +8% this week
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Box>
+              <Typography variant="body2" color="text.secondary">
+                Active Users
+              </Typography>
+              <Typography variant="caption" color="success.main">
+                +8% this week
+              </Typography>
+            </CardContent>
+          </Card>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <AnalyticsIcon color="info" />
-                  <Typography variant="h6" sx={{ ml: 1 }}>
-                    {mockStats.searchesThisMonth.toLocaleString()}
-                  </Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  Searches This Month
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <AnalyticsIcon color="info" />
+                <Typography variant="h6" sx={{ ml: 1 }}>
+                  {mockStats.searchesThisMonth.toLocaleString()}
                 </Typography>
-                <Typography variant="caption" color="info.main">
-                  +25% vs last month
-                </Typography>
-              </CardContent>
-            </Card>
-          </Grid>
+              </Box>
+              <Typography variant="body2" color="text.secondary">
+                Searches This Month
+              </Typography>
+              <Typography variant="caption" color="info.main">
+                +25% vs last month
+              </Typography>
+            </CardContent>
+          </Card>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <Card>
-              <CardContent>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                  <CheckCircleIcon color="success" />
-                  <Typography variant="h6" sx={{ ml: 1 }}>
-                    {mockStats.systemHealth}%
-                  </Typography>
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  System Health
+          <Card>
+            <CardContent>
+              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                <CheckCircleIcon color="success" />
+                <Typography variant="h6" sx={{ ml: 1 }}>
+                  {mockStats.systemHealth}%
                 </Typography>
-                <LinearProgress 
-                  variant="determinate" 
-                  value={mockStats.systemHealth} 
-                  sx={{ mt: 1 }}
-                  color="success"
-                />
-              </CardContent>
-            </Card>
-          </Grid>
-        </Grid>
+              </Box>
+              <Typography variant="body2" color="text.secondary">
+                System Health
+              </Typography>
+              <LinearProgress 
+                variant="determinate" 
+                value={mockStats.systemHealth} 
+                sx={{ mt: 1 }}
+                color="success"
+              />
+            </CardContent>
+          </Card>
+        </Box>
 
-        <Grid container spacing={3}>
+        <Box sx={{ 
+          display: 'flex',
+          flexDirection: { xs: 'column', md: 'row' },
+          gap: 3
+        }}>
           {/* Admin Actions */}
-          <Grid item xs={12} md={8}>
+          <Box sx={{ flex: { md: 2 } }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
                   {t('auth:admin.users', 'Administrative Actions')}
                 </Typography>
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <Card variant="outlined">
-                      <CardContent>
-                        <UsersIcon color="primary" sx={{ mb: 1 }} />
-                        <Typography variant="h6" gutterBottom>
-                          {t('auth:admin.users', 'User Management')}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          {t('auth:admin.usersDescription', 'Manage organization users and permissions')}
-                        </Typography>
-                        <Button variant="outlined" fullWidth>
-                          Manage Users
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Grid>
+                <Box sx={{
+                  display: 'grid',
+                  gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)' },
+                  gap: 2
+                }}>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <UsersIcon color="primary" sx={{ mb: 1 }} />
+                      <Typography variant="h6" gutterBottom>
+                        {t('auth:admin.users', 'User Management')}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        {t('auth:admin.usersDescription', 'Manage organization users and permissions')}
+                      </Typography>
+                      <Button variant="outlined" fullWidth>
+                        Manage Users
+                      </Button>
+                    </CardContent>
+                  </Card>
 
-                  <Grid item xs={12} sm={6}>
-                    <Card variant="outlined">
-                      <CardContent>
-                        <AnalyticsIcon color="info" sx={{ mb: 1 }} />
-                        <Typography variant="h6" gutterBottom>
-                          {t('auth:admin.analytics', 'Analytics')}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          {t('auth:admin.analyticsDescription', 'View usage analytics and reports')}
-                        </Typography>
-                        <Button variant="outlined" fullWidth>
-                          View Analytics
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Grid>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <AnalyticsIcon color="info" sx={{ mb: 1 }} />
+                      <Typography variant="h6" gutterBottom>
+                        {t('auth:admin.analytics', 'Analytics')}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        {t('auth:admin.analyticsDescription', 'View usage analytics and reports')}
+                      </Typography>
+                      <Button variant="outlined" fullWidth>
+                        View Analytics
+                      </Button>
+                    </CardContent>
+                  </Card>
 
-                  <Grid item xs={12} sm={6}>
-                    <Card variant="outlined">
-                      <CardContent>
-                        <SecurityIcon color="warning" sx={{ mb: 1 }} />
-                        <Typography variant="h6" gutterBottom>
-                          {t('auth:admin.security', 'Security')}
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          {t('auth:admin.securityDescription', 'Security settings and audit logs')}
-                        </Typography>
-                        <Button variant="outlined" fullWidth>
-                          Security Settings
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Grid>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <SecurityIcon color="warning" sx={{ mb: 1 }} />
+                      <Typography variant="h6" gutterBottom>
+                        {t('auth:admin.security', 'Security')}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        {t('auth:admin.securityDescription', 'Security settings and audit logs')}
+                      </Typography>
+                      <Button variant="outlined" fullWidth>
+                        Security Settings
+                      </Button>
+                    </CardContent>
+                  </Card>
 
-                  <Grid item xs={12} sm={6}>
-                    <Card variant="outlined">
-                      <CardContent>
-                        <DatabaseIcon color="secondary" sx={{ mb: 1 }} />
-                        <Typography variant="h6" gutterBottom>
-                          System Settings
-                        </Typography>
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                          Configure system settings and preferences
-                        </Typography>
-                        <Button variant="outlined" fullWidth>
-                          System Config
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  </Grid>
-                </Grid>
+                  <Card variant="outlined">
+                    <CardContent>
+                      <DatabaseIcon color="secondary" sx={{ mb: 1 }} />
+                      <Typography variant="h6" gutterBottom>
+                        System Settings
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        Configure system settings and preferences
+                      </Typography>
+                      <Button variant="outlined" fullWidth>
+                        System Config
+                      </Button>
+                    </CardContent>
+                  </Card>
+                </Box>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
 
           {/* Recent Activity */}
-          <Grid item xs={12} md={4}>
+          <Box sx={{ flex: { md: 1 } }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -278,8 +278,8 @@ const AdminPage: NextPage = () => {
                 <Button size="small">View All Activity</Button>
               </CardActions>
             </Card>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
 
         {/* Access Control Notice */}
         {user?.role !== UserRole.SUPER_ADMIN && (

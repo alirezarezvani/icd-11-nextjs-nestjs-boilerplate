@@ -15,7 +15,6 @@ import {
   Button,
   Collapse,
   IconButton,
-  Grid,
   Divider,
   Tooltip,
 } from '@mui/material';
@@ -160,76 +159,75 @@ export const AdvancedSearchForm: React.FC<AdvancedSearchFormProps> = ({
         </Box>
 
         <Collapse in={showAdvanced}>
-          <Grid container spacing={3}>
-            {/* Search Categories */}
-            <Grid item xs={12} md={6}>
-              <Typography variant="subtitle2" gutterBottom>
-                {t('search:advancedSearch.categories', 'Categories')}
-              </Typography>
-              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
-                {SEARCH_CATEGORIES.map((category) => (
-                  <Chip
-                    key={category}
-                    label={t(`search:categories.${category}`, category)}
-                    clickable
-                    variant={searchParams.categories?.includes(category) ? 'filled' : 'outlined'}
-                    color={searchParams.categories?.includes(category) ? 'primary' : 'default'}
-                    onClick={() => handleCategoryChange(category)}
-                    size="small"
-                  />
-                ))}
-              </Box>
-            </Grid>
-
-            {/* Search Scope */}
-            <Grid item xs={12} md={6}>
-              <FormControl fullWidth size="small">
-                <InputLabel>
-                  {t('search:advancedSearch.searchScope', 'Search Scope')}
-                </InputLabel>
-                <Select
-                  value={searchParams.scope || ICD11SearchScope.ALL}
-                  onChange={(e) => handleScopeChange(e.target.value as ICD11SearchScope)}
-                  label={t('search:advancedSearch.searchScope', 'Search Scope')}
-                >
-                  {SEARCH_SCOPES.map((scope) => (
-                    <MenuItem key={scope} value={scope}>
-                      {t(`search:scopes.${scope}`, scope)}
-                    </MenuItem>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3, mt: 2 }}>
+            {/* First Row - Categories and Scope */}
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 3 }}>
+              {/* Search Categories */}
+              <Box sx={{ flex: 1 }}>
+                <Typography variant="subtitle2" gutterBottom>
+                  {t('search:advancedSearch.categories', 'Categories')}
+                </Typography>
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 1 }}>
+                  {SEARCH_CATEGORIES.map((category) => (
+                    <Chip
+                      key={category}
+                      label={t(`search:categories.${category}`, category)}
+                      clickable
+                      variant={searchParams.categories?.includes(category) ? 'filled' : 'outlined'}
+                      color={searchParams.categories?.includes(category) ? 'primary' : 'default'}
+                      onClick={() => handleCategoryChange(category)}
+                      size="small"
+                    />
                   ))}
-                </Select>
-              </FormControl>
-            </Grid>
+                </Box>
+              </Box>
+
+              {/* Search Scope */}
+              <Box sx={{ flex: 1 }}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>
+                    {t('search:advancedSearch.searchScope', 'Search Scope')}
+                  </InputLabel>
+                  <Select
+                    value={searchParams.scope || ICD11SearchScope.ALL}
+                    onChange={(e) => handleScopeChange(e.target.value as ICD11SearchScope)}
+                    label={t('search:advancedSearch.searchScope', 'Search Scope')}
+                  >
+                    {SEARCH_SCOPES.map((scope) => (
+                      <MenuItem key={scope} value={scope}>
+                        {t(`search:scopes.${scope}`, scope)}
+                      </MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
+              </Box>
+            </Box>
 
             {/* Chapter Filter */}
-            <Grid item xs={12}>
-              <FormControl fullWidth size="small">
-                <InputLabel>
-                  {t('search:advancedSearch.chapter', 'ICD-11 Chapter')}
-                </InputLabel>
-                <Select
-                  value={searchParams.chapter || ''}
-                  onChange={(e) => handleChapterChange(e.target.value)}
-                  label={t('search:advancedSearch.chapter', 'ICD-11 Chapter')}
-                >
-                  <MenuItem value="">
-                    {t('search:advancedSearch.allChapters', 'All Chapters')}
+            <FormControl fullWidth size="small">
+              <InputLabel>
+                {t('search:advancedSearch.chapter', 'ICD-11 Chapter')}
+              </InputLabel>
+              <Select
+                value={searchParams.chapter || ''}
+                onChange={(e) => handleChapterChange(e.target.value)}
+                label={t('search:advancedSearch.chapter', 'ICD-11 Chapter')}
+              >
+                <MenuItem value="">
+                  {t('search:advancedSearch.allChapters', 'All Chapters')}
+                </MenuItem>
+                {ICD_CHAPTERS.map((chapter) => (
+                  <MenuItem key={chapter.code} value={chapter.code}>
+                    Chapter {chapter.code}: {chapter.title}
                   </MenuItem>
-                  {ICD_CHAPTERS.map((chapter) => (
-                    <MenuItem key={chapter.code} value={chapter.code}>
-                      Chapter {chapter.code}: {chapter.title}
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            </Grid>
+                ))}
+              </Select>
+            </FormControl>
 
-            <Grid item xs={12}>
-              <Divider sx={{ my: 2 }} />
-            </Grid>
+            <Divider />
 
             {/* Additional Options */}
-            <Grid item xs={12} md={6}>
+            <Box sx={{ display: 'flex', flexDirection: { xs: 'column', md: 'row' }, gap: 2 }}>
               <FormControlLabel
                 control={
                   <Switch
@@ -240,9 +238,6 @@ export const AdvancedSearchForm: React.FC<AdvancedSearchFormProps> = ({
                 }
                 label={t('search:advancedSearch.includeDeprecated', 'Include deprecated codes')}
               />
-            </Grid>
-
-            <Grid item xs={12} md={6}>
               <FormControlLabel
                 control={
                   <Switch
@@ -253,23 +248,21 @@ export const AdvancedSearchForm: React.FC<AdvancedSearchFormProps> = ({
                 }
                 label={t('search:advancedSearch.leafNodesOnly', 'Leaf nodes only')}
               />
-            </Grid>
+            </Box>
 
             {/* Search Button */}
-            <Grid item xs={12}>
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
-                <Button
-                  variant="contained"
-                  startIcon={<SearchIcon />}
-                  onClick={onSearch}
-                  disabled={isLoading || !searchParams.term?.trim()}
-                  size="large"
-                >
-                  {t('search:advancedSearch.search', 'Search with Filters')}
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+              <Button
+                variant="contained"
+                startIcon={<SearchIcon />}
+                onClick={onSearch}
+                disabled={isLoading || !searchParams.term?.trim()}
+                size="large"
+              >
+                {t('search:advancedSearch.search', 'Search with Filters')}
+              </Button>
+            </Box>
+          </Box>
         </Collapse>
       </CardContent>
     </Card>

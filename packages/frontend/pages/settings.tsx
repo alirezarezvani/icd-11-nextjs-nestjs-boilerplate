@@ -53,7 +53,7 @@ const SettingsPage: NextPage = () => {
 
         <Grid container spacing={3}>
           {/* Account Settings */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -102,7 +102,7 @@ const SettingsPage: NextPage = () => {
           </Grid>
 
           {/* Security Settings */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -147,7 +147,7 @@ const SettingsPage: NextPage = () => {
           </Grid>
 
           {/* Notification Settings */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
@@ -190,7 +190,7 @@ const SettingsPage: NextPage = () => {
           </Grid>
 
           {/* Appearance Settings */}
-          <Grid item xs={12} md={6}>
+          <Grid size={{ xs: 12, md: 6 }}>
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>

@@ -214,12 +214,18 @@ export class ICD11Service {
 
       return {
         data,
+        items: data, // For backwards compatibility
         meta: {
           page,
           limit,
           total: data.length, // WHO search API does not provide total count
           totalPages: 1, // Assuming single page for now
         },
+        // Direct properties for backwards compatibility
+        page,
+        limit,
+        total: data.length,
+        totalPages: 1,
       };
     } catch (error) {
       this.logger.error("Search failed:", error);
@@ -334,12 +340,18 @@ export class ICD11Service {
 
       const results: PaginatedResponse<ICD11Entity> = {
         data,
+        items: data, // For backwards compatibility
         meta: {
           total,
           page,
           limit,
           totalPages,
         },
+        // Direct properties for backwards compatibility
+        page,
+        limit,
+        total,
+        totalPages,
       };
 
       await this.cacheManager.set(cacheKey, results, 3600);
@@ -350,12 +362,18 @@ export class ICD11Service {
         // 404 means no children exist for this entity, return empty results
         const emptyResults: PaginatedResponse<ICD11Entity> = {
           data: [],
+          items: [], // For backwards compatibility
           meta: {
             total: 0,
             page,
             limit,
             totalPages: 0,
           },
+          // Direct properties for backwards compatibility
+          page,
+          limit,
+          total: 0,
+          totalPages: 0,
         };
         await this.cacheManager.set(cacheKey, emptyResults, 3600);
         return emptyResults;

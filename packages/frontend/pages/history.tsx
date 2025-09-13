@@ -46,7 +46,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useSearchHistory } from '../hooks/useSearchHistory';
 import { useBookmarkStatus } from '../hooks/useBookmarks';
 import { withRequiredAuth } from '../components/Auth/withAuth';
-import { Layout } from '../components/Layout';
+import Layout from '../components/Layout';
 import { CreateSearchBookmarkDto } from '../services/api/bookmark.service';
 
 // Search History Item Component

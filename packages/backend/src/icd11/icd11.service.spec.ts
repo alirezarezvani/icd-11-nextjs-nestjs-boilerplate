@@ -263,12 +263,28 @@ describe("ICD11Service", () => {
             isLeaf: false,
           },
         ],
+        items: [
+          {
+            id: "http://id.who.int/icd/entity/1234567890",
+            title: "Test Disease",
+            isLeaf: false,
+          },
+          {
+            id: "http://id.who.int/icd/entity/0987654321",
+            title: "Another Disease",
+            isLeaf: false,
+          },
+        ],
         meta: {
           page: 1,
           limit: 20,
           total: 2,
           totalPages: 1,
         },
+        page: 1,
+        limit: 20,
+        total: 2,
+        totalPages: 1,
       });
 
       expect(httpService.get).toHaveBeenCalledWith(
@@ -418,12 +434,20 @@ describe("ICD11Service", () => {
           { id: "child1", title: "Child 1" },
           { id: "child2", title: "Child 2" },
         ],
+        items: [
+          { id: "child1", title: "Child 1" },
+          { id: "child2", title: "Child 2" },
+        ],
         meta: {
           total: 2,
           page: 1,
           limit: 10,
           totalPages: 1,
         },
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
       };
 
       cacheManager.get.mockResolvedValue(cachedChildren);

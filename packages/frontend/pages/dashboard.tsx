@@ -122,7 +122,7 @@ const Dashboard: React.FC = () => {
       description: t('auth:profile.settings', 'Manage your account settings'),
       icon: <Settings />,
       action: () => router.push('/settings'),
-      color: 'default' as const,
+      color: 'inherit' as const,
     },
   ];
 
@@ -247,7 +247,7 @@ const Dashboard: React.FC = () => {
 
             <Grid container spacing={3} sx={{ mb: 4 }}>
               {quickActions.map((action, index) => (
-                <Grid item xs={12} sm={6} md={3} key={index}>
+                <Grid size={{ xs: 12, sm: 6, md: 3 }} key={index}>
                   <Card
                     sx={{
                       height: '100%',
@@ -409,7 +409,7 @@ const Dashboard: React.FC = () => {
 
                   {/* Analytics Metrics Cards */}
                   <Grid container spacing={3} sx={{ mb: 4 }}>
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <MetricCard
                         title={t('auth:analytics.metrics.totalSearches', 'Total Searches')}
                         value={analyticsData?.totalSearches || 0}
@@ -420,7 +420,7 @@ const Dashboard: React.FC = () => {
                       />
                     </Grid>
                     
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <MetricCard
                         title={t('auth:analytics.metrics.uniqueTerms', 'Unique Terms')}
                         value={analyticsData?.uniqueSearchTerms || 0}
@@ -431,7 +431,7 @@ const Dashboard: React.FC = () => {
                       />
                     </Grid>
                     
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <MetricCard
                         title={t('auth:analytics.metrics.recentActivity', 'Recent Activity')}
                         value={analyticsData?.recentSearches || 0}
@@ -442,7 +442,7 @@ const Dashboard: React.FC = () => {
                       />
                     </Grid>
                     
-                    <Grid item xs={12} sm={6} md={3}>
+                    <Grid size={{ xs: 12, sm: 6, md: 3 }}>
                       <MetricCard
                         title={t('auth:analytics.metrics.totalBookmarks', 'Total Bookmarks')}
                         value={analyticsData?.totalBookmarks || 0}
@@ -456,7 +456,7 @@ const Dashboard: React.FC = () => {
 
                   {/* Analytics Charts */}
                   <Grid container spacing={3}>
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                       <LanguageChart
                         data={analyticsData?.searchesByLanguage || []}
                         loading={analyticsLoading}
@@ -464,7 +464,7 @@ const Dashboard: React.FC = () => {
                       />
                     </Grid>
                     
-                    <Grid item xs={12} md={6}>
+                    <Grid size={{ xs: 12, md: 6 }}>
                       <TopTermsChart
                         data={analyticsData?.topSearchTerms || []}
                         loading={analyticsLoading}
@@ -519,7 +519,7 @@ const Dashboard: React.FC = () => {
 
                 <Grid container spacing={3}>
                   {adminActions.map((action, index) => (
-                    <Grid item xs={12} sm={6} md={4} key={index}>
+                    <Grid size={{ xs: 12, sm: 6, md: 4 }} key={index}>
                       <Card
                         sx={{
                           height: '100%',

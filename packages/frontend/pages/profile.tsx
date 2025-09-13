@@ -105,7 +105,7 @@ const Profile: React.FC = () => {
 
             <Grid container spacing={4}>
               {/* Profile Card */}
-              <Grid item xs={12} md={8}>
+              <Grid size={{ xs: 12, md: 8 }}>
                 <Card>
                   <CardContent sx={{ p: 4 }}>
                     <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, mb: 3 }}>
@@ -231,7 +231,7 @@ const Profile: React.FC = () => {
               </Grid>
 
               {/* Account Actions */}
-              <Grid item xs={12} md={4}>
+              <Grid size={{ xs: 12, md: 4 }}>
                 <Card>
                   <CardContent>
                     <Typography variant="h6" gutterBottom>
@@ -239,21 +239,21 @@ const Profile: React.FC = () => {
                     </Typography>
                     
                     <List>
-                      <ListItem button onClick={() => router.push('/dashboard')}>
+                      <ListItem onClick={() => router.push('/dashboard')} sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}>
                         <ListItemText primary={t('common:navigation.dashboard', 'Dashboard')} />
                       </ListItem>
                       
-                      <ListItem button onClick={() => router.push('/settings')}>
+                      <ListItem onClick={() => router.push('/settings')} sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}>
                         <ListItemText primary={t('common:navigation.settings', 'Settings')} />
                       </ListItem>
                       
-                      <ListItem button onClick={() => router.push('/history')}>
+                      <ListItem onClick={() => router.push('/history')} sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}>
                         <ListItemText primary={t('common:navigation.history', 'Search History')} />
                       </ListItem>
                       
                       <Divider sx={{ my: 1 }} />
                       
-                      <ListItem button onClick={handleLogout}>
+                      <ListItem onClick={handleLogout} sx={{ cursor: 'pointer', '&:hover': { backgroundColor: 'action.hover' } }}>
                         <ListItemText 
                           primary={t('auth:actions.signOut', 'Sign Out')}
                           sx={{ color: 'error.main' }}

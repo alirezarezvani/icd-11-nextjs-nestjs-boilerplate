@@ -170,9 +170,9 @@ export const useSearchHistory = (options: UseSearchHistoryOptions = {}): UseSear
     // Loading states
     isLoading,
     isLoadingTopTerms,
-    isCreating: createMutation.isPending,
-    isDeleting: deleteMutation.isPending,
-    isClearing: clearMutation.isPending,
+    isCreating: createMutation.isLoading,
+    isDeleting: deleteMutation.isLoading,
+    isClearing: clearMutation.isLoading,
     
     // Error states
     error: error as Error | null,

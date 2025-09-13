@@ -229,9 +229,9 @@ export const useBookmarks = (options: UseBookmarksOptions = {}): UseBookmarksRet
     
     // Loading states
     isLoading,
-    isCreating: createEntityMutation.isPending || createSearchMutation.isPending,
-    isUpdating: updateMutation.isPending,
-    isDeleting: deleteMutation.isPending,
+    isCreating: createEntityMutation.isLoading || createSearchMutation.isLoading,
+    isUpdating: updateMutation.isLoading,
+    isDeleting: deleteMutation.isLoading,
     isCheckingStatus: false, // Status checks are instant due to caching
     
     // Error states

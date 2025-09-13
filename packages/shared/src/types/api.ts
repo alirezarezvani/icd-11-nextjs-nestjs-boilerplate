@@ -7,15 +7,22 @@ export interface PaginationParams {
 
 /**
  * Paginated response interface
+ * Note: Backend actually returns items directly for backwards compatibility
  */
 export interface PaginatedResponse<T> {
   data: T[];
+  items: T[];  // For backwards compatibility with existing hooks
   meta: {
     page: number;
     limit: number;
     total: number;
     totalPages: number;
   };
+  // Direct properties for backwards compatibility
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 /**
