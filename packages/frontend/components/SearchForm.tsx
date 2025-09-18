@@ -318,7 +318,7 @@ export function SearchForm({
                   <Checkbox
                     id="include-deprecated"
                     checked={searchParams.includeDeprecated || false}
-                    onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, includeDeprecated: checked }))}
+                    onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, includeDeprecated: checked === true }))}
                     className="w-4 h-4"
                   />
                   <Label 
@@ -333,7 +333,7 @@ export function SearchForm({
                   <Checkbox
                     id="leaf-nodes-only"
                     checked={searchParams.leafNodesOnly || false}
-                    onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, leafNodesOnly: checked }))}
+                    onCheckedChange={(checked) => setSearchParams(prev => ({ ...prev, leafNodesOnly: checked === true }))}
                     className="w-4 h-4"
                   />
                   <Label 

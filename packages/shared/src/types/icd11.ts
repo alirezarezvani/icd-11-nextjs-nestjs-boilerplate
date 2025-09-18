@@ -6,55 +6,59 @@
 export type SupportedLanguage = 'en' | 'es' | 'fr' | 'ar' | 'zh' | 'ru';
 
 /**
- * ICD-11 search categories for healthcare professionals
- */
-export enum ICD11SearchCategory {
-  DISEASE = 'disease',
-  SYMPTOM = 'symptom',
-  PROCEDURE = 'procedure',
-  MEDICATION = 'medication',
-  ANATOMY = 'anatomy',
-  ETIOLOGY = 'etiology'
-}
-
-/**
- * ICD-11 search scope for clinical workflows
+ * Search scopes for ICD-11 API
  */
 export enum ICD11SearchScope {
   ALL = 'all',
-  MORTALITY = 'mortality',
-  MORBIDITY = 'morbidity',
-  PRIMARY_CARE = 'primary_care',
-  SPECIALIST_CARE = 'specialist_care'
+  TITLE = 'title',
+  DEFINITION = 'definition',
+  SYNONYM = 'synonym'
 }
 
 /**
- * ICD-11 search parameters for healthcare workflows
+ * Search categories for ICD-11 API
+ */
+export enum ICD11SearchCategory {
+  ALL = '',
+  MORTALITY = 'mortality',
+  MORBIDITY = 'morbidity'
+}
+
+/**
+ * ICD-11 Search Parameters
  */
 export interface ICD11SearchParams {
   term: string;
   language?: SupportedLanguage;
-  page?: number;
-  limit?: number;
   flexisearch?: boolean;
-  flatResults?: boolean;
-  includeDescendants?: boolean;
-  // Advanced search parameters for healthcare professionals
-  categories?: ICD11SearchCategory[];
-  chapter?: string;
+  limit?: number;
+  page?: number;
   scope?: ICD11SearchScope;
+  category?: ICD11SearchCategory;
   includeDeprecated?: boolean;
   leafNodesOnly?: boolean;
+  // Additional properties for advanced search
+  categories?: ICD11SearchCategory[];
+  chapter?: string;
 }
 
 /**
- * ICD-11 search result interface
+ * ICD-11 Search Result Item
  */
 export interface ICD11SearchResult {
   id: string;
   title: string;
+  definition?: string;
   code?: string;
+  uri: string;
   isLeaf: boolean;
+  deprecated?: boolean;
+  language: SupportedLanguage;
+  matchType: 'exact' | 'partial' | 'stemmed';
+  score: number;
+  chapter?: string;
+  block?: string;
+  category?: string;
   matchingPhrases?: string[];
 }
 

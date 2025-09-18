@@ -256,11 +256,19 @@ describe("ICD11Service", () => {
             id: "http://id.who.int/icd/entity/1234567890",
             title: "Test Disease",
             isLeaf: false,
+            uri: "http://id.who.int/icd/entity/1234567890",
+            language: "en",
+            matchType: "exact",
+            score: 1,
           },
           {
             id: "http://id.who.int/icd/entity/0987654321",
             title: "Another Disease",
             isLeaf: false,
+            uri: "http://id.who.int/icd/entity/0987654321",
+            language: "en",
+            matchType: "exact",
+            score: 1,
           },
         ],
         items: [
@@ -268,11 +276,19 @@ describe("ICD11Service", () => {
             id: "http://id.who.int/icd/entity/1234567890",
             title: "Test Disease",
             isLeaf: false,
+            uri: "http://id.who.int/icd/entity/1234567890",
+            language: "en",
+            matchType: "exact",
+            score: 1,
           },
           {
             id: "http://id.who.int/icd/entity/0987654321",
             title: "Another Disease",
             isLeaf: false,
+            uri: "http://id.who.int/icd/entity/0987654321",
+            language: "en",
+            matchType: "exact",
+            score: 1,
           },
         ],
         meta: {
@@ -341,7 +357,15 @@ describe("ICD11Service", () => {
     it("should fetch entity if not cached", async () => {
       cacheManager.get.mockResolvedValue(null);
 
-      const mockResponse: AxiosResponse<WHOEntityResponse> = {
+      const mockTokenHttpResponse: AxiosResponse<TokenResponse> = {
+        data: mockTokenResponse,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      };
+
+      const mockEntityHttpResponse: AxiosResponse<WHOEntityResponse> = {
         data: mockEntityResponse,
         status: 200,
         statusText: "OK",
@@ -349,7 +373,9 @@ describe("ICD11Service", () => {
         config: {} as any,
       };
 
-      httpService.get.mockReturnValue(of(mockResponse));
+      // Mock token request first, then entity request
+      httpService.post.mockReturnValue(of(mockTokenHttpResponse));
+      httpService.get.mockReturnValue(of(mockEntityHttpResponse));
 
       const result = await service.getEntityById(
         "http://id.who.int/icd/entity/1234567890",
@@ -386,10 +412,19 @@ describe("ICD11Service", () => {
     it("should handle entity not found", async () => {
       cacheManager.get.mockResolvedValue(null);
 
+      const mockTokenHttpResponse: AxiosResponse<TokenResponse> = {
+        data: mockTokenResponse,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      };
+
       const mockError = new AxiosError("Not Found", "404", {} as any, {}, {
         status: 404,
       } as any);
 
+      httpService.post.mockReturnValue(of(mockTokenHttpResponse));
       httpService.get.mockReturnValue(throwError(() => mockError));
 
       await expect(service.getEntityById("invalid-id", "en")).rejects.toThrow(
@@ -400,6 +435,14 @@ describe("ICD11Service", () => {
     it("should detect leaf entities correctly", async () => {
       cacheManager.get.mockResolvedValue(null);
 
+      const mockTokenHttpResponse: AxiosResponse<TokenResponse> = {
+        data: mockTokenResponse,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      };
+
       const leafEntityResponse: WHOEntityResponse = {
         "@id": "http://id.who.int/icd/entity/leaf",
         title: { en: "Leaf Disease" },
@@ -408,7 +451,7 @@ describe("ICD11Service", () => {
         classKind: "class", // class = leaf, category = has children
       };
 
-      const mockResponse: AxiosResponse<WHOEntityResponse> = {
+      const mockEntityResponse: AxiosResponse<WHOEntityResponse> = {
         data: leafEntityResponse,
         status: 200,
         statusText: "OK",
@@ -416,7 +459,8 @@ describe("ICD11Service", () => {
         config: {} as any,
       };
 
-      httpService.get.mockReturnValue(of(mockResponse));
+      httpService.post.mockReturnValue(of(mockTokenHttpResponse));
+      httpService.get.mockReturnValue(of(mockEntityResponse));
 
       const result = await service.getEntityById(
         "http://id.who.int/icd/entity/leaf",
@@ -464,7 +508,15 @@ describe("ICD11Service", () => {
     it("should fetch children if not cached", async () => {
       cacheManager.get.mockResolvedValue(null);
 
-      const mockResponse: AxiosResponse<WHOChildrenResponse> = {
+      const mockTokenHttpResponse: AxiosResponse<TokenResponse> = {
+        data: mockTokenResponse,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      };
+
+      const mockChildrenHttpResponse: AxiosResponse<WHOChildrenResponse> = {
         data: mockChildrenResponse,
         status: 200,
         statusText: "OK",
@@ -472,7 +524,8 @@ describe("ICD11Service", () => {
         config: {} as any,
       };
 
-      httpService.get.mockReturnValue(of(mockResponse));
+      httpService.post.mockReturnValue(of(mockTokenHttpResponse));
+      httpService.get.mockReturnValue(of(mockChildrenHttpResponse));
 
       const result = await service.getChildren(
         "http://id.who.int/icd/entity/parent",
@@ -494,12 +547,28 @@ describe("ICD11Service", () => {
             definition: "Second child disease",
           },
         ],
+        items: [
+          {
+            id: "http://id.who.int/icd/entity/child1",
+            title: "Child Disease 1",
+            definition: "First child disease",
+          },
+          {
+            id: "http://id.who.int/icd/entity/child2",
+            title: "Child Disease 2",
+            definition: "Second child disease",
+          },
+        ],
         meta: {
           total: 2,
           page: 1,
           limit: 10,
           totalPages: 1,
         },
+        page: 1,
+        limit: 10,
+        total: 2,
+        totalPages: 1,
       });
 
       expect(httpService.get).toHaveBeenCalledWith(
@@ -519,22 +588,36 @@ describe("ICD11Service", () => {
     it("should handle entities with no children (404)", async () => {
       cacheManager.get.mockResolvedValue(null);
 
+      const mockTokenHttpResponse: AxiosResponse<TokenResponse> = {
+        data: mockTokenResponse,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      };
+
       const mockError = new AxiosError("Not Found", "404", {} as any, {}, {
         status: 404,
       } as any);
 
+      httpService.post.mockReturnValue(of(mockTokenHttpResponse));
       httpService.get.mockReturnValue(throwError(() => mockError));
 
       const result = await service.getChildren("leaf-entity", "en", 1, 10);
 
       expect(result).toEqual({
         data: [],
+        items: [],
         meta: {
           total: 0,
           page: 1,
           limit: 10,
           totalPages: 0,
         },
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0,
       });
 
       expect(cacheManager.set).toHaveBeenCalledWith(
@@ -568,6 +651,14 @@ describe("ICD11Service", () => {
     it("should fetch parent if not cached", async () => {
       cacheManager.get.mockResolvedValue(null);
 
+      const mockTokenHttpResponse: AxiosResponse<TokenResponse> = {
+        data: mockTokenResponse,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      };
+
       const parentResponse: WHOEntity[] = [
         {
           id: "http://id.who.int/icd/entity/parent",
@@ -576,7 +667,7 @@ describe("ICD11Service", () => {
         },
       ];
 
-      const mockResponse: AxiosResponse<WHOEntity[]> = {
+      const mockParentHttpResponse: AxiosResponse<WHOEntity[]> = {
         data: parentResponse,
         status: 200,
         statusText: "OK",
@@ -584,7 +675,8 @@ describe("ICD11Service", () => {
         config: {} as any,
       };
 
-      httpService.get.mockReturnValue(of(mockResponse));
+      httpService.post.mockReturnValue(of(mockTokenHttpResponse));
+      httpService.get.mockReturnValue(of(mockParentHttpResponse));
 
       const result = await service.getParent(
         "http://id.who.int/icd/entity/child",
@@ -613,10 +705,19 @@ describe("ICD11Service", () => {
     it("should handle entities with no parent (404)", async () => {
       cacheManager.get.mockResolvedValue(null);
 
+      const mockTokenHttpResponse: AxiosResponse<TokenResponse> = {
+        data: mockTokenResponse,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      };
+
       const mockError = new AxiosError("Not Found", "404", {} as any, {}, {
         status: 404,
       } as any);
 
+      httpService.post.mockReturnValue(of(mockTokenHttpResponse));
       httpService.get.mockReturnValue(throwError(() => mockError));
 
       await expect(service.getParent("root-entity", "en")).rejects.toThrow(
@@ -627,7 +728,15 @@ describe("ICD11Service", () => {
     it("should handle empty parent response", async () => {
       cacheManager.get.mockResolvedValue(null);
 
-      const mockResponse: AxiosResponse<WHOEntity[]> = {
+      const mockTokenHttpResponse: AxiosResponse<TokenResponse> = {
+        data: mockTokenResponse,
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config: {} as any,
+      };
+
+      const mockEmptyParentResponse: AxiosResponse<WHOEntity[]> = {
         data: [],
         status: 200,
         statusText: "OK",
@@ -635,7 +744,8 @@ describe("ICD11Service", () => {
         config: {} as any,
       };
 
-      httpService.get.mockReturnValue(of(mockResponse));
+      httpService.post.mockReturnValue(of(mockTokenHttpResponse));
+      httpService.get.mockReturnValue(of(mockEmptyParentResponse));
 
       await expect(service.getParent("orphan-entity", "en")).rejects.toThrow(
         new HttpException("Parent not found", HttpStatus.NOT_FOUND),

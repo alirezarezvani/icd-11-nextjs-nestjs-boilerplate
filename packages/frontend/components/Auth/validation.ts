@@ -42,7 +42,7 @@ export const registerSchema = z.object({
   confirmPassword: z.string(),
   firstName: nameSchema,
   lastName: nameSchema,
-  role: z.nativeEnum(UserRole).default(UserRole.USER),
+  role: z.nativeEnum(UserRole),
   organizationId: z.string().optional(),
   acceptTerms: z.boolean().refine((val) => val === true, {
     message: 'You must accept the terms and conditions',

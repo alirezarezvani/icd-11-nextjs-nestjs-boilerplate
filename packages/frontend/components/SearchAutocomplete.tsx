@@ -5,6 +5,7 @@ import {
   Paper,
   List,
   ListItem,
+  ListItemButton,
   ListItemText,
   ListItemIcon,
   Typography,
@@ -215,9 +216,8 @@ export const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
           <Paper elevation={8} sx={{ mt: 0.5, maxHeight: 400, overflow: 'auto' }}>
             <List dense>
               {suggestions.map((suggestion, index) => (
-                <ListItem
+                <ListItemButton
                   key={`${suggestion.type}-${suggestion.text}`}
-                  button
                   selected={index === selectedIndex}
                   onClick={() => handleSuggestionClick(suggestion)}
                   sx={{
@@ -252,7 +252,7 @@ export const SearchAutocomplete: React.FC<SearchAutocompleteProps> = ({
                       </Box>
                     }
                   />
-                </ListItem>
+                </ListItemButton>
               ))}
             </List>
           </Paper>

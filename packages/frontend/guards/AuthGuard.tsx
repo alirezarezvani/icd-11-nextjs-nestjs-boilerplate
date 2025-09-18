@@ -23,7 +23,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
 }) => {
   const { t } = useTranslation('auth');
   const router = useRouter();
-  const { user, isAuthenticated, isInitializing } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
   // Check if user has required role
@@ -33,8 +33,8 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
   };
 
   useEffect(() => {
-    // Don't do anything while still initializing
-    if (isInitializing) return;
+    // Don't do anything while still loading
+    if (isLoading) return;
 
     // If authentication is required but user is not authenticated
     if (requireAuth && !isAuthenticated) {
@@ -56,10 +56,10 @@ export const AuthGuard: React.FC<AuthGuardProps> = ({
     if (isAuthenticated && showAuthModal) {
       setShowAuthModal(false);
     }
-  }, [isAuthenticated, isInitializing, user, requireAuth, allowedRoles, router, fallbackPath, showModal, showAuthModal]);
+  }, [isAuthenticated, isLoading, user, requireAuth, allowedRoles, router, fallbackPath, showModal, showAuthModal]);
 
-  // Show loading while initializing
-  if (isInitializing) {
+  // Show loading while loading
+  if (isLoading) {
     return (
       <Box
         display="flex"

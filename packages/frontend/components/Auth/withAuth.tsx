@@ -16,7 +16,7 @@ interface WithAuthOptions {
   fallback?: React.ReactNode;
 }
 
-export function withAuth<P = {}>(
+export function withAuth<P extends {} = {}>(
   WrappedComponent: NextPage<P> | React.ComponentType<P>,
   options: WithAuthOptions = {}
 ) {
@@ -37,7 +37,7 @@ export function withAuth<P = {}>(
         showAuthModal={showAuthModal}
         fallback={fallback}
       >
-        <WrappedComponent {...props} />
+        <WrappedComponent {...(props as P)} />
       </ProtectedRoute>
     );
   };
@@ -45,38 +45,36 @@ export function withAuth<P = {}>(
   // Preserve static methods and displayName
   WithAuthComponent.displayName = `withAuth(${WrappedComponent.displayName || WrappedComponent.name || 'Component'})`;
 
-  // Copy static properties
-  if (WrappedComponent.getInitialProps) {
+  // Copy static properties with proper typing
+  if ('getInitialProps' in WrappedComponent && WrappedComponent.getInitialProps) {
     WithAuthComponent.getInitialProps = WrappedComponent.getInitialProps;
   }
 
-  if (WrappedComponent.getServerSideProps) {
-    // @ts-ignore
-    WithAuthComponent.getServerSideProps = WrappedComponent.getServerSideProps;
+  if ('getServerSideProps' in WrappedComponent && WrappedComponent.getServerSideProps) {
+    (WithAuthComponent as any).getServerSideProps = WrappedComponent.getServerSideProps;
   }
 
-  if (WrappedComponent.getStaticProps) {
-    // @ts-ignore
-    WithAuthComponent.getStaticProps = WrappedComponent.getStaticProps;
+  if ('getStaticProps' in WrappedComponent && WrappedComponent.getStaticProps) {
+    (WithAuthComponent as any).getStaticProps = WrappedComponent.getStaticProps;
   }
 
   return WithAuthComponent;
 }
 
 // Convenience HOCs for common use cases
-export const withRequiredAuth = <P = {}>(Component: NextPage<P> | React.ComponentType<P>) =>
+export const withRequiredAuth = <P extends {} = {}>(Component: NextPage<P> | React.ComponentType<P>) =>
   withAuth(Component, { requireAuth: true });
 
-export const withOptionalAuth = <P = {}>(Component: NextPage<P> | React.ComponentType<P>) =>
+export const withOptionalAuth = <P extends {} = {}>(Component: NextPage<P> | React.ComponentType<P>) =>
   withAuth(Component, { requireAuth: false });
 
-export const withAdminAuth = <P = {}>(Component: NextPage<P> | React.ComponentType<P>) =>
+export const withAdminAuth = <P extends {} = {}>(Component: NextPage<P> | React.ComponentType<P>) =>
   withAuth(Component, {
     requireAuth: true,
     allowedRoles: [UserRole.ORG_ADMIN, UserRole.SUPER_ADMIN],
   });
 
-export const withHealthcareAuth = <P = {}>(Component: NextPage<P> | React.ComponentType<P>) =>
+export const withHealthcareAuth = <P extends {} = {}>(Component: NextPage<P> | React.ComponentType<P>) =>
   withAuth(Component, {
     requireAuth: true,
     allowedRoles: [
@@ -86,7 +84,7 @@ export const withHealthcareAuth = <P = {}>(Component: NextPage<P> | React.Compon
     ],
   });
 
-export const withSuperAdminAuth = <P = {}>(Component: NextPage<P> | React.ComponentType<P>) =>
+export const withSuperAdminAuth = <P extends {} = {}>(Component: NextPage<P> | React.ComponentType<P>) =>
   withAuth(Component, {
     requireAuth: true,
     allowedRoles: [UserRole.SUPER_ADMIN],

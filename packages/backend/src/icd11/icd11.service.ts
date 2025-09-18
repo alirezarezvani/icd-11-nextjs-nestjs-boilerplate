@@ -13,6 +13,7 @@ import { Cache } from "cache-manager";
 import {
   ICD11Entity,
   ICD11SearchResult,
+  SupportedLanguage,
   ICD11EntityDetails,
   ICD11NavigationContext,
   ICD11BreadcrumbItem,
@@ -209,6 +210,10 @@ export class ICD11Service {
           id: entity.id,
           title: this.getMultilingualValue(entity.title, language, "Untitled"),
           isLeaf: false, // Cannot determine from search results, will be properly set when entity details are fetched
+          uri: entity.id,
+          language: language as SupportedLanguage,
+          matchType: "exact" as const,
+          score: 1.0,
         }),
       );
 

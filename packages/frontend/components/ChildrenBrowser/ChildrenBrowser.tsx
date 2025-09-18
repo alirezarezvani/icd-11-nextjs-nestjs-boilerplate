@@ -51,7 +51,15 @@ export const ChildrenBrowser: React.FC<ChildrenBrowserProps> = ({
       console.error('Failed to load children:', err);
       // If it's a 404, the entity probably doesn't have children
       if (err?.response?.status === 404) {
-        setChildren({ data: [], meta: { total: 0, page: 1, limit, totalPages: 0 } });
+        setChildren({
+          data: [],
+          items: [],
+          meta: { total: 0, page: 1, limit, totalPages: 0 },
+          page: 1,
+          limit,
+          total: 0,
+          totalPages: 0
+        });
       } else {
         setError('Failed to load child categories');
       }

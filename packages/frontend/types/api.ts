@@ -20,12 +20,21 @@ export interface ApiErrorResponse {
 
 /**
  * Paginated Response wrapper
+ * Note: Backend actually returns items directly for backwards compatibility
  */
 export interface PaginatedResponse<T> {
-  items: T[];
-  total: number;
+  data: T[];
+  items: T[];  // For backwards compatibility with existing hooks
+  meta: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+  // Direct properties for backwards compatibility
   page: number;
   limit: number;
+  total: number;
   totalPages: number;
 }
 

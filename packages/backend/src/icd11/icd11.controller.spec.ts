@@ -18,6 +18,10 @@ describe("ICD11Controller", () => {
         id: "http://id.who.int/icd/entity/1234567890",
         title: "Test Disease",
         isLeaf: false,
+        uri: "http://id.who.int/icd/entity/1234567890",
+        language: "en" as const,
+        matchType: "exact" as const,
+        score: 1.0,
       },
     ],
     items: [
@@ -25,6 +29,10 @@ describe("ICD11Controller", () => {
         id: "http://id.who.int/icd/entity/1234567890",
         title: "Test Disease",
         isLeaf: false,
+        uri: "http://id.who.int/icd/entity/1234567890",
+        language: "en" as const,
+        matchType: "exact" as const,
+        score: 1.0,
       },
     ],
     meta: {
