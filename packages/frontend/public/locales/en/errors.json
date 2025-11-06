@@ -22,7 +22,12 @@
     "rateLimit": "Too many requests. Please wait a moment and try again",
     "invalidRequest": "Invalid request format",
     "notFound": "Resource not found",
-    "serverError": "Internal server error"
+    "serverError": "Internal server error",
+    "whoApiUnavailable": "The ICD-11 search service is temporarily unavailable due to a configuration issue. Please contact your system administrator.",
+    "whoApiCredentials": "ICD-11 service configuration error. Please contact your system administrator to verify API credentials.",
+    "whoApiRateLimit": "Search rate limit exceeded. Please wait a moment and try again.",
+    "whoApiTimeout": "The search service is taking longer than expected. Please try again.",
+    "whoApiNetwork": "Unable to connect to the ICD-11 search service. Please check your internet connection."
   },
   "validation": {
     "required": "This field is required",

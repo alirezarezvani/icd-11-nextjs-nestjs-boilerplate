@@ -1,5 +1,6 @@
 export * from './SearchForm';
 export * from './SearchResults';
+export * from './SearchHistoryTrackingIndicator';
 export * from './Breadcrumb';
 export * from './ChildrenBrowser';
 export * from './LanguageSelector';

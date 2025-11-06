@@ -16,6 +16,7 @@ import {
 } from "@nestjs/swagger";
 import { ICD11Service } from "./icd11.service";
 import { SearchDto } from "./dto/search.dto";
+import { Public } from "../auth/decorators/public.decorator";
 import { ApiSuccessResponse, PaginatedResponse } from "@shared/types/api";
 import {
   ICD11Entity,
@@ -25,6 +26,7 @@ import {
   ICD11BreadcrumbItem,
 } from "@shared/types/icd11";
 
+@Public()
 @ApiTags("icd11")
 @Controller("icd11")
 export class ICD11Controller {

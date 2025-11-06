@@ -22,7 +22,8 @@
     "turbo": "^2.5.6"
   },
   "dependencies": {
-    "@byterover/cipher": "^0.2.2"
+    "@byterover/cipher": "^0.2.2",
+    "axios": "^1.11.0"
   },
   "engines": {
     "node": ">=16.0.0",

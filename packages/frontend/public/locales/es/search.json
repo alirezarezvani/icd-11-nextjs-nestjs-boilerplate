@@ -53,5 +53,24 @@
     "category": "Categoría",
     "chapter": "Capítulo",
     "codeType": "Tipo de Código"
+  },
+  "suggestions": {
+    "title": "Sugerencias de Búsqueda",
+    "history": {
+      "title": "Búsquedas Recientes",
+      "empty": "No hay búsquedas recientes"
+    },
+    "popular": {
+      "title": "Búsquedas Populares",
+      "empty": "No hay búsquedas populares disponibles"
+    },
+    "medical": {
+      "title": "Términos Médicos",
+      "empty": "No se encontraron términos médicos"
+    },
+    "loading": "Cargando sugerencias...",
+    "noSuggestions": "No se encontraron sugerencias",
+    "selectSuggestion": "Seleccionar sugerencia",
+    "keyboardHint": "Use ↑↓ para navegar, Enter para seleccionar, Esc para cerrar"
   }
 }

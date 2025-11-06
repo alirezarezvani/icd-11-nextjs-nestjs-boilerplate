@@ -18,6 +18,21 @@ describe("ICD11Controller", () => {
         id: "http://id.who.int/icd/entity/1234567890",
         title: "Test Disease",
         isLeaf: false,
+        uri: "http://id.who.int/icd/entity/1234567890",
+        language: "en" as const,
+        matchType: "exact" as const,
+        score: 1.0,
+      },
+    ],
+    items: [
+      {
+        id: "http://id.who.int/icd/entity/1234567890",
+        title: "Test Disease",
+        isLeaf: false,
+        uri: "http://id.who.int/icd/entity/1234567890",
+        language: "en" as const,
+        matchType: "exact" as const,
+        score: 1.0,
       },
     ],
     meta: {
@@ -26,6 +41,10 @@ describe("ICD11Controller", () => {
       total: 1,
       totalPages: 1,
     },
+    page: 1,
+    limit: 20,
+    total: 1,
+    totalPages: 1,
   };
 
   const mockEntity: ICD11Entity = {
@@ -44,12 +63,23 @@ describe("ICD11Controller", () => {
         definition: "Child definition",
       },
     ],
+    items: [
+      {
+        id: "http://id.who.int/icd/entity/child1",
+        title: "Child Disease 1",
+        definition: "Child definition",
+      },
+    ],
     meta: {
       page: 1,
       limit: 10,
       total: 1,
       totalPages: 1,
     },
+    page: 1,
+    limit: 10,
+    total: 1,
+    totalPages: 1,
   };
 
   beforeEach(async () => {
@@ -252,12 +282,17 @@ describe("ICD11Controller", () => {
       const entityId = "http://id.who.int/icd/entity/leaf";
       const emptyResult: PaginatedResponse<ICD11Entity> = {
         data: [],
+        items: [],
         meta: {
           page: 1,
           limit: 10,
           total: 0,
           totalPages: 0,
         },
+        page: 1,
+        limit: 10,
+        total: 0,
+        totalPages: 0,
       };
 
       service.getChildren.mockResolvedValue(emptyResult);

@@ -69,13 +69,15 @@ The International Classification of Diseases, 11th Revision (ICD-11) is the Worl
 - **Medical Code Search**: Fast, accurate search with advanced filtering
 - **Hierarchical Navigation**: Full support for ICD-11 structure and relationships
 - **Clinical Definitions**: Detailed descriptions and usage guidelines
-- **Compliance Ready**: Meet healthcare data standards and regulations
+- **User Authentication**: Enterprise-grade JWT authentication with role-based access control
+- **Compliance Ready**: Meet healthcare data standards and regulations with audit trails
 
 #### 🛠️ Developer Experience
 - **Interactive CLI**: Guided setup with intelligent defaults
 - **Multiple Templates**: Choose the right architecture for your needs
 - **Hot Reloading**: Fast development with live code updates
 - **Type Safety**: Full TypeScript coverage across frontend and backend
+- **Authentication System**: Complete JWT-based auth with protected routes and user management
 - **Testing Suite**: Comprehensive unit, integration, and e2e tests
 - **API Documentation**: Auto-generated Swagger/OpenAPI documentation
 
@@ -89,8 +91,10 @@ The International Classification of Diseases, 11th Revision (ICD-11) is the Worl
 #### 🚀 Production Ready
 - **Multi-Cloud Support**: Deploy to AWS, Azure, GCP, or Docker
 - **CI/CD Pipelines**: GitHub Actions and GitLab CI integration
-- **Security First**: HTTPS, secure credential management, input validation
+- **Security First**: JWT authentication, HTTPS, secure credential management, input validation
+- **User Management**: Role-based access control with audit logging and account security
 - **Performance Optimized**: Redis caching, CDN support, optimized builds
+- **Database Integration**: PostgreSQL with TypeORM for user data and audit trails
 - **Monitoring**: Health checks, logging, error tracking
 - **Scalability**: Auto-scaling and load balancing configurations
 
@@ -99,10 +103,11 @@ The International Classification of Diseases, 11th Revision (ICD-11) is the Worl
 ### 🏢 Full Stack (Default)
 **Perfect for healthcare organizations needing a complete solution**
 
-- **Frontend**: Next.js with shadcn/ui components
-- **Backend**: NestJS with WHO ICD-11 API integration
+- **Frontend**: Next.js with Material-UI components and authentication
+- **Backend**: NestJS with JWT authentication, WHO ICD-11 API integration
+- **Database**: PostgreSQL with TypeORM for user management
+- **Authentication**: Complete JWT-based auth with role-based access control
 - **Caching**: Redis for optimal performance
-- **Database**: Optional database integration ready
 - **Deployment**: Full Docker containerization
 - **CI/CD**: Complete pipeline setup
 
@@ -194,6 +199,102 @@ npx create-icd11-app my-minimal-app --template minimal
 - **Docker Redis**: Automatically configured by CLI
 - **Cloud Redis**: Managed Redis for production deployments
 
+### Database Requirements
+- **PostgreSQL**: Version 12+ for user management and authentication
+- **Local Development**: PostgreSQL running on localhost:5432
+- **Docker PostgreSQL**: Automatically configured by CLI
+- **Cloud Database**: Managed PostgreSQL for production deployments
+
+## Authentication System
+
+### Overview
+The platform includes a comprehensive enterprise-grade authentication system with:
+
+- **JWT-Based Authentication**: Secure access and refresh token pattern
+- **Role-Based Access Control**: Four-tier permission system (USER, HEALTHCARE_PROVIDER, ORG_ADMIN, SUPER_ADMIN)
+- **Account Security**: Progressive account lockout and audit logging
+- **SSR-Safe Storage**: Seamless authentication across server and client rendering
+- **Public/Private Access**: ICD-11 search remains publicly accessible while admin features require authentication
+
+### Authentication Features
+
+#### Security Features
+- **Password Security**: bcrypt hashing with configurable rounds
+- **Token Expiration**: Access tokens (15 minutes), refresh tokens (7 days)
+- **Account Lockout**: 5 failed login attempts = 30-minute lockout
+- **Audit Logging**: HIPAA-compliant trails for all authentication events
+- **Session Management**: Single device logout or logout from all devices
+
+#### User Roles & Permissions
+```typescript
+enum UserRole {
+  USER = 'USER',                           // Basic user access
+  HEALTHCARE_PROVIDER = 'HEALTHCARE_PROVIDER', // Healthcare professional access
+  ORG_ADMIN = 'ORG_ADMIN',                // Organization administrator
+  SUPER_ADMIN = 'SUPER_ADMIN'             // Platform super administrator
+}
+```
+
+#### Frontend Components
+- **AuthModal**: Seamless login/register modal integration
+- **ProtectedRoute**: Higher-order components for route protection
+- **UserMenu**: Profile management and logout functionality
+- **AuthContext**: React Context for global authentication state
+
+### Authentication Setup
+
+#### 1. Database Configuration
+```bash
+# Create PostgreSQL database
+createdb icd11_healthcare_app
+
+# Environment variables (backend/.env)
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USERNAME=your_username
+DATABASE_PASSWORD=your_password
+DATABASE_NAME=icd11_healthcare_app
+```
+
+#### 2. JWT Configuration
+```bash
+# Generate secure JWT secrets (minimum 32 characters)
+JWT_SECRET=your_super_secure_jwt_secret_here_32_chars_min
+JWT_REFRESH_SECRET=your_refresh_secret_here_also_32_chars_min
+
+# Optional: Customize token expiration
+JWT_EXPIRATION=15m
+JWT_REFRESH_EXPIRATION=7d
+```
+
+#### 3. Frontend Authentication Usage
+```typescript
+// pages/_app.tsx - Wrap app with AuthProvider
+import { AuthProvider } from '../contexts/AuthContext';
+
+function MyApp({ Component, pageProps }) {
+  return (
+    <AuthProvider>
+      <Component {...pageProps} />
+    </AuthProvider>
+  );
+}
+
+// components/ProtectedPage.tsx - Protect routes
+import { ProtectedRoute } from '../components/Auth';
+
+export default function AdminPage() {
+  return (
+    <ProtectedRoute requiredRole="HEALTHCARE_PROVIDER">
+      <div>Protected healthcare provider content</div>
+    </ProtectedRoute>
+  );
+}
+
+// hooks/useAuth.ts - Access auth state
+const { user, isAuthenticated, login, logout } = useAuth();
+```
+
 ## Quick Setup Guide
 
 ### 1. Create Your Application
@@ -215,6 +316,21 @@ cd my-healthcare-app
 # Add WHO API credentials to backend/.env
 ICD11_CLIENT_ID=your_client_id_here
 ICD11_CLIENT_SECRET=your_client_secret_here
+
+# Database configuration
+DATABASE_HOST=localhost
+DATABASE_PORT=5432
+DATABASE_USERNAME=your_username
+DATABASE_PASSWORD=your_password
+DATABASE_NAME=icd11_healthcare_app
+
+# JWT authentication secrets (minimum 32 characters each)
+JWT_SECRET=your_super_secure_jwt_secret_here_32_chars_minimum
+JWT_REFRESH_SECRET=your_refresh_secret_here_also_32_chars_minimum
+
+# Redis configuration
+REDIS_HOST=localhost
+REDIS_PORT=6379
 
 # Customize frontend branding in frontend/.env.local
 NEXT_PUBLIC_PRIMARY_COLOR=#2e7d32
@@ -253,16 +369,19 @@ When the backend is running, access comprehensive API documentation:
 
 ### Core Endpoints
 ```typescript
-// Search ICD-11 codes
+// Authentication endpoints
+POST /api/auth/register      // User registration
+POST /api/auth/login         // User login
+POST /api/auth/refresh       // Token refresh
+POST /api/auth/logout        // User logout
+GET  /api/auth/profile       // User profile
+
+// ICD-11 search endpoints (public)
 GET /api/icd11/search?q=diabetes&limit=10
-
-// Get specific entity details
 GET /api/icd11/entity/{entityId}
-
-// Browse hierarchical structure
 GET /api/icd11/entity/{entityId}/children
 
-// Health check endpoint
+// System endpoints
 GET /api/health
 ```
 
@@ -333,13 +452,19 @@ For security-related issues or vulnerabilities:
 - ✅ Enhanced UI/UX with responsive design
 - ✅ Search performance optimization with debouncing
 - ✅ URL routing improvements with entity ID encoding
+- ✅ Enterprise authentication system with JWT and RBAC
+- ✅ PostgreSQL database integration with TypeORM
+- ✅ User management with role-based access control
+- ✅ Audit logging and account security features
 - ✅ Comprehensive documentation
 
 ### Upcoming Features (1.1.0)
 - 🔄 FHIR integration support
-- 🔄 Advanced search filters
-- 🔄 Bulk code import/export
-- 🔄 Analytics dashboard
+- 🔄 Advanced search filters with user preferences
+- 🔄 Bulk code import/export with user permission controls
+- 🔄 Analytics dashboard with role-based data access
+- 🔄 Enhanced user profile management
+- 🔄 Organization management and multi-tenancy support
 
 ### Future Enhancements (1.2.0+)
 - 📋 HL7 FHIR CodeSystem integration
